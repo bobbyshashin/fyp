@@ -8,6 +8,7 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Vector3Stamped.h>
+#include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Point.h>
 #include <fstream>
 #include <std_msgs/Float32.h>
@@ -279,7 +280,7 @@ void initial_angle_ugv_callback(const geometry_msgs::Vector3 &msg)
 void marker_detector_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
     float target_id = msg->twist.twist.linear.x;
-    if(!flag_target[0] && ((target_id - uavID) > 0.1 || (target_id - uavID) < -0.1)){ 
+    if(!flag_target[0] && ((target_id - uavID) < 0.1) && ((target_id - uavID) > -0.1)){ 
        
         VectorXd ekfState = ekf.GetState();
         Vector3d Tgi_temp = ekfState.segment<3>(0);
@@ -299,7 +300,7 @@ void marker_detector_callback(const nav_msgs::Odometry::ConstPtr &msg)
         for(int i=0;i<10;i++)
             marker_position_pub.publish(marker_msg);
     }
-    else if(!flag_target[1] && ((target_id - uavID2) > 0.1 || (target_id - uavID2) < -0.1)){
+    else if(!flag_target[1] && ((target_id - uavID2) < 0.1) && ((target_id - uavID2) > -0.1)){
         VectorXd ekfState = ekf.GetState();
         Vector3d Tgi_temp = ekfState.segment<3>(0);
         Vector3d Tct;
@@ -307,7 +308,7 @@ void marker_detector_callback(const nav_msgs::Odometry::ConstPtr &msg)
         Tct(1) = msg->pose.pose.position.y;
         Tct(2) = msg->pose.pose.position.z;
         Tgt2 = Tgi_temp + Rggg.transpose() *Rgi*(Tic + Ric * Tct);
-        cout << "Target2 detected:  " << Tgt << endl;
+        cout << "Target2 detected:  " << Tgt2 << endl;
         //cout << "Target local: " << Tct << endl;
         //cout << "UAV pos: " << Tgi_temp << endl; 
         flag_target[1] = true;
@@ -356,7 +357,7 @@ int main(int argc, char **argv)
   ros::Subscriber s11 = n.subscribe("/n3_sdk/odometry", 1, test_callback); 
   odom_ugv_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_ugv", 1); 
   odom_uav_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_uav", 1);
-  //test_pub = n.advertise<geometry_msgs::Vector3> ("test_pub", 10);
+  test_pub = n.advertise<geometry_msgs::Vector3> ("test_pub", 10);
   marker_position_pub = n.advertise<geometry_msgs::Vector3>("/marker_position", 10);
   ros::spin();
 }
