@@ -31,10 +31,10 @@ Matrix3d Ric;
 
 
 Matrix3d Rggg;// = Matrix3d::Identity(3,3); //Rggg is rotation from global to local for UAV
-Matrix3d Rggg_car = Matrix3d::Identity(3,3);
+Matrix3d Rggg_car;// = Matrix3d::Identity(3,3);
 
 bool flag = false;
-
+bool flag_ugv = false;
 
 void uav_vel_callback(const geometry_msgs::Vector3Stamped &msg)
 {
@@ -44,12 +44,14 @@ void uav_vel_callback(const geometry_msgs::Vector3Stamped &msg)
   u(0) = msg.vector.x;
   u(1) = msg.vector.y;
   u(2) = msg.vector.z;
+  /*
   Vector3d u1 = Rgi.transpose()*u;
   geometry_msgs::Vector3 bodyv;
   bodyv.x = u1(0);
   bodyv.y = u1(1);
   bodyv.z = u1(2);
   test_pub.publish(bodyv);
+  */
   u = Rggg* u;
   if(ekf.isInit() == false){
     VectorXd mean_init = Eigen::VectorXd::Zero(6);
@@ -108,7 +110,7 @@ void ugv_vel_callback(const nav_msgs::Odometry::ConstPtr &msg)
     ekf.SetParam(0.01,0.01);
     return;
   }
-  if(!flag) return;
+  if(!flag_ugv) return;
   u = Rggg_car * u;
   ekf.UgvPropagation(u, Time_ugv, Rgi, Rgc);
   VectorXd mean = ekf.GetState();
@@ -116,6 +118,9 @@ void ugv_vel_callback(const nav_msgs::Odometry::ConstPtr &msg)
   pos_ekf.pose.pose.position.x = mean(3);
   pos_ekf.pose.pose.position.y = mean(4);
   pos_ekf.pose.pose.position.z = mean(5);
+  pos_ekf.twist.twist.linear.x = u(0);
+  pos_ekf.twist.twist.linear.y = u(1);
+  pos_ekf.twist.twist.linear.z = u(2);
   pos_ekf.header.stamp = Time_ugv;
   odom_ugv_pub.publish(pos_ekf);
 }
@@ -205,6 +210,24 @@ void initial_angle_callback(const std_msgs::Float32 &msg)
   flag = true;
 }
 
+void initial_angle_ugv_callback(const geometry_msgs::Vector3 &msg)
+{
+  if(flag_ugv) return;
+  /*
+  Quaterniond quater;
+  quater.w() = msg->pose.pose.orientation.w;
+  quater.x() = msg->pose.pose.orientation.x;
+  quater.y() = msg->pose.pose.orientation.y;
+  quater.z() = msg->pose.pose.orientation.z;
+  flag_ugv = true;
+  Rggg_car = quater.toRotationMatrix();*/
+  double initial = msg.y;
+  Rggg_car << cos(initial), -sin(initial), 0,
+              sin(initial),  cos(initial), 0,
+              0,                        0, 1;
+  flag_ugv = true;
+  cout << initial << endl;
+}
 int main(int argc, char **argv)
 {
   Ric << 0, 1, 0,
@@ -218,9 +241,10 @@ int main(int argc, char **argv)
   ros::Subscriber s3 = n.subscribe("/detected_markers", 100, uav_odom_callback);
   ros::Subscriber s4 = n.subscribe("/detected_markers", 100, ugv_odom_callback);
   ros::Subscriber s5 = n.subscribe("/dji_sdk/odometry", 100, uav_rot_callback);
-  ros::Subscriber s6 = n.subscribe("/n3_sdk/orientation", 100, ugv_rot_callback);
+  ros::Subscriber s6 = n.subscribe("/n3_sdk/odometry", 10, ugv_rot_callback);
   ros::Subscriber s7 = n.subscribe("target_position", 1, target_position_callback);
   ros::Subscriber s8 = n.subscribe("/initial_angle", 1, initial_angle_callback);
+  ros::Subscriber s9 = n.subscribe("/n3_sdk/orientation", 100, initial_angle_ugv_callback);
   odom_ugv_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_ugv", 100); 
   odom_uav_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_uav", 100);
   test_pub = n.advertise<geometry_msgs::Vector3> ("test_pub", 100);

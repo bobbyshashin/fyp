@@ -109,7 +109,7 @@ void EKF::UgvPropagation(VectorXd u, ros::Time stamp, Matrix3d R_a_g, Matrix3d R
   A = MatrixXd::Zero(6,6);
   U.block(0,0,3,3) = -R_a_g; //TODO: Need to be defined later, subscribe from SDK
   U.block(3,3,3,3) = -R_c_g; //TODO: Same with above
-  
+  //TODO: Notice question here: If we update seperatedly, do we need to keep U unchanged partly?
   double dT = (stamp - state_last.stamp).toSec();
   
   VectorXd xdot = Eigen::VectorXd::Zero(6);
