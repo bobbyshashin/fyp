@@ -43,7 +43,7 @@ float targetBodySpeed[3] = {0, 0, 0};
 int targetWheelSpeed[4] = {0, 0, 0, 0};
 float marker_position[2][2] = {{0, 0}, {0, 0}};
 
-int magic = 1;
+int magic = 3;
 
 void setWheelSpeed(int lf, int lb, int rb, int rf) { // Left forward, left backward, right backward, right forward
 
@@ -195,28 +195,30 @@ void controlTest(){
 
     ROS_INFO("Set speed: (2, 0, 0)");
     setBodySpeed(2, 0, 0);
+    cout << "Body speed is set" << endl;
     publishBodySpeed();
-    Duration(2).sleep();
+    cout << "Body speed published" << endl;
+    Duration(10).sleep();
 
     ROS_INFO("Set speed: (0, 2, 0)");
     setBodySpeed(0, 2, 0);
     publishBodySpeed();
-    Duration(2).sleep();
+    //Duration(10).sleep();
 
     ROS_INFO("Set speed: (-2, 0, 0)");
     setBodySpeed(-2, 0, 0);
     publishBodySpeed();
-    Duration(2).sleep();
+    //Duration(10).sleep();
 
     ROS_INFO("Set speed: (0, -2, 0)");
     setBodySpeed(0, -2, 0);
     publishBodySpeed();
-    Duration(2).sleep();
+    //Duration(10).sleep();
 
     ROS_INFO("Stop");
     setBodySpeed(0, 0, 0);
     publishBodySpeed();
-    Duration(2).sleep();
+    //Duration(2).sleep();
 
 }
 
@@ -290,7 +292,9 @@ int main(int argc, char *argv[]) {
 
     while (ros::ok()) {
 
-        mission_run();
+        //mission_run();
+	setBodySpeed(2, 0, 0);
+	publishBodySpeed();
         ros::spinOnce();
         loop_rate.sleep();
 

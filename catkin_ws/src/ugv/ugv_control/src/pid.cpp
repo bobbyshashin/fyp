@@ -172,7 +172,7 @@ float PID::update(const float currentPoint, const float dt)
     if (integral < integralMin)
         integral = integralMin;
     IVal = integral * Ki;
-cout<<"I'm I value :"<<IVal<<endl;
+//cout<<"I'm I value :"<<IVal<<endl;
 
     // PID controller
     ctrl = PVal + IVal + DVal;

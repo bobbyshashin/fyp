@@ -1,6 +1,6 @@
 #include "ugvParam.h"
 
-int magic = 1;
+int magic = 0;
 
 using namespace std;
 using namespace ros;
