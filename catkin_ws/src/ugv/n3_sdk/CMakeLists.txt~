@@ -21,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   actionlib_msgs 
   actionlib
-  n3_sdk_lib
+  dji_sdk_lib
 )
 
 ## System dependencies are found with CMake's conventions
