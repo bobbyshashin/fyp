@@ -1,0 +1,22 @@
+<launch>
+
+
+	<node pkg="demo_flight" type="pid_ctrl_node" name="pid_ctrl_node1" output="screen" >
+		<param name="Kp_pos" value="0.8" type="double" />
+		<param name="Ki_pos" value="0.0" type="double" />
+		<param name="Kd_pos" value="0.0" type="double" />
+
+		<param name="Kp_height" value="0.4" type="double" />	
+		<param name="Ki_height" value="0.0" type="double" />	
+		<param name="Kd_height" value="0.0" type="double" />
+
+		<param name="Kp_yaw" value="0.8" type="double" />
+		<param name="Ki_yaw" value="0.0" type="double" />
+		<param name="Kd_yaw" value="0.0" type="double" />
+
+		<param name="pid_ctrl_limit" value="2.0" type="double" />
+		<param name="pid_ctrl_limit_vert" value="1.0" type="double" />
+		<param name="pid_limit_yaw" value="25.0" type="double" />
+	</node>
+
+</launch>
