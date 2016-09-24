@@ -1,0 +1,2 @@
+/usr/bin/ar cr libserial_port.a  CMakeFiles/serial_port_static.dir/serial_port.o
+/usr/bin/ranlib libserial_port.a

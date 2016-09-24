@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/chens/serial_com/lib/serial_port.cpp
+serial_port.h
+/home/chens/serial_com/lib/serial_port.h
+
+/home/chens/serial_com/lib/serial_port.h
+iostream
+-
+signal.h
+-
+stdio.h
+-
+stdlib.h
+-
+unistd.h
+-
+sys/types.h
+-
+sys/stat.h
+-
+fcntl.h
+-
+termios.h
+-
+errno.h
+-
+string.h
+-
+

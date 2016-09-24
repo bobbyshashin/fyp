@@ -1,0 +1,2 @@
+/home/chens/serial_com/lib/CMakeFiles/serial_port.dir
+/home/chens/serial_com/lib/CMakeFiles/serial_port_static.dir

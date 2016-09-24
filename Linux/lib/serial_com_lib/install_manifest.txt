@@ -1,0 +1,5 @@
+/usr/local/lib/libserial_port.so.1.0
+/usr/local/lib/libserial_port.so.1
+/usr/local/lib/libserial_port.so
+/usr/local/lib/libserial_port.a
+/usr/local/include/serial_port/serial_port.h
