@@ -1,0 +1,12 @@
+int32                     time_stamp
+dji_sdk/api_quaternion    q
+dji_sdk/api_accelerate    a
+dji_sdk/api_velocity      v
+dji_sdk/api_wrench        w
+dji_sdk/api_gps           pos
+dji_sdk/api_magnetic      mag
+dji_sdk/api_rc            rc
+dji_sdk/api_gimbal        gimbal
+int8                      status
+int8                      battery_remaining_capacity
+int8                      ctrl_device
