@@ -1,16 +1,16 @@
 # fyp
-Final Year Project at HKUST: Collaboration between UAV &amp; UGV (with LI Zimo &amp; ZHANG Yuanzhao)
+**Final Year Project at HKUST: Collaboration between UAV &amp; UGV (with LI Zimo &amp; ZHANG Yuanzhao)**
 
-TODO:
+##TODO:
 
-1. Get familiar with DJI Mobile SDK (using Phantom 3): https://developer.dji.com/mobile-sdk/documentation/introduction/index.html
-2. Basic framework based on ROS (almost done)
-3. UGV control
-4. AprilTag / Aruco Code detection & positioning
-5. Auto-landing?
-6. To be continued...
+- Basic framework based on ROS (almost done)
+- UGV control
+- UGV onboard sensor fusion (imu+gps+encoder)
+- AprilTag / Aruco Code detection & positioning (UAV/UGV互相观测校准)
+- Auto-landing?
+- To be continued...
 
-========================================我是分割线========================================
+**========================================我是分割线========================================**
 
 （极不完全版的）DJI 经纬 M100入门开发教程
 
@@ -32,7 +32,7 @@ https://github.com/dji-sdk/Onboard-SDK-ROS
 接下来找到这个class里面的一个函数：getBroadcastData()；返回值类型为“BroadcastData”，这是一个包含了几乎所有飞控回发的飞行数据的结构体。那么，这个BroadcastData里面究竟包含了哪些数据呢？
 
 我们打开DJI_Type.h来看看这个结构体的定义:
-
+```
 typedef struct BroadcastData {
 
     unsigned short dataFlag;
@@ -54,11 +54,11 @@ typedef struct BroadcastData {
     uint8_t activation;
 
 } BroadcastData;
-
+```
 可以清楚地看到，里面有时间戳、四元数、位置数据、磁力计、遥控器通道、云台数据、电池电量等等信息，每类数据的具体格式的定义也在这个头文件里面。
 
 比如遥控器通道数据RadioData：
-
+```
 typedef struct RadioData
 {
   int16_t roll; 
@@ -69,11 +69,12 @@ typedef struct RadioData
   int16_t gear;
 
 } RadioData;
+```
 roll, pitch, yaw就是横滚、俯仰、偏航杆量，throttle是油门杆量，mode是遥控器左上方的飞行模式拨杆：P / A / F , gear是右下角自动返航按键上的拨杆
 
 接下来举个栗子，如果想要获得目前遥控器通道的油门杆量，只要在自己的程序里调用这个函数：
 
-int16_t my_throttle = coreAPI->getBroadcastData().RadioData.throttle;
+`int16_t my_throttle = coreAPI->getBroadcastData().RadioData.throttle;`
 
 （其中coreAPI是一个事先创建的CoreAPI指针类的对象）
 
@@ -81,7 +82,7 @@ int16_t my_throttle = coreAPI->getBroadcastData().RadioData.throttle;
 
 ========================================（避坑指南）========================================
 
-常见Bug汇总：
+**常见Bug汇总：**
 
 收不到M100飞控回发数据：
 --- PC调参软件DJI Assistant 2里 “启用API控制”未勾选
