@@ -1,5 +1,0 @@
-<launch>
-        <node pkg="dji_tf" type="dji_tf_node" name="dji_tf" output="screen">
-            <param name="odometry_source"  type="string" value="imu"/>
-	</node>
-</launch>

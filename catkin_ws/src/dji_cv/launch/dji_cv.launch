@@ -1,4 +1,0 @@
-<launch>
-        <node pkg="dji_cv" type="dji_grab_stream" name="grab_stream" output="screen">       
-	</node>
-</launch>

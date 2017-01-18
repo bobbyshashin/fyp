@@ -1,8 +1,0 @@
-<launch>
-        <node pkg="dji_cv" type="aruco_marker_node" name="aruco" output="screen">
-            <param name="camera_file"  type="string" value="/home/dji/ws/src/dji_cv/yml/C270_Camera.yml" />
-            <param name="marker_file"  type="string" value="/home/dji/ws/src/dji_cv/yml/marker.yml" />
-            <param name="image_topic"  type="string" value="/camera/camera_rgb8" />
-
-	</node>
-</launch>
