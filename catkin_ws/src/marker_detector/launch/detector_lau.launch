@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="marker_detector" type="marker_detector" name="marker_detector" output="screen">
+        <param name= "cam_cal_file" type="string" value="$(find marker_detector)/config/camera.xml"/>
+    </node>
+</launch>
