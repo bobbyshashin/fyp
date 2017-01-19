@@ -109,8 +109,11 @@ https://whaoyu.com/2016/02/12/install-OpenCV-and-CUDA-on-Manifold/
 "sudo dpkg -i libopencv4tegra-repo_l4t-r21_2.4.10.1_armhf.deb")
 
 sudo apt-get install ros-indigo-cv-bridge
+
 sudo apt-get install ros-indigo-aruco
+
 sudo apt-get install ros-indigo-camera-info-manager
+
 sudo apt-get install ros-indigo-v4l-utils
 
 Next download the ArUco Library 2.0.16
