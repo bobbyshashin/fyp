@@ -117,13 +117,15 @@ sudo apt-get install ros-indigo-camera-info-manager
 sudo apt-get install ros-indigo-v4l-utils
 
 Next download the ArUco Library 2.0.16
+
 unzip
 
 mkdir build
+
 cd build
+
 cmake ..
+
 make
+
 sudo make install
-
-
-sudo apt-get install ros-indigo-cv-bridge
