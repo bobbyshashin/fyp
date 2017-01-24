@@ -119,8 +119,10 @@ sudo apt-get install ros-indigo-v4l-utils
 
 然后安装CUDA, OpenCV以及OpenCV for Tegra:https://whaoyu.com/2016/02/12/install-OpenCV-and-CUDA-on-Manifold/
 
-(Note that while installing opencv4tegra, the first line of command should be:
-"sudo dpkg -i libopencv4tegra-repo_l4t-r21_2.4.10.1_armhf.deb")
+Note that while installing opencv4tegra, the first line of command should be:
+```
+sudo dpkg -i libopencv4tegra-repo_l4t-r21_2.4.10.1_armhf.deb
+```
 
 接下来下载ArUco Library 2.0.16：https://sourceforge.net/projects/aruco/files/
 
