@@ -2,20 +2,22 @@
 #include <stdio.h>
 #include <cstdlib>
 
-//#include "demo_flight/pid_ctrl_data.h"
 #include "flight_logic.h"
-//#include "demo_flight/ekf_data.h"
+
 #include <std_msgs/UInt8.h>
+#include <std_msgs/String.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Vector3.h>
 
 //using namespace DJI::onboardSDK;
 using namespace std;
 using namespace ros;
-MISSION_STATUS current_mission;
+
+MISSION_STATUS current_mission = INIT;
 MISSION_STATUS next_mission;
 
 bool vision_taking_control;
+
 std_msgs::UInt8 cmd_msg;
 //double target_position[3] = {0, 0, 0};
 //TODO Global target position and local target position
@@ -27,10 +29,10 @@ ros::Publisher pid_param_pub;      // Publish the updated PID parameters set to 
 ros::Publisher pid_ctrl_limit_pub; // Publish the updated velocity limit to PID controller 
 ros::Publisher stm32_cmd_pub;      // Publish the commands to STM32 transceiver node
 
-ros::Subscriber vision_activation_sub;
+//ros::Subscriber vision_activation_sub;
 ros::Subscriber box_searcher_sub;
-ros::Subscriber target_searcher_sub; // Search for targets with specific tags
-//ros::Subscriber ctrl_vel_sub;  // Subscribe the desired velocity from PID controller
+//ros::Subscriber target_searcher_sub; // Search for targets with specific tags
+ros::Subscriber ctrl_vel_sub;  // Subscribe the desired velocity from PID controller
 
 /*
 bool is_arrived() { 
@@ -103,14 +105,15 @@ void send_command(int cmd) {
 
 //}
 
-void vision_activation_callback(const std_msgs::UInt8& msg) {
+/*
+void vision_activation_callback(const std_msgs::UInt32& msg) {
 
     geometry_msgs::Vector3 pid_param;
     geometry_msgs::Vector3 pid_ctrl_limit;
 
     if(msg == 1) {
 
-        /* PID parameters for vision positioning */
+        // PID parameters for vision positioning 
         //TODO To be adjusted
         pid_param.x = 0; // Kp
         pid_param.y = 0; // Ki
@@ -126,7 +129,7 @@ void vision_activation_callback(const std_msgs::UInt8& msg) {
 
     else if(msg == 0) {
         
-        /* PID parameters for normal positioning */
+        // PID parameters for normal positioning
 
         //TODO To be adjusted
         pid_param.x = 0; // Kp
@@ -146,17 +149,17 @@ void vision_activation_callback(const std_msgs::UInt8& msg) {
 
 
 }
-
+*/
 
 int mission_run() { 
     
 
     switch(current_mission) {
 
-        case INIT: 
+        case INIT: {
 
             ROS_INFO("Initializing...");
-            delay_s(5); // Wait for 5 seconds
+            delay_s(2); // Wait for 2 seconds
 
             ROS_INFO("Press any key to request for control");
             wait_key();
@@ -164,14 +167,14 @@ int mission_run() {
             cmd_msg.data = INIT;
             cmd_msg_pub.publish(cmd_msg);
 	   
-            ROS_INFO("Ready for collecting octopus");
-            current_mission = COLLECTING_OCTOPUS;
+            ROS_INFO("Obtained control successfully");
+            current_mission = TAKEOFF;
 
             break;
-        
+        }
         
 
-        case COLLECTING_OCTOPUS: 
+        case COLLECTING_OCTOPUS: {
 
             std_msgs::String cmd;
             cmd.data = "Grab";
@@ -182,9 +185,9 @@ int mission_run() {
             current_mission = TAKEOFF;
             next_mission = ZONE4_BOX_AIMING;
             break;
-        
+        }
 
-	    case TAKEOFF: 
+	    case TAKEOFF: {
 
             cmd_msg.data = TAKEOFF;
 
@@ -202,14 +205,14 @@ int mission_run() {
             
             delay_s(6); // Taking off, wait for 6 seconds
 
-            //current_mission = STAND_BY;
-            current_mission = next_mission;
+            current_mission = STAND_BY;
+            //current_mission = next_mission;
 
             break;
-
+        }
         
 
-        case STAND_BY: 
+        case STAND_BY: {
  
             cmd_msg.data = STAND_BY;
             cmd_msg_pub.publish(cmd_msg);
@@ -248,11 +251,12 @@ int mission_run() {
             current_mission = LANDING;
        
             break;
+        }
 
 
 	    
 
-        case ZONE4_BOX_AIMING: 
+        case ZONE4_BOX_AIMING: {
 
             ROS_INFO("Octopus Bomber ready for action!");
             ROS_INFO("Press any key to start mission");
@@ -278,9 +282,10 @@ int mission_run() {
             current_mission = RELEASING_OCTOPUS;
 
 	        break;
+        }
         
 
-        case RELEASING_OCTOPUS: 
+        case RELEASING_OCTOPUS: {
             
             ROS_INFO("Ready for bombing!");
             ROS_INFO("Press any key to release octopus");
@@ -293,10 +298,12 @@ int mission_run() {
             ROS_INFO("Octopus released");
 
             current_mission = ZONE3_BOX_AIMING;
+
 	        break;
+        }
         
         
-        case ZONE3_BOX_AIMING: 
+        case ZONE3_BOX_AIMING: {
 
 
             ROS_INFO("Mission Code: Hippo");
@@ -323,11 +330,12 @@ int mission_run() {
             next_mission = COLLECTING_HIPPO;
 
             break;
+        }
 
         
 
 
-        case COLLECTING_HIPPO: 
+        case COLLECTING_HIPPO: {
 
             ROS_INFO("Ready for hippo collection");
             ROS_INFO("Press any key to grab the hippos");
@@ -342,9 +350,10 @@ int mission_run() {
             next_mission = ZONE2_BOX_AIMING;
             
 	        break;
+        }
         
 
-	    case ZONE2_BOX_AIMING: 
+	    case ZONE2_BOX_AIMING: {
 
             ROS_INFO("Hippo Bomber ready for action!");
             ROS_INFO("Press any key to start mission");
@@ -366,9 +375,10 @@ int mission_run() {
             current_mission = RELEASING_HIPPO;
 
             break;
+        }
         
 
-        case RELEASING_HIPPO: 
+        case RELEASING_HIPPO: {
 
             
             ROS_INFO("Ready for boming!!");
@@ -385,10 +395,11 @@ int mission_run() {
             current_mission = ZONE3_BOX_AIMING;
 
             break; 
+        }
         
 
 
-        case LANDING: 
+        case LANDING: {
 
             cmd_msg.data = LANDING;
             int i;
@@ -398,19 +409,23 @@ int mission_run() {
                 i++;
 
             }
+            ROS_INFO("Landing...");
 
-            //ROS_INFO("Press any key to release control");
-            //wait_key();
+            delay_s(4);
 
-            cmd_msg.data = RELEASE_CONTROL;
-            cmd_msg_pub.publish(cmd_msg);
-            current_mission = next_mission;
+            ROS_INFO("Press any key to release control");
+            wait_key();
+
+            //cmd_msg.data = RELEASE_CONTROL;
+            //cmd_msg_pub.publish(cmd_msg);
+            //current_mission = next_mission;
 
             break;
+        }
 
         
 
-        case GO_HOME: 
+        case GO_HOME: {
 
         	ROS_INFO("Going home...");
 
@@ -419,6 +434,7 @@ int mission_run() {
         	current_mission = LANDING;
 
         	break;
+        }
 
     }
 
@@ -440,8 +456,8 @@ int main(int argc, char **argv) {
     stm32_cmd_pub = nh.advertise<std_msgs::String>("/stm32_cmd", 1);
     target_pos_pub = nh.advertise<geometry_msgs::Vector3>("/target_position", 1);
     cmd_msg_pub = nh.advertise<std_msgs::UInt8>("/sdk_cmd", 10);
-    vision_activation_sub = nh.subscribe("/vision_activation", 1, vision_activation_callback);
-    target_searcher_sub = nh.subscribe("/target_coordinate", 1);
+    //vision_activation_sub = nh.subscribe("/vision_activation", 1, vision_activation_callback);
+    //target_searcher_sub = nh.subscribe("/target_coordinate", 1);
 
     ros::Rate loop_rate(50);
     ROS_INFO("Flight Logic: Flow control starts");

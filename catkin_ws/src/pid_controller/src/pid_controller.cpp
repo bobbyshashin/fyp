@@ -1,4 +1,4 @@
-/**
+  /**
   ******************************************************************************
   * @file    pid_controller.cpp
   * @author  Bobby SHEN 
@@ -63,7 +63,7 @@ double pid_ctrl_limit_vert = 0.3;
 double pid_yaw_limit = 1;
 
 bool is_arrived;
-double pos_error_threshold = 0.05;
+double pos_error_threshold = 0.05; // 5 cm tolerance for horizontal positioning
 
 void delay_s(int x) {
 
@@ -73,7 +73,7 @@ void delay_s(int x) {
 
 void target_pos_callback(const geometry_msgs::Vector3& target_pos) {
 
-    /* Ignore tiny differences within 1cm */
+    /* Ignore tiny differences within 1 cm */
     if( abs(target_pos.x) < 0.01 ) 
         
         target_position[0] = 0;
@@ -92,7 +92,7 @@ void target_pos_callback(const geometry_msgs::Vector3& target_pos) {
         target_position[1] = target_pos.y;
 
 
-    if(target_pos.z < 2 && target_pos.z > 0.1 ) 
+    if( target_pos.z < 2 && target_pos.z > 0.1 ) 
         
         target_position[2] = target_pos.z;
     
@@ -209,8 +209,8 @@ void pid_ctrl_limit_callback(const geometry_msgs::Vector3& msg) {
     pid_ctrl_limit_horz = msg.x;
     pid_ctrl_limit_vert = msg.y;
     cout << "Speed limit has been updated!" << endl;
-    cout << "Horizontal: " << pid_ctrl_limit_horz << endl;
-    cout << "Vertical: " << pid_ctrl_limit_vert << endl;
+    cout << "Horizontal: " << pid_ctrl_limit_horz << " m/s" << endl;
+    cout << "Vertical: " << pid_ctrl_limit_vert << " m/s" << endl;
 }
 
 int main(int argc, char** argv)
@@ -244,7 +244,7 @@ int main(int argc, char** argv)
     ctrl_vel_pub         = nh.advertise<geometry_msgs::Vector3>("/sdk_ctrl", 10);
     is_arrived_pub       = nh.advertise<std_msgs::Bool>("is_arrived", 1);
 
-    cout<< "init all and controller start!"<<endl;
+    cout<< "PID controller has been started!"<<endl;
     
     while(ros::ok())
     {
