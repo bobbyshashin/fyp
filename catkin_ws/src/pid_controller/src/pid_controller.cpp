@@ -103,6 +103,7 @@ void target_pos_callback(const geometry_msgs::Vector3& target_pos) {
     /* Update the target position */
     pid_x->set_point(target_position[0]);
     pid_y->set_point(target_position[1]);
+    
     pid_z->set_point(target_position[2]);
     pid_yaw->set_point(0);
  

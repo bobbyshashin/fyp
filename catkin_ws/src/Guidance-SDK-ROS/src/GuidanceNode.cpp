@@ -17,6 +17,7 @@
 #include "DJI_guidance.h"
 #include "DJI_utility.h"
 
+#include <nav_msgs/Odometry.h>
 #include <geometry_msgs/TransformStamped.h> //IMU
 #include <geometry_msgs/Vector3Stamped.h> //velocity
 #include <sensor_msgs/LaserScan.h> //obstacle distance & ultrasonic
@@ -28,6 +29,9 @@ ros::Publisher imu_pub;
 ros::Publisher obstacle_distance_pub;
 ros::Publisher velocity_pub;
 ros::Publisher ultrasonic_pub;
+
+ros::Publisher odometry_publisher;
+//ros::Subscriber guidance_bias_sub;
 
 using namespace cv;
 
@@ -45,6 +49,10 @@ Mat             g_greyscale_image_left(HEIGHT, WIDTH, CV_8UC1);
 Mat				g_greyscale_image_right(HEIGHT, WIDTH, CV_8UC1);
 Mat				g_depth(HEIGHT,WIDTH,CV_16SC1);
 Mat				depth8(HEIGHT, WIDTH, CV_8UC1);
+
+//float pos_bias_x=0;
+//float pos_bias_y=0;
+//float pos_bias_z=0;
 
 std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 	const char* s = 0;
@@ -70,6 +78,19 @@ std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 
 	return out << s;
 }
+
+/*
+void guidance_bias_callback(const std_msgs::UInt8& msg)
+{
+    if (msg.data ==1)
+    {
+        is_zero = 1;
+        std::cout<<"I am in!!!"<<std::endl;
+    }
+    else
+        is_zero = 0;
+}
+*/
 
 int my_callback(int data_type, int data_len, char *content)
 {
@@ -214,6 +235,74 @@ int my_callback(int data_type, int data_len, char *content)
 		ultrasonic_pub.publish(g_ul);
     }
 
+    if(e_motion == data_type && NULL!=content){
+
+        motion* m=(motion*)content;
+        printf("frame index: %d, stamp: %d\n", m->frame_index, m->time_stamp);
+
+        nav_msgs::Odometry odometry;
+
+        odometry.header.frame_id = "/imu";
+        odometry.header.stamp = ros::Time::now();
+
+        float pos_x_filter,pos_y_filter,pos_z_filter;
+
+        if(m->position_in_global_x < 0.01 && m->position_in_global_x >-0.01) {
+
+            pos_x_filter = 0;
+        }
+
+        else {
+
+            pos_x_filter = m->position_in_global_x;
+        }
+
+        if(m->position_in_global_y < 0.01 && m->position_in_global_y > -0.01) {
+
+          pos_y_filter =0;
+
+        }
+
+        else {
+
+            pos_y_filter = m->position_in_global_y;
+        }
+        /*
+        if(is_zero == 1 ) {
+
+            odometry.pose.pose.position.x =  pos_y_filter - pos_bias_x;
+            odometry.pose.pose.position.y = -pos_x_filter - pos_bias_y;
+            odometry.pose.pose.position.z = -pos_z_filter - pos_bias_z;
+            std::cout<<"zero is 1"<<std::endl;
+            printf("(px,py,pz)=(%.2f,%.2f,%.2f)\n", odometry.pose.pose.position.x, odometry.pose.pose.position.y, odometry.pose.pose.position.z);
+        }
+
+        else {
+
+            pos_bias_x =  pos_y_filter;
+            pos_bias_y = -pos_x_filter;
+            pos_bias_z = -pos_z_filter;
+            std::cout<<"zero is else"<<std::endl;
+
+        }
+		*/
+		odometry.pose.pose.position.x =  pos_y_filter;
+        odometry.pose.pose.position.y = -pos_x_filter;
+        odometry.pose.pose.position.z = -pos_z_filter;
+
+        odometry.pose.pose.orientation.w = m->q0;
+        odometry.pose.pose.orientation.x = m->q1;
+        odometry.pose.pose.orientation.y = m->q2;
+        odometry.pose.pose.orientation.z = m->q3;
+
+        odometry.twist.twist.linear.x = m->velocity_in_global_x;
+        odometry.twist.twist.linear.y = m->velocity_in_global_y;
+        odometry.twist.twist.linear.z = m->velocity_in_global_z;
+        odometry_publisher.publish(odometry);
+
+    }
+
+
     g_lock.leave();
     g_event.set_event();
 
@@ -250,6 +339,9 @@ int main(int argc, char** argv)
     obstacle_distance_pub	= my_node.advertise<sensor_msgs::LaserScan>("/guidance/obstacle_distance",1);
     ultrasonic_pub			= my_node.advertise<sensor_msgs::LaserScan>("/guidance/ultrasonic",1);
 
+    odometry_publisher      = my_node.advertise<nav_msgs::Odometry>("/guidance/odometry",10);
+    //guidance_bias_sub       = my_node.subscribe("/guidance/bias", 20, guidance_bias_callback);
+
     /* initialize guidance */
     reset_config();
     int err_code = init_transfer();
@@ -282,8 +374,9 @@ int main(int argc, char** argv)
 	RETURN_IF_ERR(err_code);
     select_imu();
     select_ultrasonic();
-    select_obstacle_distance();
+    //select_obstacle_distance();
     select_velocity();
+    select_motion();
     /* start data transfer */
     err_code = set_sdk_event_handler(my_callback);
     RETURN_IF_ERR(err_code);
@@ -342,10 +435,10 @@ int main(int argc, char** argv)
 				select_greyscale_image(CAMERA_ID, false);
 				select_depth_image(CAMERA_ID);
 
-                select_imu();
-                select_ultrasonic();
-                select_obstacle_distance();
-                select_velocity();
+                //select_imu();
+                //select_ultrasonic();
+                //select_obstacle_distance();
+                //select_velocity();
 
 				err_code = start_transfer();
 				RETURN_IF_ERR(err_code);
