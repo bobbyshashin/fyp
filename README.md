@@ -1,6 +1,43 @@
 # fyp
 **Final Year Project at HKUST: Collaboration between UAV &amp; UGV (with LI Zimo &amp; ZHANG Yuanzhao)**
 
+##Manifold配置指南
+
+- 安装ROS Indigo (Ubuntu armhf)：http://wiki.ros.org/indigo/Installation/UbuntuARM
+
+- 安装几个第三方ROS package：
+```
+sudo apt-get install ros-indigo-cv-bridge
+sudo apt-get install ros-indigo-aruco
+sudo apt-get install ros-indigo-camera-info-manager
+sudo apt-get install ros-indigo-v4l-utils
+```
+
+- 安装CUDA, OpenCV 以及 OpenCV4Tegra：https://whaoyu.com/2016/02/12/install-OpenCV-and-CUDA-on-Manifold/
+
+Note that while installing opencv4tegra, the first line of command should be:
+```
+sudo dpkg -i libopencv4tegra-repo_l4t-r21_2.4.10.1_armhf.deb
+```
+
+- 下载ArUco Library 2.0.16：https://sourceforge.net/projects/aruco/files/
+
+解压缩，然后进入ArUco 2.0.16根目录下：
+```
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
+
+- 测试
+
+查看OpenCV版本：
+```
+pkg-config --modversion opencv
+```
+
 ##TODO:
 
 - Basic framework based on ROS (almost done)
