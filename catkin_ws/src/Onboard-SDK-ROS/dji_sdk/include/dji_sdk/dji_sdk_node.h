@@ -1,20 +1,32 @@
+/** @file dji_sdk_node.h
+ *  @version 3.1.8
+ *  @date July 29th, 2016
+ *
+ *  @brief
+ *  Initializes all Publishers, Services and Actions
+ *
+ *  @copyright 2016 DJI. All rights reserved.
+ *
+ */
+
 #ifndef __DJI_SDK_NODE_H__
 #define __DJI_SDK_NODE_H__
 
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
 #include <std_msgs/UInt8.h>
-#include <geometry_msgs/Vector3.h>
 #include <boost/bind.hpp>
 #include <dji_sdk/dji_sdk.h>
 #include <actionlib/server/simple_action_server.h>
 #include <dji_sdk/dji_sdk_mission.h>
+#include <geometry_msgs/Vector3.h>
 
 #define C_EARTH (double) 6378137.0
 #define C_PI (double) 3.141592653589793
 #define DEG2RAD(DEG) ((DEG)*((C_PI)/(180.0)))
 
 extern DJI::onboardSDK::ROSAdapter *rosAdapter;
+using namespace DJI::onboardSDK;
 
 class DJISDKNode
 {
@@ -37,7 +49,9 @@ private:
 	dji_sdk::TimeStamp time_stamp;
 	dji_sdk::A3GPS A3_GPS;
 	dji_sdk::A3RTK A3_RTK;
+
     geometry_msgs::Vector3 orientation;
+
 
 	bool activation_result = false;
     bool localposbase_use_height = true;
@@ -51,7 +65,7 @@ private:
     ActivateData user_act_data;
 
 //Publishers:
-	ros::Publisher activation_publisher;
+    ros::Publisher activation_publisher;
     ros::Publisher acceleration_publisher;
     ros::Publisher attitude_quaternion_publisher;
     ros::Publisher compass_publisher;
@@ -65,17 +79,16 @@ private:
     ros::Publisher velocity_publisher;
     ros::Publisher odometry_publisher;
     ros::Publisher time_stamp_publisher;
-	ros::Publisher data_received_from_remote_device_publisher;
+    ros::Publisher data_received_from_remote_device_publisher;
     ros::Publisher orientation_publisher;
-#ifdef SDK_VERSION_3_1_A3
-	ros::Publisher A3_GPS_info_publisher;
-	ros::Publisher A3_RTK_info_publisher;
-#endif
+
+    ros::Publisher A3_GPS_info_publisher;
+    ros::Publisher A3_RTK_info_publisher;
 
     void init_publishers(ros::NodeHandle& nh)
     {
         // start ros publisher
-		activation_publisher = nh.advertise<std_msgs::UInt8>("dji_sdk/activation", 10);
+	activation_publisher = nh.advertise<std_msgs::UInt8>("dji_sdk/activation", 10);
         acceleration_publisher = nh.advertise<dji_sdk::Acceleration>("dji_sdk/acceleration", 10);
         attitude_quaternion_publisher = nh.advertise<dji_sdk::AttitudeQuaternion>("dji_sdk/attitude_quaternion", 10);
         compass_publisher = nh.advertise<dji_sdk::Compass>("dji_sdk/compass", 10);
@@ -89,12 +102,13 @@ private:
         velocity_publisher = nh.advertise<dji_sdk::Velocity>("dji_sdk/velocity", 10);
         odometry_publisher = nh.advertise<nav_msgs::Odometry>("dji_sdk/odometry",10);
         time_stamp_publisher = nh.advertise<dji_sdk::TimeStamp>("dji_sdk/time_stamp", 10);
-		data_received_from_remote_device_publisher = nh.advertise<dji_sdk::TransparentTransmissionData>("dji_sdk/data_received_from_remote_device",10);
+	data_received_from_remote_device_publisher = nh.advertise<dji_sdk::TransparentTransmissionData>("dji_sdk/data_received_from_remote_device",10);
         orientation_publisher = nh.advertise<geometry_msgs::Vector3>("dji_sdk/orientation",10);
-#ifdef SDK_VERSION_3_1_A3
-		A3_GPS_info_publisher = nh.advertise<dji_sdk::A3GPS>("dji_sdk/A3_GPS", 10);
-		A3_RTK_info_publisher = nh.advertise<dji_sdk::A3RTK>("dji_sdk/A3_RTK", 10);
-#endif
+	//TODO: Identify the drone version first	
+	A3_GPS_info_publisher = nh.advertise<dji_sdk::A3GPS>("dji_sdk/A3_GPS", 10);
+	A3_RTK_info_publisher = nh.advertise<dji_sdk::A3RTK>("dji_sdk/A3_RTK", 10);
+	
+
 
     }
 
