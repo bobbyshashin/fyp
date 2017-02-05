@@ -19,6 +19,7 @@
 #include <dji_sdk/dji_sdk.h>
 #include <actionlib/server/simple_action_server.h>
 #include <dji_sdk/dji_sdk_mission.h>
+#include <geometry_msgs/Vector3.h>
 
 #define C_EARTH (double) 6378137.0
 #define C_PI (double) 3.141592653589793
@@ -49,6 +50,8 @@ private:
 	dji_sdk::A3GPS A3_GPS;
 	dji_sdk::A3RTK A3_RTK;
 
+    geometry_msgs::Vector3 orientation;
+
 
 	bool activation_result = false;
     bool localposbase_use_height = true;
@@ -77,6 +80,7 @@ private:
     ros::Publisher odometry_publisher;
     ros::Publisher time_stamp_publisher;
     ros::Publisher data_received_from_remote_device_publisher;
+    ros::Publisher orientation_publisher;
 
     ros::Publisher A3_GPS_info_publisher;
     ros::Publisher A3_RTK_info_publisher;
@@ -99,7 +103,7 @@ private:
         odometry_publisher = nh.advertise<nav_msgs::Odometry>("dji_sdk/odometry",10);
         time_stamp_publisher = nh.advertise<dji_sdk::TimeStamp>("dji_sdk/time_stamp", 10);
 	data_received_from_remote_device_publisher = nh.advertise<dji_sdk::TransparentTransmissionData>("dji_sdk/data_received_from_remote_device",10);
-
+        orientation_publisher = nh.advertise<geometry_msgs::Vector3>("dji_sdk/orientation",10);
 	//TODO: Identify the drone version first	
 	A3_GPS_info_publisher = nh.advertise<dji_sdk::A3GPS>("dji_sdk/A3_GPS", 10);
 	A3_RTK_info_publisher = nh.advertise<dji_sdk::A3RTK>("dji_sdk/A3_RTK", 10);

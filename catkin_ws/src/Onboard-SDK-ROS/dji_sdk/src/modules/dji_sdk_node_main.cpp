@@ -13,6 +13,7 @@
 #include <dji_sdk/dji_sdk_node.h>
 #include <functional>
 #include <dji_sdk/DJI_LIB_ROS_Adapter.h>
+#include <Eigen/Eigen>
 //----------------------------------------------------------
 // timer spin_function 50Hz
 //----------------------------------------------------------
@@ -140,6 +141,23 @@ void DJISDKNode::broadcast_callback()
         odometry.twist.twist.linear.y = velocity.vy;
         odometry.twist.twist.linear.z = velocity.vz;
         odometry_publisher.publish(odometry);
+
+        Quaterniond ori(attitude_quaternion.q0,attitude_quaternion.q1,attitude_quaternion.q2,attitude_quaternion.q3);
+ 		Eigen::Matrix3d R;
+ 		R = ori.toRotationMatrix();
+ 		
+ 		double phi = asin(R(2,1));
+ 		double psi = atan2(-R(0,1)/cos(phi),R(1,1)/cos(phi));
+ 		double theta = atan2(-R(2,0)/cos(phi),R(2,2)/cos(phi));
+ 		
+         orientation.x = phi;
+         orientation.y = psi;
+         orientation.z = theta;
+
+         orientation_publisher.publish(orientation);
+
+
+
     }
 
 /******************************************************************
