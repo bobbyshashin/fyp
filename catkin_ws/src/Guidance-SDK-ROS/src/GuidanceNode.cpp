@@ -97,7 +97,7 @@ void guidance_bias_callback(const std_msgs::UInt8& msg) {
 
 void orientation_correction_callback(const geometry_msgs::Vector3& msg) {
 
-	angle = msg.y;
+	yaw_angle = msg.y;
 
 }
 
@@ -302,10 +302,22 @@ int my_callback(int data_type, int data_len, char *content)
         odometry.pose.pose.position.z = height;
 
         /*** Current position ***/
+
         geometry_msgs::Vector3 current_position;
 
-        current_position.x = pos_x_filter;
-        current_position.y = pos_y_filter;
+        Eigen::Matrix2d rot;
+        Eigen::Vector2d tmp;
+
+        tmp(0) = pos_x_filter;
+        tmp(1) = pos_y_filter;
+
+        rot << cos(yaw_angle), -sin(yaw_angle),
+        	   sin(yaw_angle), cos(yaw_angle);
+        tmp = rot*tmp;
+
+        current_position.x = tmp(0);
+        current_position.y = tmp(1);
+        
         current_position.z = height;
 
         current_position_publisher.publish(current_position);
