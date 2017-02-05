@@ -14,6 +14,8 @@
 #include <functional>
 #include <dji_sdk/DJI_LIB_ROS_Adapter.h>
 #include <Eigen/Eigen>
+
+using namespace Eigen;
 //----------------------------------------------------------
 // timer spin_function 50Hz
 //----------------------------------------------------------
