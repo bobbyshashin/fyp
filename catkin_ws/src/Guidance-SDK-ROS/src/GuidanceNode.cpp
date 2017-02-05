@@ -31,6 +31,8 @@ ros::Publisher velocity_pub;
 ros::Publisher ultrasonic_pub;
 
 ros::Publisher odometry_publisher;
+ros::Publisher current_position_publisher;
+ros::Subscriber orientation_subscriber;
 //ros::Subscriber guidance_bias_sub;
 
 using namespace cv;
@@ -50,9 +52,11 @@ Mat				g_greyscale_image_right(HEIGHT, WIDTH, CV_8UC1);
 Mat				g_depth(HEIGHT,WIDTH,CV_16SC1);
 Mat				depth8(HEIGHT, WIDTH, CV_8UC1);
 
-//float pos_bias_x=0;
-//float pos_bias_y=0;
-//float pos_bias_z=0;
+float yaw_angle = 0;
+float height = 0;
+//float pos_bias_x = 0;
+//float pos_bias_y = 0;
+//float pos_bias_z = 0;
 
 std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 	const char* s = 0;
@@ -80,8 +84,7 @@ std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 }
 
 /*
-void guidance_bias_callback(const std_msgs::UInt8& msg)
-{
+void guidance_bias_callback(const std_msgs::UInt8& msg) {
     if (msg.data ==1)
     {
         is_zero = 1;
@@ -91,6 +94,12 @@ void guidance_bias_callback(const std_msgs::UInt8& msg)
         is_zero = 0;
 }
 */
+
+void orientation_correction_callback(const geometry_msgs::Vector3& msg) {
+
+	angle = msg.y;
+
+}
 
 int my_callback(int data_type, int data_len, char *content)
 {
@@ -220,6 +229,8 @@ int my_callback(int data_type, int data_len, char *content)
             {
                 printf( "ultrasonic distance: %f, reliability: %d\n", ultrasonic->ultrasonic[d] * 0.001f, (int)ultrasonic->reliability[d] );
             }
+
+            height = ultrasonic->ultrasonic[0] * 0.001f;
         }
 	
 		// publish ultrasonic data
@@ -286,9 +297,20 @@ int my_callback(int data_type, int data_len, char *content)
 
         }
 		*/
-		odometry.pose.pose.position.x =  pos_y_filter;
-        odometry.pose.pose.position.y = -pos_x_filter;
-        odometry.pose.pose.position.z = -pos_z_filter;
+		odometry.pose.pose.position.x = pos_x_filter;
+        odometry.pose.pose.position.y = pos_y_filter;
+        odometry.pose.pose.position.z = height;
+
+        /*** Current position ***/
+        geometry_msgs::Vector3 current_position;
+
+        current_position.x = pos_x_filter;
+        current_position.y = pos_y_filter;
+        current_position.z = height;
+
+        current_position_publisher.publish(current_position);
+
+       	/***********************/
 
         odometry.pose.pose.orientation.w = m->q0;
         odometry.pose.pose.orientation.x = m->q1;
@@ -340,8 +362,9 @@ int main(int argc, char** argv)
     ultrasonic_pub			= my_node.advertise<sensor_msgs::LaserScan>("/guidance/ultrasonic",1);
 
     odometry_publisher      = my_node.advertise<nav_msgs::Odometry>("/guidance/odometry",10);
+    current_position_publisher = my_node.advertise<geometry_msgs::Vector3>("/current_position",1);
     //guidance_bias_sub       = my_node.subscribe("/guidance/bias", 20, guidance_bias_callback);
-
+    orientation_subscriber = my_node.subscribe("/dji_sdk/orientation", 5, orientation_correction_callback);
     /* initialize guidance */
     reset_config();
     int err_code = init_transfer();
