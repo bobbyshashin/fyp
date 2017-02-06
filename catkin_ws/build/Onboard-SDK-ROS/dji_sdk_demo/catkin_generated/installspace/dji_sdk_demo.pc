@@ -1,8 +1,0 @@
-prefix=/home/bobby/fyp/catkin_ws/install
-
-Name: dji_sdk_demo
-Description: Description of dji_sdk_demo
-Version: 0.1.9
-Cflags: 
-Libs: -L/home/bobby/fyp/catkin_ws/install/lib 
-Requires: 

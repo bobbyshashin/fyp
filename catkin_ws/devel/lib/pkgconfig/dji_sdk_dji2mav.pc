@@ -1,8 +1,0 @@
-prefix=/home/bobby/fyp/catkin_ws/devel
-
-Name: dji_sdk_dji2mav
-Description: Description of dji_sdk_dji2mav
-Version: 0.1.9
-Cflags: -I/home/bobby/fyp/catkin_ws/src/Onboard-SDK-ROS/dji_sdk_dji2mav/include
-Libs: -L/home/bobby/fyp/catkin_ws/devel/lib -ldji_sdk_dji2mav
-Requires: dji_sdk geometry_msgs roscpp rospy std_msgs

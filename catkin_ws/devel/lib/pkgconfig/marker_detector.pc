@@ -1,8 +1,0 @@
-prefix=/home/bobby/fyp/catkin_ws/devel
-
-Name: marker_detector
-Description: Description of marker_detector
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/bobby/fyp/catkin_ws/devel/lib 
-Requires: 

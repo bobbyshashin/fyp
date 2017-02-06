@@ -1,8 +1,0 @@
-prefix=/home/bobby/fyp/catkin_ws/devel
-
-Name: dji_sdk_lib
-Description: Description of dji_sdk_lib
-Version: 0.1.9
-Cflags: -I/home/bobby/fyp/catkin_ws/src/Onboard-SDK-ROS/dji_sdk_lib/include
-Libs: -L/home/bobby/fyp/catkin_ws/devel/lib -ldji_sdk_lib
-Requires: 

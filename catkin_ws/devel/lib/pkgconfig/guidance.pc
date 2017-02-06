@@ -1,8 +1,0 @@
-prefix=/home/bobby/fyp/catkin_ws/devel
-
-Name: guidance
-Description: Description of guidance
-Version: 0.0.1
-Cflags: 
-Libs: -L/home/bobby/fyp/catkin_ws/devel/lib 
-Requires: 

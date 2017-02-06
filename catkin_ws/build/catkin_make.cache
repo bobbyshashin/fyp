@@ -1,2 +1,0 @@
-Guidance-SDK-ROS:Onboard-SDK-ROS/dji_sdk:Onboard-SDK-ROS/dji_sdk_demo:Onboard-SDK-ROS/dji_sdk_dji2mav:Onboard-SDK-ROS/dji_sdk_lib:Onboard-SDK-ROS/dji_sdk_web_groundstation:dji_api:flight_logic:marker_detector:pid_controller:usb_cam
--DCATKIN_DEVEL_PREFIX=/home/bobby/fyp/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/bobby/fyp/catkin_ws/install -G Unix Makefiles
