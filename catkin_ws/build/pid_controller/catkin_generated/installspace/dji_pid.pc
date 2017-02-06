@@ -1,0 +1,8 @@
+prefix=/home/bobby/fyp/catkin_ws/install
+
+Name: dji_pid
+Description: Description of dji_pid
+Version: 0.0.0
+Cflags: -I/home/bobby/fyp/catkin_ws/install/include
+Libs: -L/home/bobby/fyp/catkin_ws/install/lib 
+Requires: 

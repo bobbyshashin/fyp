@@ -1,0 +1,8 @@
+prefix=/home/bobby/fyp/catkin_ws/install
+
+Name: dji_sdk_web_groundstation
+Description: Description of dji_sdk_web_groundstation
+Version: 0.1.9
+Cflags: -I/home/bobby/fyp/catkin_ws/install/include
+Libs: -L/home/bobby/fyp/catkin_ws/install/lib 
+Requires: actionlib_msgs std_msgs dji_sdk

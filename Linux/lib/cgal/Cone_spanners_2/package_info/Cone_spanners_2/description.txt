@@ -1,1 +1,0 @@
-This package provides classes for constructing two kinds of cone-based spanners (Yao graph and Theta graph) given a set of vertices on the plane.

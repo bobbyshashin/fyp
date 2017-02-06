@@ -1,0 +1,2 @@
+set(dji_api_MESSAGE_FILES "/home/bobby/fyp/catkin_ws/src/dji_api/msg/api_accelerate.msg;/home/bobby/fyp/catkin_ws/src/dji_api/msg/api_ctrl_data.msg;/home/bobby/fyp/catkin_ws/src/dji_api/msg/api_gimbal.msg;/home/bobby/fyp/catkin_ws/src/dji_api/msg/api_gps.msg;/home/bobby/fyp/catkin_ws/src/dji_api/msg/api_magnetic.msg;/home/bobby/fyp/catkin_ws/src/dji_api/msg/api_quaternion.msg;/home/bobby/fyp/catkin_ws/src/dji_api/msg/api_rc.msg;/home/bobby/fyp/catkin_ws/src/dji_api/msg/api_velocity.msg;/home/bobby/fyp/catkin_ws/src/dji_api/msg/api_wrench.msg")
+set(dji_api_SERVICE_FILES "")

@@ -317,7 +317,7 @@ int my_callback(int data_type, int data_len, char *content)
 
         current_position.x = tmp(0);
         current_position.y = tmp(1);
-        
+
         current_position.z = height;
 
         current_position_publisher.publish(current_position);
