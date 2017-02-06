@@ -407,10 +407,10 @@ int main(int argc, char** argv)
 	RETURN_IF_ERR(err_code);
     err_code = select_depth_image(CAMERA_ID);
 	RETURN_IF_ERR(err_code);
-    select_imu();
+    //select_imu();
     select_ultrasonic();
     //select_obstacle_distance();
-    select_velocity();
+    //select_velocity();
     select_motion();
     /* start data transfer */
     err_code = set_sdk_event_handler(my_callback);
@@ -466,9 +466,9 @@ int main(int argc, char** argv)
 				if (key == 'a') CAMERA_ID = e_vbus4;	   
 				if (key == 's') CAMERA_ID = e_vbus5;
 
-				select_greyscale_image(CAMERA_ID, true);
-				select_greyscale_image(CAMERA_ID, false);
-				select_depth_image(CAMERA_ID);
+				//select_greyscale_image(CAMERA_ID, true);
+				//select_greyscale_image(CAMERA_ID, false);
+				//select_depth_image(CAMERA_ID);
 
                 //select_imu();
                 //select_ultrasonic();
