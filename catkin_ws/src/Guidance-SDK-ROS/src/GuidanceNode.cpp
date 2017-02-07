@@ -16,11 +16,13 @@
 
 #include "DJI_guidance.h"
 #include "DJI_utility.h"
+#include <std_msgs/Float32.h>
 
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/TransformStamped.h> //IMU
 #include <geometry_msgs/Vector3Stamped.h> //velocity
 #include <sensor_msgs/LaserScan.h> //obstacle distance & ultrasonic
+#include <Eigen/Eigen>
 
 ros::Publisher depth_image_pub;
 ros::Publisher left_image_pub;
@@ -32,10 +34,12 @@ ros::Publisher ultrasonic_pub;
 
 ros::Publisher odometry_publisher;
 ros::Publisher current_position_publisher;
+//ros::Publisher initial_publisher;
 ros::Subscriber orientation_subscriber;
 //ros::Subscriber guidance_bias_sub;
 
 using namespace cv;
+using namespace std;
 
 #define WIDTH 320
 #define HEIGHT 240
@@ -52,8 +56,11 @@ Mat				g_greyscale_image_right(HEIGHT, WIDTH, CV_8UC1);
 Mat				g_depth(HEIGHT,WIDTH,CV_16SC1);
 Mat				depth8(HEIGHT, WIDTH, CV_8UC1);
 
-float yaw_angle = 0;
+float yaw_angle = 0; // Real-time yaw angle
 float height = 0;
+float initial = 0; // The initial angle after takeoff
+bool flag = false; // Whether initial is recorded
+
 //float pos_bias_x = 0;
 //float pos_bias_y = 0;
 //float pos_bias_z = 0;
@@ -231,6 +238,12 @@ int my_callback(int data_type, int data_len, char *content)
             }
 
             height = ultrasonic->ultrasonic[0] * 0.001f;
+            
+            if ((height > 1) && (!flag))
+            {
+                flag = true;
+                initial = yaw_angle;
+            }
         }
 	
 		// publish ultrasonic data
@@ -256,28 +269,18 @@ int my_callback(int data_type, int data_len, char *content)
         odometry.header.frame_id = "/imu";
         odometry.header.stamp = ros::Time::now();
 
-        float pos_x_filter,pos_y_filter,pos_z_filter;
+        float pos_x_filter, pos_y_filter, pos_z_filter;
 
-        if(m->position_in_global_x < 0.01 && m->position_in_global_x >-0.01) {
-
+        if(m->position_in_global_x < 0.01 && m->position_in_global_x >-0.01)
             pos_x_filter = 0;
-        }
-
-        else {
-
+        else 
             pos_x_filter = m->position_in_global_x;
-        }
 
-        if(m->position_in_global_y < 0.01 && m->position_in_global_y > -0.01) {
-
-          pos_y_filter =0;
-
-        }
-
-        else {
-
+        if(m->position_in_global_y < 0.01 && m->position_in_global_y > -0.01) 
+            pos_y_filter =0;
+        else 
             pos_y_filter = m->position_in_global_y;
-        }
+
         /*
         if(is_zero == 1 ) {
 
@@ -304,23 +307,28 @@ int my_callback(int data_type, int data_len, char *content)
         /*** Current position ***/
 
         geometry_msgs::Vector3 current_position;
+        std_msgs::Float32 initial_angle;
 
         Eigen::Matrix2d rot;
         Eigen::Vector2d tmp;
+	    Eigen::Vector2d tmp2;
 
         tmp(0) = pos_x_filter;
         tmp(1) = pos_y_filter;
 
-        rot << cos(yaw_angle), -sin(yaw_angle),
-        	   sin(yaw_angle), cos(yaw_angle);
-        tmp = rot*tmp;
+        rot << cos(initial), -sin(initial),
+        	   sin(initial), cos(initial);
+
+        tmp = (rot)*tmp;
 
         current_position.x = tmp(0);
         current_position.y = tmp(1);
-
         current_position.z = height;
 
+        //initial_angle.data = initial;
+       
         current_position_publisher.publish(current_position);
+        //initial_publisher.publish(initial_angle);
 
        	/***********************/
 
@@ -349,7 +357,7 @@ std::cout<<"Error: "<<(e_sdk_err_code)err_code<<" at "<<__LINE__<<","<<__FILE__<
 int main(int argc, char** argv)
 {
     if (argc < 2) {
-        show_images = true;
+        show_images = false;
         verbosity = 2;
     }
 	if(argc==2 && !strcmp(argv[1], "h")){
@@ -375,6 +383,7 @@ int main(int argc, char** argv)
 
     odometry_publisher      = my_node.advertise<nav_msgs::Odometry>("/guidance/odometry",10);
     current_position_publisher = my_node.advertise<geometry_msgs::Vector3>("/current_position",1);
+    //initial_publisher = my_node.advertise<std_msgs::Float32>("/initial_angle",1);
     //guidance_bias_sub       = my_node.subscribe("/guidance/bias", 20, guidance_bias_callback);
     orientation_subscriber = my_node.subscribe("/dji_sdk/orientation", 5, orientation_correction_callback);
     /* initialize guidance */
