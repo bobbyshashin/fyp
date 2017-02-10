@@ -1,0 +1,6 @@
+<launch>
+	<node pkg="dji_pid" name="pid_ctrl_node" type="pid_ctrl_node" />
+        <node pkg="dji_api" name="dji_api_node" type="dji_api_node" />
+
+</launch>
+  

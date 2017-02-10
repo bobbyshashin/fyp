@@ -37,7 +37,7 @@ PID *pid_y;
 PID *pid_z;
 PID *pid_yaw;
 
-//DJIDrone* drone;
+DJIDrone* drone;
 
 double Kp_horz_pos = 0.8;
 double Ki_horz_pos = 0;

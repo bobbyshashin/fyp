@@ -185,13 +185,13 @@ int main(int argc, char *argv[])
             case 3:
                 for(int i = 0; i < 100; i++)
                 {
-                    drone->attitude_control(0x5b, 0.3, 0, 0, 0);
-                    usleep(5000);
-                }
+                    drone->attitude_control(0x5b, 0.3, 0, 1.2, 0);
+                    usleep(50000);
+                } 
+		break;
             case 4:
                 /* landing*/
                 drone->landing();
-                break;
                 break;
             case 5:
                 /* release control ability*/
@@ -206,3 +206,4 @@ int main(int argc, char *argv[])
     return 0;
 }
     
+

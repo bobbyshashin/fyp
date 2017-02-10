@@ -162,9 +162,9 @@ void sdk_ctrl_callback(const geometry_msgs::Vector3& ctrl_velocity) {
         **  y-axis: velocity   **
         **  z-axis: position   */
 
-        (drone->*api_ctrl_func)(0x5b, ctrl_velocity.x, ctrl_velocity.y, ctrl_velocity.z, 0); // lock yaw to be zero
-	cout << "Velocity_x, Velocity_y, Velocity_z" << endl << (double)ctrl_velocity.x << " " << (double)ctrl_velocity.y << " " << (double)ctrl_velocity.z << endl;
-        //printf("Velocity_x %f Velocity_y %f Yaw %f Velocity_z %f\n",  (double)ctrl_velocity.x, (double)ctrl_velocity.y, 0.0, (double)ctrl_velocity.z);
+        (drone->*api_ctrl_func)(0x53, ctrl_velocity.x, ctrl_velocity.y, ctrl_velocity.z, 0); // lock yaw to be zero
+
+        printf("Velocity_x %f Velocity_y %f Yaw %f Position_z %f\n",  (double)ctrl_velocity.x, (double)ctrl_velocity.y, 0.0, (double)ctrl_velocity.z);
     }
 
      

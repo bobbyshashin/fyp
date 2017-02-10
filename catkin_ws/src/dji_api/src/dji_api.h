@@ -28,7 +28,7 @@ typedef struct {
     float                 pitch_or_y = 0;
     float                 thr_z = 0; //Attention! when vert_ctrl flag is VERT_POS, set thr_z to zero  may let you confuse
     float                 yaw = 0;
-    unsigned char         ctrl_flag = 0x53; //VERT_POS HORI_VEL YAW_ANGLE BODY_FRAME STABLE
+    unsigned char         ctrl_flag = 0x5b; //VERT_POS HORI_VEL YAW_ANGLE BODY_FRAME STABLE
     long                  seq = 0;
     double                stamp = 0;
     string                frame_id = "dji_api_ctrl_data";
@@ -43,7 +43,7 @@ typedef struct {
     float         position_z = 0;
     float         yaw = 0;
 
-    unsigned char ctrl_flag = 0x53;
+    unsigned char ctrl_flag = 0x5b;
 
 } Ctrl_data;
 
