@@ -18,9 +18,16 @@
 #include <stdlib.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
+#include "flight_logic.h"
 
 using namespace DJI::onboardSDK;
-
+using namespace std;
+MISSION_STATUS mission_status = INIT;
+   
+unsigned char ctrl_flag;
+ros::Subscriber api_ctrl_sub;
+ros::Subscriber api_cmd_sub;
+DJIDrone* drone;
 /*
 //! Function Prototypes for Mobile command callbacks - Core Functions
 void ObtainControlMobileCallback(DJIDrone *drone);
@@ -50,7 +57,66 @@ void StopMapLASLoggingMobileCallback(DJIDrone *drone);
 void StartCollisionAvoidanceCallback(DJIDrone *drone);
 void StopCollisionAvoidanceCallback(DJIDrone *drone);
 */
+void sdk_ctrl_callback(const geometry_msgs::Vector3& ctrl_velocity) {
+    if(mission_status == STAND_BY){
+        drone->attitude_control(0x5b, ctrl_velocity.x, ctrl_velocity.y, 1.2, 0); //Notice here! Third one should be the height in this mode!!!
+        cout << "Velocity_x, Velocity_y, Velocity_z" << endl << (double)ctrl_velocity.x << " " << (double)ctrl_velocity.y << " " << (double)ctrl_velocity.z << endl;
+    }
+    else
+        cout << "Drone is not in the STAND_BY mode" << endl; 
+}
 
+void sdk_cmd_callback(const std_msgs::UInt8& msg) {
+    switch(msg.data){
+        case 1:
+        /* request control ability*/
+            if(drone->request_sdk_permission_control()){
+                mission_status = TAKEOFF;
+                cout << "Command sent: Obtain control" << endl;
+            }
+            else
+                cout << "Request control failed" << endl;
+            break;
+        case 2:
+            /* take off */
+            if(drone->takeoff()){
+                sleep(10); //Wait for completely takeoff
+                mission_status = STAND_BY;
+                cout << "Command sent: Takeoff" << endl;  
+            }
+            else
+                cout << "Take off failed" << endl;
+            break;
+        case 999:
+            /* Test here */
+            for(int i = 0; i < 100; i++)
+            {
+                drone->attitude_control(0x5b, 0.3, 0, 1.2, 0);
+                usleep(50000);
+            } 
+            break;
+        case 4:
+            /* landing*/
+            if(drone->landing()){
+                mission_status = LANDING;
+                cout << "Command sent: Landing" << endl;
+            }
+            else
+                cout << "Landing failed" << endl;
+            break;
+        case 5:
+            /* release control ability*/
+            if(drone->release_sdk_permission_control()){
+                mission_status = RELEASE_CONTROL;
+                cout << "Command sent: Release control" << endl;
+            }
+            else
+                cout << "Release control failed" << endl;
+            break;
+        default:
+            break;
+    }
+}
 static void Display_Main_Menu(void)
 {
     printf("\r\n");
@@ -80,12 +146,7 @@ static void Display_Main_Menu(void)
     printf("----------------------------------------\r\n");
 }
 
-   
 
-unsigned char ctrl_flag;
-ros::Subscriber api_ctrl_sub;
-ros::Subscriber api_cmd_sub;
-DJIDrone* drone;
 
 int main(int argc, char *argv[])
 {
@@ -98,6 +159,8 @@ int main(int argc, char *argv[])
     ROS_INFO("dji_client_modified Start!");
     ros::NodeHandle nh;
     drone = new DJIDrone(nh);
+    api_ctrl_sub = nh.subscribe("sdk_ctrl", 1, sdk_ctrl_callback);
+    api_cmd_sub  = nh.subscribe("sdk_cmd",  1, sdk_cmd_callback);
     /*
 	//virtual RC test data
 	uint32_t virtual_rc_data[16];
@@ -150,16 +213,16 @@ int main(int argc, char *argv[])
     drone->setStopCollisionAvoidanceCallback(StopCollisionAvoidanceCallback, &userData);
     */
 	
-    Display_Main_Menu();
-    while(1)
+    //Display_Main_Menu();
+    while(0) //Change to while(1) when using it 
     {
         ros::spinOnce();
         std::cout << "Enter Input Val: ";
         while(!(std::cin >> temp32)){
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Invalid input.  Try again: ";
-	}
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input.  Try again: ";
+	    }  
 
         if(temp32>0 && temp32<38)
         {
@@ -188,7 +251,7 @@ int main(int argc, char *argv[])
                     drone->attitude_control(0x5b, 0.3, 0, 1.2, 0);
                     usleep(50000);
                 } 
-		break;
+		        break;
             case 4:
                 /* landing*/
                 drone->landing();
@@ -203,6 +266,7 @@ int main(int argc, char *argv[])
         main_operate_code = -1;
         Display_Main_Menu();
     }
+
     return 0;
 }
     
