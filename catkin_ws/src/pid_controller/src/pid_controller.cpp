@@ -242,7 +242,7 @@ int main(int argc, char** argv)
     //TODO Union both horz and vert pid param into one subscriber or do a better renaming with two
     pid_ctrl_limit_sub   = nh.subscribe("/pid_ctrl_limit",   1, pid_ctrl_limit_callback);
 
-    ctrl_vel_pub         = nh.advertise<geometry_msgs::Vector3>("/sdk_ctrl", 10);
+    ctrl_vel_pub         = nh.advertise<geometry_msgs::Vector3>("/ctrl_vel", 10);
     is_arrived_pub       = nh.advertise<std_msgs::Bool>("is_arrived", 1);
 
     cout<< "PID controller has been started!"<<endl;
