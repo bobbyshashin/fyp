@@ -26,6 +26,7 @@ using namespace std;
 MISSION_STATUS mission_status = INIT;
    
 unsigned char ctrl_flag;
+ros::Publisher guidance_bias_correction_pub;
 ros::Subscriber api_ctrl_sub;
 ros::Subscriber api_cmd_sub;
 DJIDrone* drone;
@@ -149,9 +150,14 @@ int main(int argc, char *argv[])
     ros::NodeHandle nh;
     drone = new DJIDrone(nh);
 
+    guidance_bias_correction_pub = nh.advertise<std_msgs::UInt8>("/guidance/bias_correction", 1);
     api_ctrl_sub = nh.subscribe("/ctrl_vel", 1, ctrl_vel_callback);
     api_cmd_sub  = nh.subscribe("/sdk_cmd",  1, sdk_cmd_callback);
 
+    std_msgs::UInt8 guidance_bias_correction;
+    guidance_bias_correction.data = 1;
+    guidance_bias_correction_pub.publish(guidance_bias_correction);
+    
     ros::spin();
     	
     //Display_Main_Menu();
