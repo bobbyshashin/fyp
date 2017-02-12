@@ -76,14 +76,17 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "marker_detector");
     ros::NodeHandle n("~");
 
-    ros::Subscriber sub_img = n.subscribe("/usb_cam/image_raw", 100, img_callback);
-    ros::Subscriber sub_query_id = n.subscribe("/query_id", 100, query_id_callback);
+    ros::Subscriber sub_img = n.subscribe("/dji_sdk/image_raw", 1, img_callback);
+    ros::Subscriber sub_query_id = n.subscribe("/query_id", 1, query_id_callback);
     string cam_cal;
 
     n.getParam("cam_cal_file", cam_cal);
     CamParam.readFromXMLFile(cam_cal);
     cv::Mat cameraMatrix = (cv::Mat_<double>(3,3) << 388.40923066779754, 0.0, 318.06257844065226, 0.0, 518.1538449374815, 241.17339016626644, 0.0, 0.0, 1.0);
-    
+    cv::Mat distortMatrix = (cv::Mat_<double>(4,1) << -0.1297646493949856, 0.0946885697670611, -0.0002935002712265514, -0.00022663675362156343);
+    cv::Size imgSize(640,360);
+    aruco::CameraParameters djiCamParam(cameraMatrix, distortMatrix, imgSize);
+    CamParam = djiCamParam;
     cv::namedWindow("usb_image", 1);
     ros::spin();
 }
