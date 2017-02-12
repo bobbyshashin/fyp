@@ -18,6 +18,7 @@
 #include "DJI_utility.h"
 #include <std_msgs/Float32.h>
 
+#include <std_msgs/UInt8.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/TransformStamped.h> //IMU
 #include <geometry_msgs/Vector3Stamped.h> //velocity
@@ -32,11 +33,11 @@ ros::Publisher obstacle_distance_pub;
 ros::Publisher velocity_pub;
 ros::Publisher ultrasonic_pub;
 
-ros::Publisher odometry_publisher;
-ros::Publisher current_position_publisher;
+ros::Publisher odometry_pub;
+ros::Publisher current_position_pub;
 //ros::Publisher initial_publisher;
-ros::Subscriber orientation_subscriber;
-//ros::Subscriber guidance_bias_sub;
+ros::Subscriber orientation_sub;
+ros::Subscriber bias_correction_sub;
 
 using namespace cv;
 using namespace std;
@@ -61,9 +62,10 @@ float height = 0;
 float initial = 0; // The initial angle after takeoff
 bool flag = false; // Whether initial is recorded
 
-//float pos_bias_x = 0;
-//float pos_bias_y = 0;
-//float pos_bias_z = 0;
+bool bias_correction = false;
+float pos_bias_x = 0;
+float pos_bias_y = 0;
+float pos_bias_z = 0;
 
 std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 	const char* s = 0;
@@ -90,17 +92,13 @@ std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 	return out << s;
 }
 
-/*
-void guidance_bias_callback(const std_msgs::UInt8& msg) {
-    if (msg.data ==1)
-    {
-        is_zero = 1;
-        std::cout<<"I am in!!!"<<std::endl;
-    }
-    else
-        is_zero = 0;
+
+void bias_correction_callback(const std_msgs::UInt8& msg) {
+
+    if (msg.data == 1) 
+        bias_correction = true;
 }
-*/
+
 
 void orientation_correction_callback(const geometry_msgs::Vector3& msg) {
 
@@ -281,29 +279,29 @@ int my_callback(int data_type, int data_len, char *content)
         else 
             pos_y_filter = m->position_in_global_y;
 
-        /*
-        if(is_zero == 1 ) {
+        if(height < 0.05 && height > -0.05) 
+            pos_z_filter = 0;
+        else 
+            pos_z_filter = height;
+        
+        if(bias_correction) {
 
-            odometry.pose.pose.position.x =  pos_y_filter - pos_bias_x;
-            odometry.pose.pose.position.y = -pos_x_filter - pos_bias_y;
-            odometry.pose.pose.position.z = -pos_z_filter - pos_bias_z;
-            std::cout<<"zero is 1"<<std::endl;
-            printf("(px,py,pz)=(%.2f,%.2f,%.2f)\n", odometry.pose.pose.position.x, odometry.pose.pose.position.y, odometry.pose.pose.position.z);
+            odometry.pose.pose.position.x = pos_x_filter - pos_bias_x;
+            odometry.pose.pose.position.y = pos_y_filter - pos_bias_y;
+            odometry.pose.pose.position.z = pos_z_filter - pos_bias_z;
+            cout << "Bias correction is activated!" << endl;
+            
         }
 
         else {
 
-            pos_bias_x =  pos_y_filter;
-            pos_bias_y = -pos_x_filter;
-            pos_bias_z = -pos_z_filter;
-            std::cout<<"zero is else"<<std::endl;
-
+            pos_bias_x =  pos_x_filter;
+            pos_bias_y =  pos_y_filter;
+            pos_bias_z =  pos_z_filter;
+            cout << "Bias correction is not activated..." << endl;
+        
         }
-		*/
-		odometry.pose.pose.position.x = pos_x_filter;
-        odometry.pose.pose.position.y = pos_y_filter;
-        odometry.pose.pose.position.z = height;
-
+		
         /*** Current position ***/
 
         geometry_msgs::Vector3 current_position;
@@ -327,7 +325,7 @@ int my_callback(int data_type, int data_len, char *content)
 
         //initial_angle.data = initial;
        
-        current_position_publisher.publish(current_position);
+        current_position_pub.publish(current_position);
         //initial_publisher.publish(initial_angle);
 
        	/***********************/
@@ -340,7 +338,7 @@ int my_callback(int data_type, int data_len, char *content)
         odometry.twist.twist.linear.x = m->velocity_in_global_x;
         odometry.twist.twist.linear.y = m->velocity_in_global_y;
         odometry.twist.twist.linear.z = m->velocity_in_global_z;
-        odometry_publisher.publish(odometry);
+        odometry_pub.publish(odometry);
 
     }
 
@@ -381,11 +379,11 @@ int main(int argc, char** argv)
     obstacle_distance_pub	= my_node.advertise<sensor_msgs::LaserScan>("/guidance/obstacle_distance",1);
     ultrasonic_pub			= my_node.advertise<sensor_msgs::LaserScan>("/guidance/ultrasonic",1);
 
-    odometry_publisher      = my_node.advertise<nav_msgs::Odometry>("/guidance/odometry",10);
-    current_position_publisher = my_node.advertise<geometry_msgs::Vector3>("/current_position",1);
+    odometry_pub      = my_node.advertise<nav_msgs::Odometry>("/guidance/odometry",10);
+    current_position_pub = my_node.advertise<geometry_msgs::Vector3>("/current_position",1);
     //initial_publisher = my_node.advertise<std_msgs::Float32>("/initial_angle",1);
-    //guidance_bias_sub       = my_node.subscribe("/guidance/bias", 20, guidance_bias_callback);
-    orientation_subscriber = my_node.subscribe("/dji_sdk/orientation", 5, orientation_correction_callback);
+    bias_correction_sub       = my_node.subscribe("/guidance/bias_correction", 10, bias_correction_callback);
+    orientation_sub = my_node.subscribe("/dji_sdk/orientation", 5, orientation_correction_callback);
     /* initialize guidance */
     reset_config();
     int err_code = init_transfer();

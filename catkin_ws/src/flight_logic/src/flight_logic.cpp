@@ -39,13 +39,15 @@ bool is_arrived() {
 
     if( position_error[0] > 0.15 ||
         position_error[1] > 0.15 ||
-        position_error[2] > 0.15  )
+        position_error[2] > 0.15 )
         return false;
 
-    return true;
+    else
+        return true;
 
 }
 */
+
 void wait_key() { 
 
     cin.get();
@@ -90,20 +92,15 @@ void move_to(double x, double y, double z) {
 void send_command(int cmd) {
 
 	cmd_msg.data = cmd;
-    cmd_msg_pub.publish(cmd_msg);
+
+    for(int i = 0; i < 10; i++) {
+        // publish 10 times
+        cmd_msg_pub.publish(cmd_msg);
+        i++;
+    }
 
 }
 
-//void velocity_callback(const geometry_msgs::Vector3& velocity) {
-
-    /* Control logic: 0x51 **
-    **  x-axis: velocity   **
-    **  y-axis: velocity   **
-    **  z-axis: position   */
-
-    //drone->attitude_control(0x59, velocity.x, velocity.y, velocity.z, 0); 
-
-//}
 
 /*
 void vision_activation_callback(const std_msgs::UInt32& msg) {
@@ -164,9 +161,8 @@ int mission_run() {
             ROS_INFO("Press any key to request for control");
             wait_key();
 
-            cmd_msg.data = INIT;
-            cmd_msg_pub.publish(cmd_msg);
-	   
+            send_command(INIT);
+
             ROS_INFO("Obtained control successfully");
             current_mission = TAKEOFF;
 
@@ -174,32 +170,12 @@ int mission_run() {
         }
         
 
-        case COLLECTING_OCTOPUS: {
-
-            std_msgs::String cmd;
-            cmd.data = "Grab";
-            stm32_cmd_pub.publish(cmd);
-            delay_s(5); // Wait for 5 seconds
-
-            ROS_INFO("Ready for takeoff");
-            current_mission = TAKEOFF;
-            next_mission = ZONE4_BOX_AIMING;
-            break;
-        }
-
-	case TAKEOFF: {
+	    case TAKEOFF: {
 	    
- 	    ROS_INFO("Press any key to takeoff");
+ 	        ROS_INFO("Press any key to takeoff");
             wait_key();
 
-            cmd_msg.data = TAKEOFF;
-
-            int i;
-            while(i<10) { 
-
-                cmd_msg_pub.publish(cmd_msg);
-                i++;
-            }
+            send_command(TAKEOFF);
 
             ROS_INFO("Taking off...");
             
@@ -214,8 +190,7 @@ int mission_run() {
 
         case STAND_BY: {
  
-            cmd_msg.data = STAND_BY;
-            cmd_msg_pub.publish(cmd_msg);
+            send_command(STAND_BY);
 
             ROS_INFO("Next step: Set height to 1.2m");
             ROS_INFO("Press any key to continue");
@@ -254,170 +229,18 @@ int mission_run() {
         }
 
 
-	    
-
-        case ZONE4_BOX_AIMING: {
-
-            ROS_INFO("Octopus Bomber ready for action!");
-            ROS_INFO("Press any key to start mission");
-            wait_key(); 
-
-            ROS_INFO("Mission starts!");
-   
-            ROS_INFO("Moving to ZONE 4!");
-            move_to(6, 0, 1.5);
-
-            //Waiting for vision:
-            while( !vision_taking_control ) {
-            
-                //TODO check for timeout
-                
-            }
-
-
-            ROS_INFO("Vision-based Positioning System taking control!");
-
-            //TODO Vision PID feedback: Small overshoot & Move slowly with small pitch angle
-            //TODO LED screen monitoring starts at the same time
-            current_mission = RELEASING_OCTOPUS;
-
-	        break;
-        }
-        
-
-        case RELEASING_OCTOPUS: {
-            
-            ROS_INFO("Ready for bombing!");
-            ROS_INFO("Press any key to release octopus");
-            wait_key(); 
-
-            std_msgs::String cmd;
-            cmd.data = "Release";
-            stm32_cmd_pub.publish(cmd);
-            
-            ROS_INFO("Octopus released");
-
-            current_mission = ZONE3_BOX_AIMING;
-
-	        break;
-        }
-        
-        
-        case ZONE3_BOX_AIMING: {
-
-
-            ROS_INFO("Mission Code: Hippo");
-            ROS_INFO("Press any key to start mission");
-            wait_key(); 
-
-            ROS_INFO("Mission starts!");
-   
-            ROS_INFO("Moving to ZONE 3!");
-            move_to(6, -6, 1.5);
-
-            while( !vision_taking_control ) {
-            
-                //TODO check for timeout
-                
-            }
-            //TODO Once boxes are detected:
-            ROS_INFO("Vision-based Positioning System taking control!");
-
-            //TODO Vision PID feedback: Small overshoot & smooth movement with a small pitch angle
-
-
-            current_mission = LANDING;
-            next_mission = COLLECTING_HIPPO;
-
-            break;
-        }
-
-        
-
-
-        case COLLECTING_HIPPO: {
-
-            ROS_INFO("Ready for hippo collection");
-            ROS_INFO("Press any key to grab the hippos");
-            wait_key(); 
-
-            std_msgs::String cmd;
-            cmd.data = "Grab";
-            stm32_cmd_pub.publish(cmd);
-            //TODO vision feedback: sucessfully grabbed?
-
-            current_mission = TAKEOFF;
-            next_mission = ZONE2_BOX_AIMING;
-            
-	        break;
-        }
-        
-
-	    case ZONE2_BOX_AIMING: {
-
-            ROS_INFO("Hippo Bomber ready for action!");
-            ROS_INFO("Press any key to start mission");
-            wait_key(); 
-
-            ROS_INFO("Mission starts!");
-
-            ROS_INFO("Moving to ZONE 2!");
-            move_to(0, -6, 1.5);
-            
-            while( !vision_taking_control ) {
-            
-                //TODO check for timeout
-                
-            }
-
-
-            ROS_INFO("Vision-based Positioning System taking control!");
-            current_mission = RELEASING_HIPPO;
-
-            break;
-        }
-        
-
-        case RELEASING_HIPPO: {
-
-            
-            ROS_INFO("Ready for boming!!");
-            ROS_INFO("Press any key to release hippo");
-            wait_key(); 
-
-            std_msgs::String cmd;
-            cmd.data = "Release";
-            stm32_cmd_pub.publish(cmd);
- 
-            ROS_INFO("Hippo released");
-
-            //TODO Go back to zone 3 to grab the remaining hippos
-            current_mission = ZONE3_BOX_AIMING;
-
-            break; 
-        }
-        
-
 
         case LANDING: {
 
-            cmd_msg.data = LANDING;
-            int i;
-            while(i<10) {
+            ROS_INFO("Press any key to land");
+            wait_key();
 
-                cmd_msg_pub.publish(cmd_msg);
-                i++;
-
-            }
+            send_command(LANDING);
             ROS_INFO("Landing...");
 
             delay_s(4);
 
-            ROS_INFO("Press any key to release control");
-            wait_key();
-
-            //cmd_msg.data = RELEASE_CONTROL;
-            //cmd_msg_pub.publish(cmd_msg);
+            send_command(RELEASE_CONTROL);
             //current_mission = next_mission;
 
             break;
@@ -451,7 +274,7 @@ int main(int argc, char **argv) {
     
     ros::NodeHandle nh;
 
-    vision_taking_control = false;
+    //vision_taking_control = false;
 
     stm32_cmd_pub = nh.advertise<std_msgs::String>("/stm32_cmd", 1);
     target_pos_pub = nh.advertise<geometry_msgs::Vector3>("/target_position", 1);
@@ -462,7 +285,7 @@ int main(int argc, char **argv) {
     ros::Rate loop_rate(50);
     ROS_INFO("Flight Logic: Flow control starts");
 
-    while( ros::ok() ) {
+    while(ros::ok()) {
 
         mission_run();
         ros::spinOnce();

@@ -2,9 +2,9 @@ typedef enum
 {
     INIT               ,
     TAKEOFF            ,
+    STAND_BY           ,
     LANDING            ,
     RELEASE_CONTROL    ,
-    STAND_BY           ,
     REACH_ALT          ,
 
     START_SEARCH       ,

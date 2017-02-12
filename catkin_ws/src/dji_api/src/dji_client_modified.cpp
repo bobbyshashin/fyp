@@ -46,11 +46,11 @@ void sdk_cmd_callback(const std_msgs::UInt8& msg) {
 
     switch(msg.data){
 
-        case 1:
+        case INIT:
             /* request control ability*/
             if(drone->request_sdk_permission_control()){
 
-                mission_status = TAKEOFF;
+                //mission_status = TAKEOFF;
                 cout << "Command sent: Obtain control" << endl;
             }
 
@@ -58,25 +58,23 @@ void sdk_cmd_callback(const std_msgs::UInt8& msg) {
                 cout << "Request control failed" << endl;
             break;
 
-        case 2:
+        case TAKEOFF:
             /* take off */
             if(drone->takeoff()){
                 sleep(10); //Wait for completely takeoff
-                mission_status = STAND_BY;
+                //mission_status = STAND_BY;
                 cout << "Command sent: Takeoff" << endl;  
             }
             else
                 cout << "Take off failed" << endl;
             break;
-        case 9:
-            /* Test here */
-            for(int i = 0; i < 100; i++) {
 
-                drone->attitude_control(0x5b, 0.3, 0, 1.2, 0);
-                usleep(50000);
-            } 
+        case STAND_BY:
+            /* stand by */
+            mission_status = STAND_BY;
             break;
-        case 4:
+
+        case LANDING:
             /* landing*/
             if(drone->landing()){
                 mission_status = LANDING;
@@ -85,7 +83,8 @@ void sdk_cmd_callback(const std_msgs::UInt8& msg) {
             else
                 cout << "Landing failed" << endl;
             break;
-        case 5:
+
+        case RELEASE_CONTROL:
             /* release control ability*/
             if(drone->release_sdk_permission_control()){
                 mission_status = RELEASE_CONTROL;
@@ -94,6 +93,16 @@ void sdk_cmd_callback(const std_msgs::UInt8& msg) {
             else
                 cout << "Release control failed" << endl;
             break;
+
+        case 9:
+            /* Test here */
+            for(int i = 0; i < 100; i++) {
+
+                drone->attitude_control(0x5b, 0.3, 0, 1.2, 0);
+                usleep(50000);
+            } 
+            break;
+
         default:
             break;
     }
@@ -142,28 +151,7 @@ int main(int argc, char *argv[])
 
     api_ctrl_sub = nh.subscribe("/ctrl_vel", 1, ctrl_vel_callback);
     api_cmd_sub  = nh.subscribe("/sdk_cmd",  1, sdk_cmd_callback);
-    /*
-	//virtual RC test data
-	uint32_t virtual_rc_data[16];
 
-	//set frequency test data
-	uint8_t msg_frequency_data[16] = {1,2,3,4,3,2,1,2,3,4,3,2,1,2,3,4};
-	//waypoint action test data
-    dji_sdk::WaypointList newWaypointList;
-    dji_sdk::Waypoint waypoint0;
-    dji_sdk::Waypoint waypoint1;
-    dji_sdk::Waypoint waypoint2;
-    dji_sdk::Waypoint waypoint3;
-    dji_sdk::Waypoint waypoint4;
-
-	//groundstation test data
-	dji_sdk::MissionWaypointTask waypoint_task;
-	dji_sdk::MissionWaypoint 	 waypoint;
-	dji_sdk::MissionHotpointTask hotpoint_task;
-	dji_sdk::MissionFollowmeTask followme_task;
-	dji_sdk::MissionFollowmeTarget followme_target;
-    uint8_t userData = 0;
-    */
     ros::spin();
     	
     //Display_Main_Menu();

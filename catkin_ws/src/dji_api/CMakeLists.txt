@@ -52,7 +52,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
  add_message_files(
     FILES
     api_accelerate.msg
-#    api_fc_data.msg
+#   api_fc_data.msg
     api_ctrl_data.msg
     api_gimbal.msg
     api_gps.msg
