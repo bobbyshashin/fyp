@@ -207,8 +207,8 @@ int main(int argc, char **argv)
 
 	ros::NodeHandle node;
 	image_transport::ImageTransport transport(node);
-	image_transport::Publisher image_pub = transport.advertise("dji_sdk/image_raw", 1);
-	ros::Publisher caminfo_pub = node.advertise<sensor_msgs::CameraInfo>("dji_sdk/camera_info",1);
+	image_transport::Publisher image_pub = transport.advertise("/dji_sdk/image_raw", 1);
+	ros::Publisher caminfo_pub = node.advertise<sensor_msgs::CameraInfo>("/dji_sdk/camera_info",1);
 
 	ros::Time time=ros::Time::now();
 
