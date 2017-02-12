@@ -34,12 +34,12 @@ void ctrl_vel_callback(const geometry_msgs::Vector3& ctrl_velocity) {
 
     if(mission_status == STAND_BY){
 
-        drone->attitude_control(0x5b, ctrl_velocity.x, ctrl_velocity.y, 1.2, 0); //Notice here! Third one should be the height in this mode!!!
+        drone->attitude_control(0x5b, ctrl_velocity.x, ctrl_velocity.y, 0.8, 0); //Notice here! Third one should be the height in this mode!!!
         cout << "Velocity_x, Velocity_y, Velocity_z" << endl << (double)ctrl_velocity.x << " " << (double)ctrl_velocity.y << " " << (double)ctrl_velocity.z << endl;
     }
 
-    else
-        cout << "Drone is not in the STAND_BY mode" << endl; 
+    //else
+    //    cout << "Drone is not in the STAND_BY mode" << endl; 
 }
 
 void sdk_cmd_callback(const std_msgs::UInt8& msg) {
@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
     ros::NodeHandle nh;
     drone = new DJIDrone(nh);
 
-    api_ctrl_sub = nh.subscribe("ctrl_vel", 1, ctrl_vel_callback);
-    api_cmd_sub  = nh.subscribe("sdk_cmd",  1, sdk_cmd_callback);
+    api_ctrl_sub = nh.subscribe("/ctrl_vel", 1, ctrl_vel_callback);
+    api_cmd_sub  = nh.subscribe("/sdk_cmd",  1, sdk_cmd_callback);
     /*
 	//virtual RC test data
 	uint32_t virtual_rc_data[16];
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 	dji_sdk::MissionFollowmeTarget followme_target;
     uint8_t userData = 0;
     */
-    ros::spinOnce();
+    ros::spin();
     	
     //Display_Main_Menu();
     while(0) //Change to while(1) when using it 

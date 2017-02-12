@@ -127,7 +127,7 @@ void pid_update(geometry_msgs::Vector3 current_position) {
     std_msgs::Bool msg;
     msg.data = is_arrived;
 
-    int i;
+    int i = 0;
     while(i < 4) {
 
         is_arrived_pub.publish(msg);
@@ -174,7 +174,7 @@ void pid_update(geometry_msgs::Vector3 current_position) {
 void current_pos_callback(const geometry_msgs::Vector3& current_position) {
 
     pid_update(current_position);
-
+    //cout << target_position[0] - current_position.x << endl;
     //cout<< "Current position has been updated" <<endl;
 
 }
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
     pid_ctrl_limit_sub   = nh.subscribe("/pid_ctrl_limit",   1, pid_ctrl_limit_callback);
 
     ctrl_vel_pub         = nh.advertise<geometry_msgs::Vector3>("/ctrl_vel", 10);
-    is_arrived_pub       = nh.advertise<std_msgs::Bool>("is_arrived", 1);
+    is_arrived_pub       = nh.advertise<std_msgs::Bool>("/is_arrived", 1);
 
     cout<< "PID controller has been started!"<<endl;
     
