@@ -2,18 +2,11 @@ typedef enum {
 
     INIT               ,
     TAKEOFF            ,
+    STAND_BY           ,
     LANDING            ,
     RELEASE_CONTROL    ,
-    STAND_BY           ,
-    GO_HOME   		   ,
+    SEARCH_FOR_TAGS    ,
 
-    COLLECTING_OCTOPUS ,
-    COLLECTING_HIPPO   ,
-    RELEASING_HIPPO    ,
-    RELEASING_OCTOPUS  ,
-    ZONE2_BOX_AIMING   ,
-    ZONE3_BOX_AIMING   ,
-    ZONE4_BOX_AIMING   ,
 
 
 } MISSION_STATUS;

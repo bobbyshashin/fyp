@@ -17,6 +17,8 @@ MISSION_STATUS current_mission = INIT;
 MISSION_STATUS next_mission;
 
 bool vision_taking_control;
+float pos_error_threshold = 0.1; // 10 cm tolerance for horizontal & vertical positioning
+float position_error[3] = {0, 0, 0};
 
 std_msgs::UInt8 cmd_msg;
 //double target_position[3] = {0, 0, 0};
@@ -30,23 +32,35 @@ ros::Publisher pid_ctrl_limit_pub; // Publish the updated velocity limit to PID 
 ros::Publisher stm32_cmd_pub;      // Publish the commands to STM32 transceiver node
 
 //ros::Subscriber vision_activation_sub;
-ros::Subscriber box_searcher_sub;
+//ros::Subscriber box_searcher_sub;
 //ros::Subscriber target_searcher_sub; // Search for targets with specific tags
 ros::Subscriber ctrl_vel_sub;  // Subscribe the desired velocity from PID controller
+ros::Subscriber pos_error_sub; // Subscribe the flag for arrival at target position
 
-/*
+
+
 bool is_arrived() { 
 
-    if( position_error[0] > 0.15 ||
-        position_error[1] > 0.15 ||
-        position_error[2] > 0.15 )
+    /* Check whether the UAV has arrived at the target position */
+    if ( abs(position_error[0]) < pos_error_threshold && 
+         abs(position_error[1]) < pos_error_threshold && 
+         abs(position_error[2]) < pos_error_threshold )
+        
+        return true;
+    else 
         return false;
 
-    else
-        return true;
+}
+
+
+void position_error_callback(geometry_msgs::Vector3& msg) {
+
+    position_error[0] = msg.x;
+    position_error[1] = msg.y;
+    position_error[2] = msg.z;
 
 }
-*/
+
 
 void wait_key() { 
 
@@ -66,13 +80,14 @@ void move_to(double x, double y, double z) {
     //target_position[0] = x;
     //target_position[1] = y;
     //target_position[2] = z;
-    /*
+    
+    //TODO: might cause problem of infinity loop, check for timeout?
     while( !is_arrived() ) {
 
         usleep(2000);
 
     }
-    */
+    
     int counter = 0;
     geometry_msgs::Vector3 target_pos;
     
@@ -248,11 +263,16 @@ int mission_run() {
 
         
 
-        case GO_HOME: {
+        case SEARCH_FOR_TAGS: {
 
         	ROS_INFO("Going home...");
 
-        	move_to(0, 0, 1.2);
+        	move_to(0, 0, 3);
+
+            move_to(10, 0, 3);
+            move_to(10, 10, 3);
+            move_to(0, 10, 3);
+            move_to(0, 0, 3);
 
         	current_mission = LANDING;
 
@@ -281,9 +301,11 @@ int main(int argc, char **argv) {
     cmd_msg_pub = nh.advertise<std_msgs::UInt8>("/sdk_cmd", 10);
     //vision_activation_sub = nh.subscribe("/vision_activation", 1, vision_activation_callback);
     //target_searcher_sub = nh.subscribe("/target_coordinate", 1);
-
+    pos_error_sub = nh.subscribe("/position_error", 1, position_error_callback);
     ros::Rate loop_rate(50);
+
     ROS_INFO("Flight Logic: Flow control starts");
+    cout << "Last modified: " << "2017-02-17" << endl;
 
     while(ros::ok()) {
 
