@@ -1,0 +1,192 @@
+#include <ros/ros.h>
+#include "std_msgs/String.h"
+
+#include <iostream>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include "controlcan.h"
+
+#include <ctime>
+#include <cstdlib>
+#include "unistd.h"
+
+
+
+using namespace std;
+using namespace ros;
+
+VCI_BOARD_INFO pInfo;
+
+
+ros::Publisher can_transmit_pub;
+ros::Publisher can_receive_pub;
+
+int main(int argc, char *argv[])
+{
+		
+	ros::init(argc, argv, "ugv_node");
+    	ros::NodeHandle n;
+	
+	can_receive_pub = n.advertise<std_msgs::String>("can_transmit", 1);
+
+	printf("Hello 1!\n");
+
+	if(VCI_OpenDevice(VCI_USBCAN2,0,0)==1)
+	{
+		printf(">>open deivce success!\n");
+	}else
+	{
+		printf(">>open deivce error!\n");
+		exit(1);
+	}
+
+	printf("Hello 2!\n");
+	if(VCI_ReadBoardInfo(VCI_USBCAN2,0,&pInfo)==1)
+	{
+                printf(">>Get VCI_ReadBoardInfo success!\n");
+		
+	
+	}else
+	{
+		printf(">>Get VCI_ReadBoardInfo error!\n");
+		exit(1);
+	}
+
+	VCI_INIT_CONFIG config;
+	config.AccCode=0;
+	config.AccMask=0xffffffff;
+	config.Filter=1;
+	config.Mode=0;
+
+	/*125 Kbps  0x03  0x1C*/	
+	config.Timing0=0x00;
+	config.Timing1=0x14;
+	
+	if(VCI_InitCAN(VCI_USBCAN2,0,0,&config)!=1)
+	{
+		printf("init CAN error\n");
+		VCI_CloseDevice(VCI_USBCAN2,0);
+
+	}
+
+	if(VCI_StartCAN(VCI_USBCAN2,0,0)!=1)
+	{
+		printf("Start CAN error\n");
+		VCI_CloseDevice(VCI_USBCAN2,0);
+
+	}
+
+	/*if(VCI_InitCAN(VCI_USBCAN2,0,1,&config)!=1)
+	{
+		printf("init can 1 error\n");
+		VCI_CloseDevice(VCI_USBCAN2,0);
+
+	}
+	if(VCI_StartCAN(VCI_USBCAN2,0,1)!=1)
+	{
+		printf("start can 1 error\n");
+		VCI_CloseDevice(VCI_USBCAN2,0);
+
+	}*/
+	
+	/* Config */
+	VCI_CAN_OBJ send;
+	send.ID = 0x200;
+	send.SendType = 2;
+	send.RemoteFlag = 0;
+	send.ExternFlag = 0;
+	send.DataLen = 8;
+
+	/* Data to be sent */
+	send.Data[0] = 5;
+	send.Data[1] = 100;
+	
+	send.Data[2] = 0;
+	send.Data[3] = 0;
+
+	send.Data[4] = 0;
+	send.Data[5] = 0;
+	
+	send.Data[6] = 0;	
+	send.Data[7] = 0;
+
+	/*  */	
+	ros::Rate loop_rate(20);
+
+	int first = 0;
+	int second = 0;
+	int third = 0;
+	int fourth = 0;
+	
+	while (ros::ok())
+	{
+
+	int reclen=0;
+	VCI_CAN_OBJ rec[80];
+	int i;
+	
+	
+	printf("running....\n");
+	
+	if((reclen=VCI_Receive(VCI_USBCAN2,0,0,rec,80,0))>0)
+	{
+		
+		printf("Receive: %08X \n", rec[reclen-1].ID);
+		if (rec[reclen-1].ID == 0x201){first++;}
+		else if (rec[reclen-1].ID == 0x202){second++;}
+		else if (rec[reclen-1].ID == 0x203){third++;}
+		else if (rec[reclen-1].ID == 0x204){fourth++;}
+		printf("first: %d \n", first);
+		printf("second: %d \n", second);
+		printf("third: %d \n", third);
+		printf("fourth: %d \n", fourth);
+
+		//printf("IND:%d Receive: %08X", ind, rec[reclen-1].ID);
+		for(i = 0; i < rec[reclen-1].DataLen; i++)
+		{
+			printf(" %08X", rec[reclen-1].Data[i]);
+		}
+		printf("\n");
+	}	
+
+	/* Transmit */
+		
+	if(VCI_Transmit(VCI_USBCAN2, 0, 0, &send, 1) > 0)
+	{
+		printf("CAN 1 ID: %08X\r\n",send.ID);
+		printf("CAN 1 data :\r\n");
+		for(i=0;i<send.DataLen;i++)
+		{
+			printf(" %08X",send.Data[i]);
+			//printf(" Decimal: %d",send.Data[i]);
+		}
+		printf("\n");
+		//send[0].ID=sendind++;
+		//send[1].ID=sendind++;
+		//send[2].ID=sendind++;
+	}
+	else
+	{
+		break;
+	}
+	
+
+
+		//can_receive_pub.()
+		
+		
+		ros::spinOnce();
+		loop_rate.sleep();
+	}
+
+
+	
+
+
+
+//ext:	
+//	VCI_CloseDevice(VCI_USBCAN2,0);
+}

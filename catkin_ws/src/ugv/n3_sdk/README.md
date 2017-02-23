@@ -1,11 +1,3 @@
-##DJI Onboard SDK ROS Core Package
+#DJI Onboard SDK ROS Packages
 
-Documentation has been moved to the developer website. 
-
-First time users of OnboardSDK, please refer to the below link:
-https://developer.dji.com/onboard-sdk/documentation/quick-start/index.html
-
-ROS Core package documentation:
-https://developer.dji.com/onboard-sdk/documentation/github-platform-docs/ROS_Example/ros_corePackage.html
-
-
+####Please refer to <https://developer.dji.com/onboard-sdk/documentation/github-platform-docs/ROS/README.html> in DJI Developer Website.
