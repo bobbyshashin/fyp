@@ -51,16 +51,16 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         for(int j=0;j<3;j++)
             for(int k=0;k<3;k++)
             {
-                R_eigen(j,k) = R.at<double>(j,k);
+                R_eigen(j,k) = R.at<float>(j,k);
             }
         Quaterniond Q;
         Q = R_eigen;
         nav_msgs::Odometry odom_marker;
         odom_marker.header.stamp = img_msg->header.stamp;
         odom_marker.header.frame_id = "world"; //TODO: ???
-        odom_marker.pose.pose.position.x = tvec.at<double>(0,0);
-        odom_marker.pose.pose.position.y = tvec.at<double>(1,0);
-        odom_marker.pose.pose.position.z = tvec.at<double>(2,0);
+        odom_marker.pose.pose.position.x = tvec.at<float>(0,0);
+        odom_marker.pose.pose.position.y = tvec.at<float>(1,0);
+        odom_marker.pose.pose.position.z = tvec.at<float>(2,0);
         odom_marker.pose.pose.orientation.w = Q.w();
         odom_marker.pose.pose.orientation.x = Q.x();
         odom_marker.pose.pose.orientation.y = Q.y();

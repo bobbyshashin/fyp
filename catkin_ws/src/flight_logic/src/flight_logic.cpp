@@ -53,7 +53,7 @@ bool is_arrived() {
 }
 
 
-void position_error_callback(geometry_msgs::Vector3& msg) {
+void position_error_callback(const geometry_msgs::Vector3& msg) {
 
     position_error[0] = msg.x;
     position_error[1] = msg.y;
