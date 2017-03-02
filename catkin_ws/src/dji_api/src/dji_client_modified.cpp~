@@ -1,3 +1,16 @@
+/** @file client.cpp
+ *  @version 3.1.8
+ *  @date July 29th, 2016
+ *
+ *  @brief
+ *  All the exampls for ROS are implemented here. 
+ *
+ *  @copyright 2016 DJI. All rights reserved.
+ *
+ */
+
+
+
 #include <ros/ros.h>
 #include <stdio.h>
 #include <dji_sdk/dji_drone.h>
@@ -6,7 +19,6 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 #include "flight_logic.h"
-#include <std_msgs/UInt8.h>
 
 using namespace DJI::onboardSDK;
 using namespace std;
@@ -91,7 +103,14 @@ void sdk_cmd_callback(const std_msgs::UInt8& msg) {
                 usleep(50000);
             } 
             break;
-
+        case 10:
+	    cout << "Gimbal move!!! callback" << endl;
+	    drone->gimbal_angle_control(0, 0, 1800, 20);
+	    sleep(3);
+	    drone->gimbal_angle_control(0, 0, -1800, 20);
+	    sleep(3);
+	    drone->gimbal_angle_control(0, 0, 0, 20);
+            break;
         default:
             break;
     }
@@ -135,29 +154,21 @@ int main(int argc, char *argv[])
     bool err_flag = false;
     ros::init(argc, argv, "dji_client_modified");
     ROS_INFO("dji_client_modified Start!");
-    ros::NodeHandle nh("~");
+    ros::NodeHandle nh;
     drone = new DJIDrone(nh);
 
-    guidance_bias_correction_pub = nh.advertise<std_msgs::UInt8>("/guidance/bias_correction", 10);
+    guidance_bias_correction_pub = nh.advertise<std_msgs::UInt8>("/guidance/bias_correction", 1);
     api_ctrl_sub = nh.subscribe("/ctrl_vel", 1, ctrl_vel_callback);
     api_cmd_sub  = nh.subscribe("/sdk_cmd",  1, sdk_cmd_callback);
 
     std_msgs::UInt8 guidance_bias_correction;
     guidance_bias_correction.data = 1;
-    for(int j=0;j<100;j++) {
-        guidance_bias_correction_pub.publish(guidance_bias_correction);
-}
-    cout << "Publish done!" << endl;    
+    guidance_bias_correction_pub.publish(guidance_bias_correction);
     
-    while(ros::ok()){
-	guidance_bias_correction_pub.publish(guidance_bias_correction);
-	//cout << "Fuck!" << endl;
-	ros::spinOnce();
-	}
-	ros::spin();
+    ros::spin();
     	
     //Display_Main_Menu();
-    while(0) //Change to while(1) when using it 
+    while(1) //Change to while(1) when using it 
     {
         ros::spinOnce();
         std::cout << "Enter Input Val: ";
@@ -203,6 +214,14 @@ int main(int argc, char *argv[])
                 /* release control ability*/
                 drone->release_sdk_permission_control();
                 break;
+	    case 10:
+	        cout << "Gimbal move!!!" << endl;
+	    	drone->gimbal_angle_control(0, 0, 1800, 20);
+	    	sleep(3);
+	    	drone->gimbal_angle_control(0, 0, -1800, 20);
+	    	sleep(3);
+	    	drone->gimbal_angle_control(0, 0, 0, 20);
+            	break;
             default:
                 break;
         }

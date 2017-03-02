@@ -1,22 +1,22 @@
 <launch>
     <!-- Common Interface -->
-    <arg name="device" default = "25000049"/>
-    <arg name="rate" default="30"/>
+    <arg name="device"/>
+    <arg name="rate" default="20"/>
 
     <!-- Camera Settings -->
     <arg name="serial" default="$(arg device)"/>
     <arg name="camera_name" default="mv_$(arg serial)"/>
     <arg name="camera" default="$(arg camera_name)"/>
     <arg name="frame_id" default="$(arg camera)"/>
-    <arg name="calib_url" default="file://$(find bluefox2)/cfg/ost.yaml"/>
+    <arg name="calib_url" default="file://${ROS_HOME}/camera_info/$(arg camera_name).yaml"/>
     <arg name="fps" default="$(arg rate)"/>
 
     <arg name="idpf" default="0"/>
     <arg name="aec" default="true"/>
-    <arg name="expose_us" default="8000"/>
+    <arg name="expose_us" default="10000"/>
     <arg name="agc" default="true"/>
     <arg name="gain_db" default="0.0"/>
-    <arg name="cbm" default="3"/>
+    <arg name="cbm" default="0"/>
     <arg name="ctm" default="1"/>
     <arg name="dcfm" default="0"/>
     <arg name="hdr" default="false"/>
@@ -32,7 +32,7 @@
     <arg name="calib" default="false"/>
 
     <!-- Node -->
-    <node pkg="bluefox2" type="single_node" name="$(arg camera)" output="$(arg output)">
+    <node pkg="bluefox2" type="bluefox2_single_node" name="$(arg camera)" output="$(arg output)">
         <param name="identifier" type="string" value="$(arg serial)"/>
         <param name="frame_id" type="string" value="$(arg frame_id)"/>
         <param name="camera_name" type="string" value="$(arg camera_name)"/>

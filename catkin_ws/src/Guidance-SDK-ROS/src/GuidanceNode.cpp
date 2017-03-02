@@ -95,8 +95,9 @@ std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 
 void bias_correction_callback(const std_msgs::UInt8& msg) {
 
-    if (msg.data == 1) 
+    if (msg.data == 1){ 
         bias_correction = true;
+  	cout << "=========================activated!===========" << endl;}
 }
 
 
