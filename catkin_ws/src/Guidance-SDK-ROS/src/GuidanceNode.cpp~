@@ -336,7 +336,7 @@ int my_callback(int data_type, int data_len, char *content)
         //initial_angle.data = initial;
        
         current_position_pub.publish(current_position);
-        current_velocity_pub.publish(current_velocity);
+        current_velocity_pub.publish(current_velocity)
         //initial_publisher.publish(initial_angle);
 
        	/***********************/

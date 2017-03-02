@@ -19,16 +19,20 @@ Matrix3d Rgc = Matrix3d::Identity(3,3);
 Vector3d Tic, Tgt; //TODO: These two need to be initialized
 Matrix3d Ric;
 
-/*
-void uav_vel_callback(const geometry_msgs::Vector3Stamped &msg)
+
+void uav_vel_callback(const geometry_msgs::Vector3 &msg)
 {
   ros::Time Time_uav = msg.header.stamp;
   Vector3d u = VectorXd::Zero(3);
   u(0) = msg.vector.x;
   u(1) = msg.vector.y;
   u(2) = msg.vector.z;
-  if(ekf.isInit() == false)
+  if(ekf.isInit() == false){
+    VectorXd mean_init = Eigen::VectorXd::Zero(6);
+    ekf.SetInit(mean_init, Time_uav);
+    ekf.SetParam(0.01,0.01);
     return;
+  }
   ekf.UavPropagation(u, Time_uav, Rgi, Rgc);
   VectorXd mean = ekf.GetState();
   nav_msgs::Odometry pos_ekf;
@@ -36,10 +40,9 @@ void uav_vel_callback(const geometry_msgs::Vector3Stamped &msg)
   pos_ekf.pose.pose.position.y = mean(1);
   pos_ekf.pose.pose.position.z = mean(2);
   pos_ekf.header.stamp = Time_uav;
-  
   odom_uav_pub.publish(pos_ekf);
 }
-*/
+/*
 void uav_vel_callback(const nav_msgs::Odometry &msg)
 {
   //cout << "uav vel callback done!" << endl;
@@ -63,7 +66,7 @@ void uav_vel_callback(const nav_msgs::Odometry &msg)
   pos_ekf.header.stamp = Time_uav;
   odom_uav_pub.publish(pos_ekf);
 }
-
+*/
 void ugv_vel_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
   ros::Time Time_ugv = msg->header.stamp;
@@ -146,7 +149,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "ekf");
   ros::NodeHandle n("~");
   //TODO: reimplement ekf.SetParam
-  ros::Subscriber s1 = n.subscribe("/guidance/odometry", 100, uav_vel_callback); //Or /guidance/velocity
+  ros::Subscriber s1 = n.subscribe("/current_velocity", 100, uav_vel_callback); //Or /guidance/velocity
   ros::Subscriber s2 = n.subscribe("ugv_vel", 100, ugv_vel_callback);
   ros::Subscriber s3 = n.subscribe("uav_odom", 100, uav_odom_callback);
   ros::Subscriber s4 = n.subscribe("ugv_odom", 100, ugv_odom_callback);
