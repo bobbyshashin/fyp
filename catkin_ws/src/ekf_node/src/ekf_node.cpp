@@ -20,7 +20,7 @@ Vector3d Tic, Tgt; //TODO: These two need to be initialized
 Matrix3d Ric;
 
 
-void uav_vel_callback(const geometry_msgs::Vector3 &msg)
+void uav_vel_callback(const geometry_msgs::Vector3Stamped &msg)
 {
   ros::Time Time_uav = msg.header.stamp;
   Vector3d u = VectorXd::Zero(3);
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "ekf");
   ros::NodeHandle n("~");
   //TODO: reimplement ekf.SetParam
-  ros::Subscriber s1 = n.subscribe("/current_velocity", 100, uav_vel_callback); //Or /guidance/velocity
+  ros::Subscriber s1 = n.subscribe("/guidance/velocity", 100, uav_vel_callback); //Or /guidance/velocity
   ros::Subscriber s2 = n.subscribe("ugv_vel", 100, ugv_vel_callback);
   ros::Subscriber s3 = n.subscribe("uav_odom", 100, uav_odom_callback);
   ros::Subscriber s4 = n.subscribe("ugv_odom", 100, ugv_odom_callback);
