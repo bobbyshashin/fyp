@@ -161,7 +161,6 @@ float PID::update(const float currentPoint, const float dt)
     // d contrlller
     //DVal = (1.0f-alpha)*error_derivative + alpha*old_error_derivative;
     //old_error_derivative = DVal;
-    DVal = error_derivative;
 
     DVal = DVal / dt * Kd;
 
