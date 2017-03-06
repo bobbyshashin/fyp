@@ -96,9 +96,9 @@ std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 
 void bias_correction_callback(const std_msgs::UInt8& msg) {
 
-    if (msg.data == 1){ 
+    if (msg.data == 1)
         bias_correction = true;
-  	cout << "=========================activated!===========" << endl;}
+  	
 }
 
 
@@ -281,7 +281,7 @@ int my_callback(int data_type, int data_len, char *content)
         else 
             pos_y_filter = m->position_in_global_y;
 
-        if(height < 0.05 && height > -0.05) 
+        if(height < 0.05) 
             pos_z_filter = 0;
         else 
             pos_z_filter = height;
@@ -296,7 +296,10 @@ int my_callback(int data_type, int data_len, char *content)
         }
 
         else {
-
+            
+            odometry.pose.pose.position.x = pos_x_filter
+            odometry.pose.pose.position.y = pos_y_filter
+            odometry.pose.pose.position.z = pos_z_filter
             pos_bias_x =  pos_x_filter;
             pos_bias_y =  pos_y_filter;
             pos_bias_z =  pos_z_filter;
@@ -308,38 +311,36 @@ int my_callback(int data_type, int data_len, char *content)
 
         geometry_msgs::Vector3 current_position;
         geometry_msgs::Vector3Stamped current_velocity;
+
         std_msgs::Float32 initial_angle;
 
         Eigen::Matrix2d rot;
-        Eigen::Vector2d tmp, tmp_vel;
+        Eigen::Vector2d tmp_pos, tmp_vel;
         
 
-        tmp(0) = pos_x_filter - pos_bias_x;
-        tmp(1) = pos_y_filter - pos_bias_y;
+        tmp_pos(0) = odometry.pose.pose.position.x;
+        tmp_pos(1) = odometry.pose.pose.position.y;
+
         tmp_vel(0) = m->velocity_in_global_x;
         tmp_vel(1) = m->velocity_in_global_y;
 
         rot << cos(initial), -sin(initial),
         	   sin(initial), cos(initial);
 
-        tmp = (rot)*tmp;
-        tmp_vel = (rot)*tmp_vel;
+        tmp_pos = (rot) * tmp_pos;
+        tmp_vel = (rot) * tmp_vel;
         
-        current_position.x = tmp(0);
-        current_position.y = tmp(1);
+        current_position.x = tmp_pos(0);
+        current_position.y = tmp_pos(1);
         current_position.z = height;
         
         current_velocity.header.stamp = ros::Time::now();
         current_velocity.vector.x = tmp_vel(0);
         current_velocity.vector.y = tmp_vel(1);
         current_velocity.vector.z = m->velocity_in_global_z;
-        
-
-        //initial_angle.data = initial;
        
         current_position_pub.publish(current_position);
         current_velocity_pub.publish(current_velocity);
-        //initial_publisher.publish(initial_angle);
 
        	/***********************/
 
@@ -494,7 +495,7 @@ int main(int argc, char** argv)
                 //select_imu();
                 //select_ultrasonic();
                 //select_obstacle_distance();
-                select_velocity();
+                //select_velocity();
 
 				err_code = start_transfer();
 				RETURN_IF_ERR(err_code);
