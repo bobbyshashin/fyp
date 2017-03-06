@@ -14,6 +14,7 @@
 EKF ekf;
 ros::Publisher odom_uav_pub;
 ros::Publisher odom_ugv_pub;
+ros::Publisher test_pub;
 Matrix3d Rgi = Matrix3d::Identity(3,3);
 Matrix3d Rgc = Matrix3d::Identity(3,3);
 Vector3d Tic, Tgt; //TODO: These two need to be initialized
@@ -27,6 +28,12 @@ void uav_vel_callback(const geometry_msgs::Vector3Stamped &msg)
   u(0) = msg.vector.x;
   u(1) = msg.vector.y;
   u(2) = msg.vector.z;
+  u = Rgi.transpose()*u;
+  geometry_msgs::Vector3 bodyv;
+  bodyv.x = u(0);
+  bodyv.y = u(1);
+  bodyv.z = u(2);
+  test_pub.publish(bodyv);
   if(ekf.isInit() == false){
     VectorXd mean_init = Eigen::VectorXd::Zero(6);
     ekf.SetInit(mean_init, Time_uav);
@@ -149,7 +156,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "ekf");
   ros::NodeHandle n("~");
   //TODO: reimplement ekf.SetParam
-  ros::Subscriber s1 = n.subscribe("/guidance/velocity", 100, uav_vel_callback); //Or /guidance/velocity
+  ros::Subscriber s1 = n.subscribe("/current_velocity", 100, uav_vel_callback); //Or /guidance/velocity
   ros::Subscriber s2 = n.subscribe("ugv_vel", 100, ugv_vel_callback);
   ros::Subscriber s3 = n.subscribe("uav_odom", 100, uav_odom_callback);
   ros::Subscriber s4 = n.subscribe("ugv_odom", 100, ugv_odom_callback);
@@ -158,5 +165,6 @@ int main(int argc, char **argv)
   ros::Subscriber s7 = n.subscribe("target_position", 1, target_position_callback);
   odom_ugv_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_ugv", 100); 
   odom_uav_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_uav", 100);
+  test_pub = n.advertise<geometry_msgs::Vector3> ("test_pub", 100);
   ros::spin();
 }

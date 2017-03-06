@@ -281,7 +281,7 @@ int my_callback(int data_type, int data_len, char *content)
         else 
             pos_y_filter = m->position_in_global_y;
 
-        if(height < 0.05 && height > -0.05) 
+        if(height < 0.05) 
             pos_z_filter = 0;
         else 
             pos_z_filter = height;
