@@ -57,8 +57,8 @@ PID *pid3;
 PID *pid4;
 
 float Kp1 = 0.6;
-float Ki1 = 0.15;
-float Kd1 = 0.1;
+float Ki1 = 0.1;
+float Kd1 = 0;
 
 float Kp2 = 0.45;
 float Ki2 = 0.1;
@@ -70,16 +70,16 @@ int16_t currentSpeed[4] = {0,0,0,0};
 float ctrl[4] = {0,0,0,0}; // data sent to CAN
 int threshold = 10;
 
-float dt = 0.1;
+float dt = 0.05;
 
 float pid_ctrl_limit = 4000;
 float integralLimit = 40000;
 
-void get_speed(int32_t id, int16_t high, int16_t low)
+void get_speed(int32_t id, int32_t high, int32_t low)
 {
 	if(id == 0x201) 
 	{
-		currentSpeed[0] = (high<<8) | (low);
+		currentSpeed[0] = (high<<8) + (low);
 		//printf("high: %d, low: %d \n", high<<8, low);
 		//printf("speed1 %d", currentSpeed[0]);
 
@@ -87,17 +87,17 @@ void get_speed(int32_t id, int16_t high, int16_t low)
 
 	else if(id == 0x202)
 	{
-		currentSpeed[1] = (high<<8) | (low);		
+		currentSpeed[1] = (high<<8) + (low);		
 	}
 
 	else if(id == 0x203)
 	{
-		currentSpeed[2] = 0 - ((high<<8) | (low));		
+		currentSpeed[2] = 0 - ((high<<8) + (low));		
 	}
 	
 	else if(id == 0x204)
 	{
-		currentSpeed[3] = 0 - ((high<<8) | (low));		
+		currentSpeed[3] = 0 - ((high<<8) + (low));		
 	}
 
 } 
@@ -127,19 +127,11 @@ void pid_parameter_tuning_callback(const geometry_msgs::Vector3& msg) {
 
 void speed_input_callback(const geometry_msgs::Quaternion& msg) 
 {
+     pid1 -> set_point(msg.x);
+     pid2 -> set_point(msg.y);
+     pid3 -> set_point(msg.z);
+     pid4 -> set_point(msg.w);
 	
-
-	targetSpeed[0] = msg.x;
-	targetSpeed[1] = msg.y;
-	targetSpeed[2] = msg.z;
-	targetSpeed[3] = msg.w;
-
-        pid1 -> set_point(msg.x);
-        pid2 -> set_point(msg.y);
-        pid3 -> set_point(msg.z);
-        pid4 -> set_point(msg.w);
-	
-	cout << "Speed updated!" << endl;
 
 }
 
@@ -240,7 +232,7 @@ void send_speed(int first, int second, int third, int fourth, VCI_CAN_OBJ &send)
     }
 
     /* Third wheel */
-    if(third >= 0)   
+    if(third >= 0)
     {
 	send.Data[4] = (int)(third/256);
 	send.Data[5] = third & 0x00ff;
@@ -350,8 +342,7 @@ int main(int argc, char *argv[]) {
     sendData.ExternFlag = 0;
     sendData.DataLen = 8;
 
-    
-    ros::Rate loop_rate(100);					
+    																																																																																																																																																							
 
     int first = 0;
     int second = 0;
@@ -366,28 +357,40 @@ int main(int argc, char *argv[]) {
     //send_speed(800,800,800,800, sendData);
 
 
-    int loopNumber = 0;
+
     /* Major loop */
     while (ros::ok()) {
 
-	DWORD dwRel;
-	printf("I'm cleaning \n");
-	dwRel = VCI_ClearBuffer(VCI_USBCAN2, 0 , 0);
 
-
+	//DWORD dwRel;
+	//printf("I'm cleaning your shit \n");
+	//dwRel = VCI_ClearBuffer(VCI_USBCAN2, 0 , 0);
+	//printf("This is return value %d \n", dwRel);
 
 	
-   
-  
-    //pid_param_pub.publish(pid_param);
-    //speed_pub.publish(speed);
-    //control_pub.publish(control);
-    //error_pub.publish(error);
+    pid_param.x = Kp1;
+    pid_param.y = Ki1;
+    pid_param.z = Kd1;
 
-    loopNumber++;
-    cout<<"This is "<<loopNumber<<" loop"<<endl;
+    speed.x = currentSpeed[0];
+    speed.y = currentSpeed[1];
+    speed.z = currentSpeed[2];
+    speed.w = currentSpeed[3];
+
+    control.x = ctrl[0];
+    control.y = ctrl[1];
+    control.z = ctrl[2];
+    control.w = ctrl[3];
+
+  
+    pid_param_pub.publish(pid_param);
+    speed_pub.publish(speed);
+    control_pub.publish(control);
+    error_pub.publish(error);
+
+
     int reclen=0;
-    VCI_CAN_OBJ rec[160];
+    VCI_CAN_OBJ rec[40];
     int i;
 	
     printf("running....\n");
@@ -402,97 +405,67 @@ int main(int argc, char *argv[]) {
 	    averSpeed3 = 0;
 	    averSpeed4 = 0;
     /* Receive */
-    if((reclen=VCI_Receive(VCI_USBCAN2,0,0,rec,160,0))>0) {
+    if((reclen=VCI_Receive(VCI_USBCAN2,0,0,rec,40,0))>0) {
 
-	
+	/* Print frame numbers */	
+	printf("Received %d frames \n", reclen);
 		
 	/* Print info for each frame */
 	for (int j=0; j<reclen; j++){
 	    /* Print CAN ID */
 	    printf("Receive: %08X \n", rec[j].ID);
 	    
-	    /* Print frame numbers */	
-	    printf("\n Received %d frames \n", reclen);
+
 		for(int p = 0; p < rec[reclen-1].DataLen; p++) {
 		        /* Print the data under this CAN ID  */
             		printf(" %08X", rec[j].Data[p]);
 		}
 
-	    get_speed(rec[j].ID, rec[j].Data[2], rec[j].Data[3]);
-	  
-
- 	    if (rec[j].ID ==0x201)
-	    {
-	    	averSpeed1 = averSpeed1 + currentSpeed[0];
-		first++;
-
-	    }
-	    else if (rec[j].ID ==0x202)
-	    {
-		averSpeed2 = averSpeed2 + currentSpeed[1];
-		second++;
-	    }
-	    else if (rec[j].ID ==0x203)
-	    {
-		averSpeed3 = averSpeed3 + currentSpeed[2];
-		third++;
-	    }
-	    else if (rec[j].ID ==0x204)
-	    {
-		averSpeed4 = averSpeed4 + currentSpeed[3];
-		fourth++;
-	    }
-
-
+	    if (rec[j].ID == 0x201) { first++; }
+	    else if (rec[j].ID == 0x202) { second++; }
+	    else if (rec[j].ID == 0x203) { third++; }
+	    else if (rec[j].ID == 0x204) { fourth++; }
 
 	    printf("\n first: %d \n", first);
 	    printf("second: %d \n", second);
 	    printf("third: %d \n", third);
 	    printf("fourth: %d \n", fourth);
 
+	    get_speed(rec[j].ID, rec[j].Data[2], rec[j].Data[3]);
+	    
+		
+	    
+
+
+ 	    if (rec[j].ID ==0x201)
+	    {
+	    	averSpeed1 = averSpeed1 + currentSpeed[0];
+
+	    }
+	    else if (rec[j].ID ==0x202)
+	    {
+		averSpeed2 = averSpeed2 + currentSpeed[1];
+	    }
+	    else if (rec[j].ID ==0x203)
+	    {
+		averSpeed3 = averSpeed3 + currentSpeed[2];
+	    }
+	    else if (rec[j].ID ==0x204)
+	    {
+		averSpeed4 = averSpeed4 + currentSpeed[3];
+	    }
+
+	    
+
 	    printf("Real speed is %d\n %d\n %d\n %d\n", currentSpeed[0], currentSpeed[1], currentSpeed[2], currentSpeed[3]);
   
 	}
 
 	    /* Calculate average speed */
-	    if (first != 0)
-	    {
-		averSpeed1 = averSpeed1 / first;
-	    }
-	    else
-	    {
-	    	averSpeed1 = currentSpeed[0];
-	    }
-
-   	    if (second != 0)
-	    {
-		averSpeed2 = averSpeed2 / second;
-	    }
-	    else
-	    {
-	    	averSpeed2 = currentSpeed[1];
-	    }
-
-   	    if (third != 0)
-	    {
-		averSpeed3 = averSpeed3 / third;
-	    }
-	    else
-	    {
-	    	averSpeed3 = currentSpeed[2];
-	    }
-
-   	    if (fourth != 0)
-	    {
-		averSpeed4 = averSpeed4 / fourth;
-	    }
-	    else
-	    {
-	    	averSpeed4 = currentSpeed[3];
-	    }
-
-
-	    
+	    averSpeed1 = averSpeed1 / first;
+	    averSpeed2 = averSpeed2 / second;
+	    averSpeed3 = averSpeed3 / third;
+	    averSpeed4 = averSpeed4 / fourth;
 
 	    currentSpeed[0] = averSpeed1;
 	    currentSpeed[1] = averSpeed2;
@@ -503,13 +476,12 @@ int main(int argc, char *argv[]) {
     get_control(currentSpeed, targetSpeed);
 
     cout<<"Control signals: " <<ctrl[0]<<endl<<ctrl[1]<<endl<<ctrl[2]<<endl<<ctrl[3]<<endl;
-    send_speed(ctrl[0],ctrl[1],ctrl[2],ctrl[3], sendData);
-    //send_speed(0, ctrl[1], 0, 0, sendData);
+    //send_speed(ctrl[0],ctrl[1],ctrl[2],ctrl[3], sendData);
+    send_speed(ctrl[0], 0, 0, 0, sendData);
 
-    usleep(2000);
-
+    
     /* Transmit */		
-    if(VCI_Transmit(VCI_USBCAN2, 0, 0, &sendData, 1) > 0) {
+    if(VCI_Transmit(VCI_USBCAN2, 0, 0, &sendData, 10) > 0) {
 
 	printf("CAN 1 ID: %08X\r\n",sendData.ID);
 	printf("CAN 1 data :\r\n");
@@ -525,27 +497,6 @@ int main(int argc, char *argv[]) {
 
     else
         break;
-
-    pid_param.x = Kp1;
-    pid_param.y = Ki1;
-    pid_param.z = Kd1;
-
-    speed.x = currentSpeed[0];
-    speed.y = currentSpeed[1];
-    speed.z = currentSpeed[2];
-    speed.w = currentSpeed[3];
-
-    control.x = ctrl[0];
-    control.y = ctrl[1];
-    control.z = ctrl[2];
-    control.w = ctrl[3];
-
-    pid_param_pub.publish(pid_param);
-    speed_pub.publish(speed);
-    control_pub.publish(control);
-    error_pub.publish(error);
-
-
 	
 		
     ros::spinOnce();
