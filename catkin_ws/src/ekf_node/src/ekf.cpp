@@ -87,7 +87,7 @@ void EKF::UavPropagation(VectorXd u, ros::Time stamp, Matrix3d R_a_g, Matrix3d R
   F = I6;
   V = dT * U;
   State state_new;
-  state_new.mean = mean_last +dT * xdot;
+  state_new.mean = mean_last +dT * (xdot);
   state_new.var = F * var_last * F.transpose() + V * Q * V.transpose();
   state_new.stamp = stamp;
   state_new.u_uav = u;

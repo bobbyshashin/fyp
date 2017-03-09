@@ -36,7 +36,7 @@ ros::Publisher ultrasonic_pub;
 ros::Publisher odometry_pub;
 ros::Publisher current_position_pub;
 ros::Publisher current_velocity_pub;
-ros::Publisher initial_publisher;
+//ros::Publisher initial_publisher;
 ros::Subscriber orientation_sub;
 ros::Subscriber bias_correction_sub;
 
