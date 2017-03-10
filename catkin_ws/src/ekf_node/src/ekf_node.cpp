@@ -166,7 +166,7 @@ void initial_angle_callback(const std_msgs::Float32 &msg)
   double initial = msg.data;
   Rggg << cos(initial), -sin(initial), 0,
           sin(initial),  cos(initial), 0,
-          0           ,            0,  1;
+          0           ,             0, 1;
   flag = true;
 }
 
