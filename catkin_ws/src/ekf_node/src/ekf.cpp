@@ -33,8 +33,10 @@ ros::Time EKF::GetTime()
 
 void EKF::SetParam(double var_n_uav, double var_n_ugv)
 {
-	Q.setZero(6, 6);
-	R.setZero(6, 6);
+	Q = I6;
+        Q = 0.01 * Q;
+	R = I6;
+  	R = 0.5 * R;
 	W = I6;
 	C_uav.setZero(6,6);
 	C_ugv.setZero(6,6);
@@ -44,11 +46,12 @@ void EKF::SetParam(double var_n_uav, double var_n_ugv)
         F.setZero(6, 6);
         U.setZero(6, 6);
 	V.setZero(6, 6);
-
+ /*
   for(int i=0;i<3; i++){
       R(i,i) = var_n_uav;}
   for(int i=3;i<6;i++){
       R(i,i) = var_n_ugv;}
+*/
 }
 
 void EKF::SetInit(VectorXd Z, ros::Time stamp)
@@ -78,12 +81,14 @@ void EKF::UavPropagation(VectorXd u, ros::Time stamp, Matrix3d R_a_g, Matrix3d R
   A = MatrixXd::Zero(6,6);
   U.block(0,0,3,3) = -R_a_g; //TODO: Need to be defined later, subscribe from SDK
   U.block(3,3,3,3) = -R_c_g; //TODO: Same with above
-
+  
   double dT = (stamp - state_last.stamp).toSec();
   VectorXd xdot = VectorXd::Zero(6);
+  
   xdot.segment<3>(0) = u;
+  
   xdot.segment<3>(3) = state_last.u_ugv;
-
+  
   F = I6;
   V = dT * U;
   State state_new;
@@ -100,16 +105,17 @@ void EKF::UgvPropagation(VectorXd u, ros::Time stamp, Matrix3d R_a_g, Matrix3d R
   State state_last = StateHist[StateHist.size()-1];
   VectorXd mean_last = state_last.mean;
   MatrixXd var_last = state_last.var;
-
+  
   A = MatrixXd::Zero(6,6);
   U.block(0,0,3,3) = -R_a_g; //TODO: Need to be defined later, subscribe from SDK
   U.block(3,3,3,3) = -R_c_g; //TODO: Same with above
   //TODO: Notice question here: If we update seperatedly, do we need to keep U unchanged partly?
   double dT = (stamp - state_last.stamp).toSec();
+  
   VectorXd xdot = Eigen::VectorXd::Zero(6);
   xdot.segment<3>(3) = u;
   xdot.segment<3>(0) = state_last.u_uav;
-
+  
   F = I6;
   V = dT * U;
   State state_new;
@@ -127,7 +133,7 @@ void EKF::UavOdomUpdate(VectorXd z, ros::Time time)
   vector< State >::iterator itr;
   vector< State >::iterator itr2;
   vector< State > state3;
-
+  //cout << "Here0" << endl;
   state_last = StateHist[StateHist.size()-1];
   /*
   for(itr = StateHist.begin(); itr != StateHist.end(); itr ++){
@@ -143,15 +149,18 @@ void EKF::UavOdomUpdate(VectorXd z, ros::Time time)
   Eigen::MatrixXd K1 = Eigen::MatrixXd::Zero(6,6);
   Eigen::MatrixXd K2 = Eigen::MatrixXd::Zero(6,6);
   Eigen::MatrixXd K3 = Eigen::MatrixXd::Zero(6,6);
-
+  
   K1 = state_last.var * (C_uav.transpose());
   K2 = C_uav*state_last.var*(C_uav.transpose())+W*R*(W.transpose()) ;
   K3 = K2.inverse();
   K = K1*K3;
-
-  State state_new;
+  cout << "K: " << K << endl << "======" << endl;
+  cout << "K1: " << K1 << endl << "=====" << endl;
+  cout << "K3: " << K3 << endl << "=====" << endl; 
+  State state_new = state_last;
   state_new.mean = state_last.mean + K*(z-C_uav*state_last.mean);
   state_new.var  = state_last.var - K*C_uav*state_last.var;
+  cout << "updated mean: " << state_new.mean << endl;
   state_new.stamp = state_last.stamp;
 
   StateHist.push_back(state_new);
@@ -182,7 +191,7 @@ void EKF::UgvOdomUpdate(VectorXd z, ros::Time time)
   K3 = K2.inverse();
   K = K1*K3;
 
-  State state_new;
+  State state_new = state_last;
   state_new.mean = state_last.mean + K*(z-C_ugv*state_last.mean);
   state_new.var  = state_last.var - K*C_ugv*state_last.var;
   state_new.stamp = state_last.stamp;

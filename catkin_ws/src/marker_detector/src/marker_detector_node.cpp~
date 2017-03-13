@@ -71,7 +71,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         pub_ar_odom.publish(odom_marker);
     }
     cv::imshow("usb_image", frame);
-    cv::waitKey(5);
+    cv::waitKey(10);
 }
 
 int main(int argc, char **argv)

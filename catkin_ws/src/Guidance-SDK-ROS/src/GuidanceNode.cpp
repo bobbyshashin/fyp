@@ -502,7 +502,7 @@ int main(int argc, char** argv)
                 //select_imu();
                 //select_ultrasonic();
                 //select_obstacle_distance();
-                //select_velocity();
+                select_velocity();
 
 				err_code = start_transfer();
 				RETURN_IF_ERR(err_code);

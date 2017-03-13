@@ -83,10 +83,9 @@ int main(int argc, char *argv[]) {
 
 	speed_counter += 100;
 	
-	if (speed_counter > 1000)
-	{
-		speed_counter = 1000;
-	}
+	if (speed_counter > 1600)
+	    speed_counter = 1600;
+	
 	speed_value.x = speed_counter;
     	speed_value.y = speed_counter;
     	speed_value.z = speed_counter;
@@ -98,24 +97,29 @@ int main(int argc, char *argv[]) {
 
         speed_counter -= 100;
         
-        if (speed_counter > 1000)
-	{
-		speed_counter = 1000;
-	}
+        if (speed_counter < -1600) 
+	    speed_counter = -1600;
+
 	speed_value.x = speed_counter;
     	speed_value.y = speed_counter;
     	speed_value.z = speed_counter;
     	speed_value.w = speed_counter;
     }
     else if (c == 'a') {
-speed_value.x = speed_counter;
-    	speed_value.y = speed_counter;
+        
+	speed_value.x = - speed_counter;
+    	speed_value.y = - speed_counter;
     	speed_value.z = speed_counter;
     	speed_value.w = speed_counter;
         
     }
     else if (c == 'd') {
-        
+
+        speed_value.x = speed_counter;
+    	speed_value.y = speed_counter;
+    	speed_value.z = - speed_counter;
+    	speed_value.w = - speed_counter;
+
     }
     else {
 

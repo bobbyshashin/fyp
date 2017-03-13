@@ -36,7 +36,7 @@ ros::Publisher ultrasonic_pub;
 ros::Publisher odometry_pub;
 ros::Publisher current_position_pub;
 ros::Publisher current_velocity_pub;
-//ros::Publisher initial_publisher;
+ros::Publisher initial_publisher;
 ros::Subscriber orientation_sub;
 ros::Subscriber bias_correction_sub;
 
@@ -502,7 +502,7 @@ int main(int argc, char** argv)
                 //select_imu();
                 //select_ultrasonic();
                 //select_obstacle_distance();
-                //select_velocity();
+                select_velocity();
 
 				err_code = start_transfer();
 				RETURN_IF_ERR(err_code);
