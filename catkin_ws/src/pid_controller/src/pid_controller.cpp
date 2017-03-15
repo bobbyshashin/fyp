@@ -231,7 +231,8 @@ int main(int argc, char** argv) {
     pid_z   = new PID( Kp_vert_pos, Ki_vert_pos, Kd_vert_pos, -5, 5, -pid_ctrl_limit_vert, pid_ctrl_limit_vert, false);
     pid_yaw = new PID( Kp_yaw, Ki_yaw, Kd_yaw, -5, 5, -pid_yaw_limit, pid_yaw_limit, false);
 
-    pid_vision = new PID(Kp_vision, Ki_vision, Kd_vision, -5, 5, -pid_ctrl_limit_horz, pid_ctrl_limit_horz, false);
+    pid_vision_x = new PID(Kp_vision, Ki_vision, Kd_vision, -5, 5, -pid_ctrl_limit_horz, pid_ctrl_limit_horz, false);
+    pid_vision_y = new PID(Kp_vision, Ki_vision, Kd_vision, -5, 5, -pid_ctrl_limit_horz, pid_ctrl_limit_horz, false);
 
     pid_x->set_point(target_position[0]);
     pid_y->set_point(target_position[1]);

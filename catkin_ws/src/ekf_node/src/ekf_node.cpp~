@@ -17,7 +17,7 @@ ros::Publisher odom_uav_pub;
 ros::Publisher odom_ugv_pub;
 ros::Publisher test_pub;
 Matrix3d Rgi = Matrix3d::Identity(3,3);
-Matrix3d Rgc = Matrix3d::Identity(3,3); //From car to global
+Matrix3d Rgc = Matrix3d::Identity(3,3);
 Vector3d Tic = Vector3d::Zero(3);
 Vector3d Tgt(0,0,0);
 Matrix3d Ric;
