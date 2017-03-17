@@ -1,0 +1,26 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~fps" : \b [double] Frames per second min: 1.0, default: 20.0, max: 200.0
+- \b "~width" : \b [int] AOI width min: 0, default: 0, max: 2048
+- \b "~height" : \b [int] AOI height min: 0, default: 0, max: 2048
+- \b "~idpf" : \b [int] Defines the pixel format of the resulting image min: 0, default: 0, max: 22
+- \b "~cbm" : \b [int] Camera binning mode min: 0, default: 0, max: 3
+- \b "~aec" : \b [bool] Automatic exposure control min: False, default: False, max: True
+- \b "~expose_us" : \b [int] Exposure time for an image in us min: 10, default: 10000, max: 100000
+- \b "~agc" : \b [bool] Automatic gain control min: False, default: False, max: True
+- \b "~gain_db" : \b [double] Gain in dB min: 0.0, default: 0.0, max: 32.0
+- \b "~acs" : \b [int] Auto control speed min: -1, default: 0, max: 2
+- \b "~des_grey_value" : \b [int] desired average grey value min: 0, default: 85, max: 255
+- \b "~hdr" : \b [bool] High dynamic range min: False, default: False, max: True
+- \b "~dcfm" : \b [int] Operation mode of the dark current filter min: 0, default: 0, max: 3
+- \b "~cpc" : \b [int] Pixel clock of the camera sensor in KHz min: 12000, default: 40000, max: 50000
+- \b "~ctm" : \b [int] Camera trigger mode min: -1, default: 1, max: 5
+- \b "~cts" : \b [int] Camera trigger source min: -1, default: -1, max: 1
+- \b "~request" : \b [int] Prefill capture queue by request min: 0, default: 0, max: 4
+- \b "~wbp" : \b [int] white balance parameter min: -1, default: 6, max: 10
+- \b "~r_gain" : \b [double] red gain min: 0.1, default: 1.0, max: 10.0
+- \b "~g_gain" : \b [double] green gain min: 0.1, default: 1.0, max: 10.0
+- \b "~b_gain" : \b [double] blue gain min: 0.1, default: 1.0, max: 10.0
+

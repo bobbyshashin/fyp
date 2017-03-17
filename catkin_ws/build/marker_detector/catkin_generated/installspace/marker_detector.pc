@@ -1,0 +1,8 @@
+prefix=/home/ubuntu/fyp/catkin_ws/install
+
+Name: marker_detector
+Description: Description of marker_detector
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/ubuntu/fyp/catkin_ws/install/lib 
+Requires: 

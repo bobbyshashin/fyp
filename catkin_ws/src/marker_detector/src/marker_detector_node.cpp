@@ -19,7 +19,7 @@ using namespace aruco;
 using namespace Eigen;
 
 float MarkerSize = 0.1;
-int query_id = 10;
+//int query_id = 10;
 aruco::CameraParameters CamParam;
 MarkerDetector MDetector;
 vector<Marker> Markers;
@@ -27,10 +27,6 @@ vector<Marker> Markers;
 ros::Publisher pub_ar_odom;
 ros::Publisher centroid_pub;
 
-void query_id_callback(const std_msgs::Int16::ConstPtr& id_msg)
-{
-    query_id = id_msg->data;
-}
 
 void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
 {
@@ -52,8 +48,6 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         aruco::CvDrawingUtils::draw3dAxis(frame, Markers[i], CamParam);
         Markers[i].calculateExtrinsics(MarkerSize, CamParam);
         
-        if(query_id != Markers[i].id)
-            continue;
 
         Point2f centroid = Markers[i].getCenter();
 
@@ -94,6 +88,8 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         odom_marker.pose.pose.orientation.y = Q.y();
         odom_marker.pose.pose.orientation.z = Q.z();
 
+        //Add id to the message
+        odom_marker.twist.twist.linear.x = Markers[i].id;
         pub_ar_odom.publish(odom_marker);
     }
     imshow("usb_image", frame);
@@ -110,7 +106,7 @@ int main(int argc, char **argv)
     
     centroid_pub = nh.advertise<geometry_msgs::Point>("/marker_center", 10);
     pub_ar_odom = nh.advertise<nav_msgs::Odometry>("/detected_markers", 10);
-    ros::Subscriber sub_img = nh.subscribe("/mv_25001511/image_raw", 1, img_callback);
+    //ros::Subscriber sub_img = nh.subscribe("/mv_25001511/image_raw", 1, img_callback);
     //ros::Subscriber sub_query_id = nh.subscribe("/query_id", 1, query_id_callback);
     
 

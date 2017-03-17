@@ -16,6 +16,8 @@ EKF ekf;
 ros::Publisher odom_uav_pub;
 ros::Publisher odom_ugv_pub;
 ros::Publisher test_pub;
+float uavID = 10;
+float ugvID = 20;
 Matrix3d Rgi = Matrix3d::Identity(3,3);
 Matrix3d Rgc = Matrix3d::Identity(3,3); //From car to global
 Vector3d Tic = Vector3d::Zero(3);
@@ -28,7 +30,8 @@ Matrix3d Ric;
 
 
 
-Matrix3d Rggg;// = Matrix3d::Identity(3,3); //Rggg is rotation from global to local
+Matrix3d Rggg;// = Matrix3d::Identity(3,3); //Rggg is rotation from global to local for UAV
+Matrix3d Rggg_car = Matrix3d::Identity(3,3);
 
 bool flag = false;
 
@@ -106,7 +109,7 @@ void ugv_vel_callback(const nav_msgs::Odometry::ConstPtr &msg)
     return;
   }
   if(!flag) return;
-  u = Rggg * u;
+  u = Rggg_car * u;
   ekf.UgvPropagation(u, Time_ugv, Rgi, Rgc);
   VectorXd mean = ekf.GetState();
   nav_msgs::Odometry pos_ekf;
@@ -119,6 +122,9 @@ void ugv_vel_callback(const nav_msgs::Odometry::ConstPtr &msg)
 
 void uav_odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
+  float id = msg->twist.twist.linear.x;
+  if(((id-uavID) > 0.1) || ((id-uavID) < -0.1))
+      return;
   cout << "UAV update start" << endl;
   Vector3d Tct,Tgi;
   
@@ -140,6 +146,9 @@ void uav_odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
 
 void ugv_odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
+  float id = msg->twist.twist.linear.x;
+  if(((id-ugvID) > 0.1) || ((id-ugvID) < -0.1))
+      return;
   Vector3d Tcu,Tgu,Tgi;
   VectorXd mean = ekf.GetState();
   Tgi = mean.segment<3>(0);
@@ -205,11 +214,11 @@ int main(int argc, char **argv)
   ros::NodeHandle n("~");
   //TODO: reimplement ekf.SetParam
   ros::Subscriber s1 = n.subscribe("/guidance/velocity", 100, uav_vel_callback); //Or /guidance/velocity
-  ros::Subscriber s2 = n.subscribe("ugv_vel", 100, ugv_vel_callback);
+  ros::Subscriber s2 = n.subscribe("/n3_sdk/odometry", 100, ugv_vel_callback);
   ros::Subscriber s3 = n.subscribe("/detected_markers", 100, uav_odom_callback);
-  ros::Subscriber s4 = n.subscribe("ugv_odom", 100, ugv_odom_callback);
+  ros::Subscriber s4 = n.subscribe("/detected_markers", 100, ugv_odom_callback);
   ros::Subscriber s5 = n.subscribe("/dji_sdk/odometry", 100, uav_rot_callback);
-  ros::Subscriber s6 = n.subscribe("ugv_rot", 100, ugv_rot_callback);
+  ros::Subscriber s6 = n.subscribe("/n3_sdk/orientation", 100, ugv_rot_callback);
   ros::Subscriber s7 = n.subscribe("target_position", 1, target_position_callback);
   ros::Subscriber s8 = n.subscribe("/initial_angle", 1, initial_angle_callback);
   odom_ugv_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_ugv", 100); 

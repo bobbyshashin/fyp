@@ -1,0 +1,8 @@
+prefix=/home/ubuntu/fyp/catkin_ws/devel
+
+Name: ugv_control
+Description: Description of ugv_control
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/ubuntu/fyp/catkin_ws/devel/lib 
+Requires: 

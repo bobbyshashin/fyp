@@ -1,0 +1,2 @@
+Onboard-SDK-ROS/dji_sdk:Onboard-SDK-ROS/dji_sdk_demo:Onboard-SDK-ROS/dji_sdk_lib:ekf_node:marker_detector:ugv/n3_sdk:ugv/ugv_commander:ugv/ugv_control
+-DCATKIN_DEVEL_PREFIX=/home/ubuntu/fyp/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ubuntu/fyp/catkin_ws/install -G Unix Makefiles

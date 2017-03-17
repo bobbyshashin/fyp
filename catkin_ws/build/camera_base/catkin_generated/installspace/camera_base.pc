@@ -1,0 +1,8 @@
+prefix=/home/ubuntu/fyp/catkin_ws/install
+
+Name: camera_base
+Description: Description of camera_base
+Version: 0.0.2
+Cflags: -I/home/ubuntu/fyp/catkin_ws/install/include
+Libs: -L/home/ubuntu/fyp/catkin_ws/install/lib 
+Requires: camera_info_manager diagnostic_updater dynamic_reconfigure image_transport roscpp sensor_msgs

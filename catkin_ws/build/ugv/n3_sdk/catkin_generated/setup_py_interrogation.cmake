@@ -1,0 +1,6 @@
+set(n3_sdk_SETUP_PY_VERSION "3.2.0")
+set(n3_sdk_SETUP_PY_SCRIPTS "")
+set(n3_sdk_SETUP_PY_PACKAGES "n3_sdk")
+set(n3_sdk_SETUP_PY_PACKAGE_DIRS "src/n3_sdk")
+set(n3_sdk_SETUP_PY_MODULES "")
+set(n3_sdk_SETUP_PY_MODULE_DIRS "")
