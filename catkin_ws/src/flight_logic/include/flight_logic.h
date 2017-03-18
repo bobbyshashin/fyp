@@ -6,6 +6,7 @@ typedef enum {
     LANDING            ,
     RELEASE_CONTROL    ,
     SEARCH_FOR_TAGS    ,
+    UGV_TRACKING       ,
 
 
 
