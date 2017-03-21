@@ -172,11 +172,11 @@ void current_pos_callback(const geometry_msgs::Vector3& current_position) {
 
 }
 
-void vision_ctrl_callback(const geometry_msgs::Point& msg) {
+void vision_ctrl_callback(const geometry_msgs::Vector3& msg) {
 
     pid_vision_x -> update(msg.x, dt);
     pid_vision_y -> update(msg.y, dt);
-
+    // msg.z is the marker ID
     cout << "Vision-based PID has been updated!" << endl;
 
 

@@ -17,8 +17,11 @@ MISSION_STATUS current_mission = INIT;
 MISSION_STATUS next_mission;
 
 bool vision_taking_control;
-float pos_error_threshold = 0.1; // 10 cm tolerance for horizontal & vertical positioning
+bool is_arrived = false;
+
+float pos_error_threshold = 0.05; // 5 cm tolerance for horizontal & vertical positioning
 float position_error[3] = {0, 0, 0};
+float ugv_position[2] = {0, 0};
 
 std_msgs::UInt8 cmd_msg;
 //double target_position[3] = {0, 0, 0};
@@ -59,8 +62,16 @@ void position_error_callback(const geometry_msgs::Vector3& msg) {
     position_error[1] = msg.y;
     position_error[2] = msg.z;
 
+    is_arrived = is_arrived();
+
 }
 
+void ugv_pos_callback(const nav_msgs::Odometry& msg) {
+
+    ugv_position[0] = msg.pose.pose.position.x;
+    ugv_position[1] = msg.pose.pose.position.y;
+
+}
 
 void wait_key() { 
 
@@ -75,19 +86,13 @@ void delay_s(int x) {
 
 }
 
-void move_to(double x, double y, double z) {
+void move_to(double x, double y, double z, bool until_arrival = true) {
 
     //target_position[0] = x;
     //target_position[1] = y;
     //target_position[2] = z;
     
     //TODO: might cause problem of infinity loop, check for timeout?
-    while( !is_arrived() ) {
-
-        usleep(2000);
-
-    }
-    
     int counter = 0;
     geometry_msgs::Vector3 target_pos;
     
@@ -102,6 +107,13 @@ void move_to(double x, double y, double z) {
         counter++;
 
     }
+
+    while( !is_arrived && until_arrival) {
+
+        usleep(2000);
+
+    }
+    
 }
 
 void send_command(int cmd) {
@@ -181,6 +193,8 @@ int mission_run() {
             ROS_INFO("Obtained control successfully");
             current_mission = TAKEOFF;
 
+            delay_s(1); // Wait for 1 second, proceeding to next stage
+
             break;
         }
         
@@ -197,6 +211,8 @@ int mission_run() {
             delay_s(6); // Taking off, wait for 6 seconds
 
             current_mission = STAND_BY;
+
+            delay_s(1); // Wait for 1 second, proceeding to next stage
             //current_mission = next_mission;
 
             break;
@@ -208,37 +224,39 @@ int mission_run() {
             send_command(STAND_BY);
 
             ROS_INFO("Next step: Set height to 1.2m");
-            ROS_INFO("Press any key to continue");
-            wait_key(); 
+            //ROS_INFO("Press any key to continue");
+            //wait_key(); 
             move_to(0, 0, 1.2);
 
             ROS_INFO("Next step: Move to (2,0)");
-            ROS_INFO("Press any key to continue");
-            wait_key(); 
+            //ROS_INFO("Press any key to continue");
+            //wait_key(); 
             move_to(2, 0, 1.2);
 
             ROS_INFO("Next step: Move to (2,2)");
-            ROS_INFO("Press any key to continue");
-            wait_key(); 
+            //ROS_INFO("Press any key to continue");
+            //wait_key(); 
             move_to(2, 2, 1.2);
 
             ROS_INFO("Next step: Move to (0,2)");
-            ROS_INFO("Press any key to continue");
-            wait_key(); 
+            //ROS_INFO("Press any key to continue");
+            //wait_key(); 
             move_to(0, 2, 1.2);
 
             ROS_INFO("Next step: Move to (0,0)");
-            ROS_INFO("Press any key to continue");
-            wait_key(); 
+            //ROS_INFO("Press any key to continue");
+            //wait_key(); 
             move_to(0, 0, 1.2);
              
             ROS_INFO("Mission accomplished!");
-            ROS_INFO("Press any key to land");
-            wait_key(); 
+            //ROS_INFO("Press any key to land");
+            //wait_key(); 
             ROS_INFO("Landing...");
-            usleep(6000000); // Landing, wait for 6 seconds
+            delay_s(6); // Landing, wait for 6 seconds
 
             current_mission = LANDING;
+
+            delay_s(1);
        
             break;
         }
@@ -265,10 +283,9 @@ int mission_run() {
 
         case SEARCH_FOR_TAGS: {
 
-        	ROS_INFO("Going home...");
+        	ROS_INFO("Searching for tags...");
 
         	move_to(0, 0, 3);
-
             move_to(10, 0, 3);
             move_to(10, 10, 3);
             move_to(0, 10, 3);
@@ -277,6 +294,14 @@ int mission_run() {
         	current_mission = LANDING;
 
         	break;
+        }
+
+        case UGV_TRACKING: {
+
+            move_to(ugv_position[0], ugv_position[1], 3, false); // Don't wait until arrival
+            //current_mission = LANDING;
+
+            break;
         }
 
     }
@@ -301,11 +326,12 @@ int main(int argc, char **argv) {
     cmd_msg_pub = nh.advertise<std_msgs::UInt8>("/sdk_cmd", 10);
     //vision_activation_sub = nh.subscribe("/vision_activation", 1, vision_activation_callback);
     //target_searcher_sub = nh.subscribe("/target_coordinate", 1);
+    ugv_pos_sub = nh.subscribe("/ekf_odom_ugv", 1, ugv_pos_callback);
     pos_error_sub = nh.subscribe("/position_error", 1, position_error_callback);
     ros::Rate loop_rate(50);
 
-    ROS_INFO("Flight Logic: Flow control starts");
-    cout << "Last modified: " << "2017-02-17" << endl;
+    ROS_INFO("Flight Logic control starts!");
+    cout << "Last modified: " << "2017-03-18" << endl;
 
     while(ros::ok()) {
 

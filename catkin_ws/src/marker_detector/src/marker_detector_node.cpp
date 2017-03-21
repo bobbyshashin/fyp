@@ -7,7 +7,7 @@
 #include <std_msgs/Int16.h>
 #include <cv_bridge/cv_bridge.h>
 #include <nav_msgs/Odometry.h>
-#include <geometry_msgs/Point.h>
+#include <geometry_msgs/Vector3.h>
 #include <aruco/aruco.h>
 #include <aruco/cvdrawingutils.h>
 #include <opencv2/opencv.hpp>
@@ -51,10 +51,10 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
 
         Point2f centroid = Markers[i].getCenter();
 
-        geometry_msgs::Point marker_center;
+        geometry_msgs::Vector3 marker_center;
         marker_center.x = centroid.x;
         marker_center.y = centroid.y;
-        marker_center.z = 0;
+        marker_center.z = Markers[i].id;
 
         centroid_pub.publish(marker_center);
 
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     nh.getParam("cam_cal_file", cam_cal);
     CamParam.readFromXMLFile(cam_cal);
     
-    centroid_pub = nh.advertise<geometry_msgs::Point>("/marker_center", 10);
+    centroid_pub = nh.advertise<geometry_msgs::Vector3>("/marker_center", 10);
     pub_ar_odom = nh.advertise<nav_msgs::Odometry>("/detected_markers", 10);
     //ros::Subscriber sub_img = nh.subscribe("/mv_25001511/image_raw", 1, img_callback);
     //ros::Subscriber sub_query_id = nh.subscribe("/query_id", 1, query_id_callback);
