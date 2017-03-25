@@ -1,6 +1,0 @@
-(cl:in-package n3_sdk-srv)
-(cl:export '(CONTROL_ENABLE-VAL
-          CONTROL_ENABLE
-          RESULT-VAL
-          RESULT
-))

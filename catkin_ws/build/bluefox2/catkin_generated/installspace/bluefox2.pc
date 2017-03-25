@@ -1,8 +1,0 @@
-prefix=/home/ubuntu/fyp/catkin_ws/install
-
-Name: bluefox2
-Description: Description of bluefox2
-Version: 0.2.0
-Cflags: -I/home/ubuntu/fyp/catkin_ws/install/include -I/opt/mvIMPACT_acquire
-Libs: -L/home/ubuntu/fyp/catkin_ws/install/lib -lbluefox2 -l:/opt/mvIMPACT_acquire/lib/armv7l/libmvPropHandling.so -l:/opt/mvIMPACT_acquire/lib/armv7l/libmvBlueFOX.so -l:/opt/mvIMPACT_acquire/lib/armv7l/libmvDeviceManager.so -l:/opt/mvIMPACT_acquire/lib/armv7l/libmvVirtualDevice.so -l:/opt/mvIMPACT_acquire/lib/armv7l/libusb-1.0.so -l:/opt/mvIMPACT_acquire/lib/armv7l/libwxPropGrid.so
-Requires: message_runtime

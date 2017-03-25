@@ -1,8 +1,0 @@
-prefix=/home/ubuntu/fyp/catkin_ws/devel
-
-Name: dji_sdk
-Description: Description of dji_sdk
-Version: 0.1.9
-Cflags: -I/home/ubuntu/fyp/catkin_ws/devel/include -I/home/ubuntu/fyp/catkin_ws/src/Onboard-SDK-ROS/dji_sdk/include
-Libs: -L/home/ubuntu/fyp/catkin_ws/devel/lib 
-Requires: message_runtime actionlib actionlib_msgs geometry_msgs nav_msgs std_msgs dji_sdk_lib

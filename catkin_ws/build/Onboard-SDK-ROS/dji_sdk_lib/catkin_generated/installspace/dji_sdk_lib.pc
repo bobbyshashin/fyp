@@ -1,8 +1,0 @@
-prefix=/home/ubuntu/fyp/catkin_ws/install
-
-Name: dji_sdk_lib
-Description: Description of dji_sdk_lib
-Version: 0.1.9
-Cflags: -I/home/ubuntu/fyp/catkin_ws/install/include
-Libs: -L/home/ubuntu/fyp/catkin_ws/install/lib -ldji_sdk_lib
-Requires: 

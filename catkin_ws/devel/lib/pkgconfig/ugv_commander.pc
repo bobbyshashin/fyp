@@ -1,8 +1,0 @@
-prefix=/home/ubuntu/fyp/catkin_ws/devel
-
-Name: ugv_commander
-Description: Description of ugv_commander
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/ubuntu/fyp/catkin_ws/devel/lib 
-Requires: 
