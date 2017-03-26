@@ -40,7 +40,7 @@ Publisher ugv_activation_pub; // Publish the activation message to UGV
 
 Subscriber ctrl_vel_sub;  // Subscribe the desired velocity from PID controller
 Subscriber pos_error_sub; // Subscribe the flag for arrival at target position
-Subscriber ugv_pos_sub; // Subscribe the current position of UGV from ekf node
+
 
 
 bool is_arrived() { 

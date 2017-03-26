@@ -118,7 +118,6 @@ bool arrived() {
     return (abs(target_position[0] - current_position[0]) < 0.5) && (abs(target_position[1] - current_position[1]) < 0.5);
 
 }
-
 void current_position_callback(const nav_msgs::Odometry& msg) {
 
     current_position[0] = msg.pose.pose.position.x;
