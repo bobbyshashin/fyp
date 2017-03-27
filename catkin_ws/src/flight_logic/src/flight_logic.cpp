@@ -187,7 +187,7 @@ int mission_run() {
             delay_s(2); // Wait for 2 seconds
 
             ROS_INFO("Press any key to request for control");
-            wait_key();
+            //wait_key();
 
             send_command(INIT);
 
@@ -203,7 +203,7 @@ int mission_run() {
 	    case TAKEOFF: {
 	    
  	    ROS_INFO("Press any key to takeoff");
-            wait_key();
+            //wait_key();
 
             send_command(TAKEOFF);
 
@@ -290,9 +290,9 @@ int mission_run() {
             ROS_INFO("Searching for tags...");
 
             move_to(0, 0, 3);
-            move_to(10, 0, 3);
-            move_to(10, 10, 3);
-            move_to(0, 10, 3);
+            move_to(7, 0, 3);
+            move_to(7, 7, 3);
+            move_to(0, 7, 3);
             move_to(0, 0, 3);
 
 	    std_msgs::UInt8 msg;
