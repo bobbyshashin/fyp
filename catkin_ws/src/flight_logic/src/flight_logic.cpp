@@ -19,8 +19,11 @@ MISSION_STATUS next_mission;
 bool vision_taking_control;
 bool arrived = false;
 
-float pos_error_threshold = 0.15; // 15 cm tolerance for horizontal & vertical positioning
+float pos_error_threshold = 0.2; // 15 cm tolerance for horizontal & vertical positioning
 float position_error[3] = {0, 0, 0};
+float current_position[3] = {0, 0, 0};
+float target_position[3] = {0, 0, 0};
+
 float ugv_position[2] = {0, 0};
 
 std_msgs::UInt8 cmd_msg;
@@ -41,15 +44,18 @@ Publisher ugv_activation_pub; // Publish the activation message to UGV
 Subscriber ctrl_vel_sub;  // Subscribe the desired velocity from PID controller
 Subscriber pos_error_sub; // Subscribe the flag for arrival at target position
 Subscriber ugv_pos_sub; // Subscribe the current position of UGV from ekf node
-
+Subscriber current_pos_sub; // Subscribe the current position from pid controller (originally from ekf and Guidance ultrasonic)
 
 bool is_arrived() { 
 
     /* Check whether the UAV has arrived at the target position */
+    /*
     if ( abs(position_error[0]) < pos_error_threshold && 
-         abs(position_error[1]) < pos_error_threshold && 
-         abs(position_error[2]) < pos_error_threshold )
-        
+         abs(position_error[1]) < pos_error_threshold) //&& 
+         //abs(position_error[2]) < pos_error_threshold )
+    */
+    if( abs(target_position[0] - current_position[0]) < pos_error_threshold &&
+        abs(target_position[1] - current_position[1]) < pos_error_threshold)// &&abs(target_position[2] - current_position[2]) < pos_error_threshold  )
         return true;
     else 
         return false;
@@ -63,7 +69,8 @@ void position_error_callback(const geometry_msgs::Vector3& msg) {
     position_error[1] = msg.y;
     position_error[2] = msg.z;
 
-    arrived = is_arrived();
+    //arrived = is_arrived();
+    //cout << "Position error updated!" << endl;
 
 }
 
@@ -94,6 +101,11 @@ void move_to(double x, double y, double z, bool wait_until_arrival = true) {
     //target_position[2] = z;
     
     //TODO: might cause problem of infinity loop, check for timeout?
+
+    target_position[0] = x;
+    target_position[1] = y;
+    target_position[2] = z;
+
     int counter = 0;
     geometry_msgs::Vector3 target_pos;
     
@@ -101,34 +113,45 @@ void move_to(double x, double y, double z, bool wait_until_arrival = true) {
     target_pos.y = y;
     target_pos.z = z;
 
-    /* Publish 5 times */
-    while(counter < 5) {
+    /* Publish 10 times */
+    while(counter < 10) {
         
         target_pos_pub.publish(target_pos);
         counter++;
 
     }
 
-    while( !arrived && wait_until_arrival) {
+    while( !is_arrived() && wait_until_arrival) {
 
-        usleep(2000);
+	ros::spinOnce();
+        usleep(20000);
+        //cout << "spinOnce done!" << endl;
 
     }
-    
+    cout << "Arrived!" << endl;
+    return; 
 }
 
 void send_command(int cmd) {
 
-	cmd_msg.data = cmd;
+    cmd_msg.data = cmd;
 
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 100; i++) {
         // publish 10 times
         cmd_msg_pub.publish(cmd_msg);
         i++;
     }
-
+    //cout << "Message sent! " << cmd <<endl;
 }
 
+void current_pos_callback(const geometry_msgs::Vector3& msg) {
+
+    current_position[0] = msg.x;
+    current_position[1] = msg.y;
+    current_position[2] = msg.z;
+
+    //cout << "Current position has been updated!" << endl;
+}
 
 /*
 void vision_activation_callback(const std_msgs::UInt32& msg) {
@@ -191,7 +214,7 @@ int mission_run() {
 
             send_command(INIT);
 
-            ROS_INFO("Obtained control successfully");
+            //ROS_INFO("Obtained control successfully");
             current_mission = TAKEOFF;
 
             delay_s(1); // Wait for 1 second, proceeding to next stage
@@ -209,7 +232,7 @@ int mission_run() {
 
             ROS_INFO("Taking off...");
             
-            delay_s(6); // Taking off, wait for 6 seconds
+            delay_s(5); // Taking off, wait for 6 seconds
 
             current_mission = SEARCH_FOR_TAGS;
 
@@ -267,12 +290,12 @@ int mission_run() {
         case LANDING: {
 
             ROS_INFO("Press any key to land");
-            wait_key();
+            //wait_key();
 
             send_command(LANDING);
             ROS_INFO("Landing...");
 
-            delay_s(4);
+            delay_s(3);
 
             send_command(RELEASE_CONTROL);
             //current_mission = next_mission;
@@ -289,11 +312,15 @@ int mission_run() {
 
             ROS_INFO("Searching for tags...");
 
-            move_to(0, 0, 3);
-            move_to(7, 0, 3);
-            move_to(7, 7, 3);
-            move_to(0, 7, 3);
-            move_to(0, 0, 3);
+            //move_to(0, 0, 3);
+            move_to(7, 0, 1.5);
+ 	    cout << "Arrived at first waypoint!" << endl;
+            move_to(7, 7, 1.5);
+	    cout << "Arrived at second waypoint!" << endl;
+            move_to(0, 7, 1.5);
+            cout << "Arrived at third waypoint!" << endl;
+            move_to(0, 0, 1.5);
+ 	    cout << "Back to origin!" << endl;
 
 	    std_msgs::UInt8 msg;
 	    msg.data = 3;
@@ -303,7 +330,7 @@ int mission_run() {
 		usleep(20000);
 	    }
 
-            current_mission = UGV_TRACKING;
+            current_mission = LANDING;
 
             break;
         }
@@ -335,12 +362,13 @@ int main(int argc, char **argv) {
 
     stm32_cmd_pub = nh.advertise<std_msgs::String>("/stm32_cmd", 1);
     target_pos_pub = nh.advertise<geometry_msgs::Vector3>("/target_position", 1);
-    cmd_msg_pub = nh.advertise<std_msgs::UInt8>("/sdk_cmd", 10);
+    cmd_msg_pub = nh.advertise<std_msgs::UInt8>("/sdk_cmd", 1);
     ugv_activation_pub = nh.advertise<std_msgs::UInt8>("/ugv_activation", 1);
     //vision_activation_sub = nh.subscribe("/vision_activation", 1, vision_activation_callback);
     //target_searcher_sub = nh.subscribe("/target_coordinate", 1);
-    ugv_pos_sub = nh.subscribe("/ekf_odom_ugv", 1, ugv_pos_callback);
+    ugv_pos_sub = nh.subscribe("/ekf/ekf_odom_ugv", 1, ugv_pos_callback);
     pos_error_sub = nh.subscribe("/position_error", 1, position_error_callback);
+    current_pos_sub = nh.subscribe("/current_position", 1, current_pos_callback);
     ros::Rate loop_rate(50);
 
     ROS_INFO("Flight Logic control starts!");
