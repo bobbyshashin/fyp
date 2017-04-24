@@ -10,3 +10,16 @@ typedef enum {
 
 
 } MISSION_STATUS;
+
+struct Triple {
+
+    float vec[3];
+
+};
+
+struct Tuple {
+
+    float vec[2];
+
+};
+

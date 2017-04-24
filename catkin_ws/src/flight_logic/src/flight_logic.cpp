@@ -12,6 +12,7 @@
 //using namespace DJI::onboardSDK;
 using namespace std;
 using namespace ros;
+
 int wtffff = 1111;
 MISSION_STATUS current_mission = INIT;
 MISSION_STATUS next_mission;
@@ -25,6 +26,14 @@ float current_position[3] = {0, 0, 0};
 float target_position[3] = {0, 0, 0};
 
 float ugv_position[2] = {0, 0};
+
+//bool marker_status[3] = {true, true, false}; // Origin, UGV, 1st target, respectively
+map<int, bool> marker_status;
+map<int, Tuple> marker_position;
+
+int marker_id[3] = {10, 20, 30};
+
+//float marker_position[3][2] = {{0, 0}, {0, 0}, {0, 0}}; // In local frame
 
 std_msgs::UInt8 cmd_msg;
 //double target_position[3] = {0, 0, 0};
@@ -45,6 +54,7 @@ Subscriber ctrl_vel_sub;  // Subscribe the desired velocity from PID controller
 Subscriber pos_error_sub; // Subscribe the flag for arrival at target position
 Subscriber ugv_pos_sub; // Subscribe the current position of UGV from ekf node
 Subscriber current_pos_sub; // Subscribe the current position from pid controller (originally from ekf and Guidance ultrasonic)
+Subscriber detected_marker_sub; // Subscribe the detected markers and record their locations in local frame
 
 bool is_arrived() { 
 
@@ -55,7 +65,8 @@ bool is_arrived() {
          //abs(position_error[2]) < pos_error_threshold )
     */
     if( abs(target_position[0] - current_position[0]) < pos_error_threshold &&
-        abs(target_position[1] - current_position[1]) < pos_error_threshold)// &&abs(target_position[2] - current_position[2]) < pos_error_threshold  )
+        abs(target_position[1] - current_position[1]) < pos_error_threshold &&
+	abs(target_position[2] - current_position[2]) < pos_error_threshold  )
         return true;
     else 
         return false;
@@ -74,12 +85,81 @@ void position_error_callback(const geometry_msgs::Vector3& msg) {
 
 }
 
+void markerDetectorCallback(const nav_msgs::Odometry& msg) {
+
+    int id = msg.twist.twist.linear.x;
+
+    if(!marker_status[id]) { // First time detected this marker
+
+	switch(id) {
+
+	    case 10: // Marker at Origin
+		
+		//TODO EKF odom UAV update
+
+		marker_status[id] = true;
+
+	    break;
+
+	    case 20: // Marker on UGV
+		
+		//TODO EKF odom UGV update
+	 	float ugv_x = current_position[0] - msg.pose.pose.position.x;
+		float ugv_y = current_position[1] - msg.pose.pose.position.y;	
+		marker_status[id] = true;
+
+	    break;
+
+	    case 30: // Marker of 1st target
+
+		float temp_x = current_position[0] - msg.pose.pose.position.x;
+		float temp_y = current_position[1] - msg.pose.pose.position.y;
+		marker_position[id].vec[0] = temp_x;		
+		marker_position[id].vec[1] = temp_y;		
+
+		marker_status[id] = true;
+
+	    break;
+
+	}
+    }
+
+    else { // Not the first time detected
+	
+	switch(id) {
+
+	    case 10:
+		//TODO something
+	    break;
+
+	    case 20:
+		//TODO something
+	    break;
+
+	    case 30:
+		float updated_x = marker_position[id].vec[0] + msg.pose.pose.position.x;
+		float updated_y = marker_position[id].vec[1] + msg.pose.pose.position.y;
+
+	    break;
+
+	}
+    }
+}
+
 void ugv_pos_callback(const nav_msgs::Odometry& msg) {
+
     //cout << "ugv pos updated" << endl;
     ugv_position[0] = msg.pose.pose.position.x;
     ugv_position[1] = msg.pose.pose.position.y;
 
 }
+void publishMarkerPosition() {
+
+    //TODO publish all the detected markers' position to UGV
+
+
+}
+
 
 void wait_key() { 
 
@@ -358,6 +438,9 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
 
     //vision_taking_control = false;
+    marker_status[marker_id[0]] = true;
+    marker_status[marker_id[1]] = true;
+    marker_status[marker_id[2]] = false;
 
     stm32_cmd_pub = nh.advertise<std_msgs::String>("/stm32_cmd", 1);
     target_pos_pub = nh.advertise<geometry_msgs::Vector3>("/target_position", 1);
@@ -368,6 +451,7 @@ int main(int argc, char **argv) {
     ugv_pos_sub = nh.subscribe("/ekf/ekf_odom_ugv", 1, ugv_pos_callback);
     pos_error_sub = nh.subscribe("/position_error", 1, position_error_callback);
     current_pos_sub = nh.subscribe("/current_position", 1, current_pos_callback);
+    detected_marker_sub = nh.subscribe("detected_markers", 10, markerDetectorCallback);
     ros::Rate loop_rate(50);
 
     ROS_INFO("Flight Logic control starts!");
