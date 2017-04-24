@@ -32,9 +32,9 @@ ros::Publisher imu_pub;
 ros::Publisher obstacle_distance_pub;
 ros::Publisher velocity_pub;
 ros::Publisher ultrasonic_pub;
-
+ros::Publisher height_pub;
 ros::Publisher odometry_pub;
-ros::Publisher current_position_pub;
+//ros::Publisher current_position_pub;
 ros::Publisher current_velocity_pub;
 ros::Publisher initial_publisher;
 ros::Subscriber orientation_sub;
@@ -46,7 +46,7 @@ using namespace std;
 #define WIDTH 320
 #define HEIGHT 240
 #define IMAGE_SIZE (HEIGHT * WIDTH)
-
+int 		magic = 2;
 char        	key       = 0;
 bool            show_images = 0;
 uint8_t         verbosity = 0;
@@ -238,7 +238,9 @@ int my_callback(int data_type, int data_len, char *content)
             }
 
             height = ultrasonic->ultrasonic[0] * 0.001f;
-            
+	    std_msgs::Float32 h;
+	    h.data = height;
+            height_pub.publish(h);
             if ((height > 0.3) && (!flag))
             {
                 flag = true;
@@ -314,9 +316,9 @@ int my_callback(int data_type, int data_len, char *content)
         
         }
 		
-        /*** Current position ***/
+        /*** Current velocity ***/
 
-        geometry_msgs::Vector3 current_position;
+        //geometry_msgs::Vector3 current_position;
         geometry_msgs::Vector3Stamped current_velocity;
 
         std_msgs::Float32 initial_angle;
@@ -337,16 +339,18 @@ int my_callback(int data_type, int data_len, char *content)
         tmp_pos = (rot) * tmp_pos;
         tmp_vel = (rot) * tmp_vel;
         
-        current_position.x = tmp_pos(0);
-        current_position.y = tmp_pos(1);
-        current_position.z = height;
+	odometry.pose.pose.position.x = -tmp_pos(0);
+	odometry.pose.pose.position.y = -tmp_pos(1);
+        //current_position.x = tmp_pos(0);
+        //current_position.y = tmp_pos(1);
+        //current_position.z = height;
         
         current_velocity.header.stamp = ros::Time::now();
         current_velocity.vector.x = tmp_vel(0);
         current_velocity.vector.y = tmp_vel(1);
         current_velocity.vector.z = m->velocity_in_global_z;
        
-        current_position_pub.publish(current_position);
+        //current_position_pub.publish(current_position);
         current_velocity_pub.publish(current_velocity);
 
        	/***********************/
@@ -401,7 +405,8 @@ int main(int argc, char** argv)
     ultrasonic_pub			= my_node.advertise<sensor_msgs::LaserScan>("/guidance/ultrasonic",1);
 
     odometry_pub      = my_node.advertise<nav_msgs::Odometry>("/guidance/odometry",10);
-    current_position_pub = my_node.advertise<geometry_msgs::Vector3>("/current_position",1);
+    height_pub        = my_node.advertise<std_msgs::Float32>("/uav_height", 1);
+    //current_position_pub = my_node.advertise<geometry_msgs::Vector3>("/current_position",1);
     current_velocity_pub = my_node.advertise<geometry_msgs::Vector3Stamped>("/current_velocity",1);
     initial_publisher = my_node.advertise<std_msgs::Float32>("/initial_angle",1);
     bias_correction_sub       = my_node.subscribe("/guidance/bias_correction", 10, bias_correction_callback);
@@ -500,10 +505,10 @@ int main(int argc, char** argv)
 				//select_depth_image(CAMERA_ID);
 
                 //select_imu();
-                //select_ultrasonic();
+                select_ultrasonic();
                 //select_obstacle_distance();
                 select_velocity();
-
+		select_motion();
 				err_code = start_transfer();
 				RETURN_IF_ERR(err_code);
 				key = 0;

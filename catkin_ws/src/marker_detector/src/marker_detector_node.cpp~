@@ -18,8 +18,8 @@ using namespace cv;
 using namespace aruco;
 using namespace Eigen;
 
-float MarkerSize = 0.1;
-//int query_id = 10;
+float MarkerSize = 0.2;
+int query_id = 10;
 aruco::CameraParameters CamParam;
 MarkerDetector MDetector;
 vector<Marker> Markers;
@@ -46,6 +46,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         //cout << Markers[i] << endl;
         Markers[i].draw(frame, Scalar(0,0,255), 2);
         aruco::CvDrawingUtils::draw3dAxis(frame, Markers[i], CamParam);
+     
         Markers[i].calculateExtrinsics(MarkerSize, CamParam);
         
 
@@ -56,7 +57,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         marker_center.y = centroid.y;
         marker_center.z = Markers[i].id;
 
-        //centroid_pub.publish(marker_center);
+        centroid_pub.publish(marker_center);
 
         Mat rvec = Markers[i].Rvec;
         Mat tvec = Markers[i].Tvec;
@@ -81,7 +82,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         odom_marker.pose.pose.position.y = tvec.at<float>(1,0);
         odom_marker.pose.pose.position.z = tvec.at<float>(2,0);
 
-        //cout << "tvec:  " << tvec.at<float>(0,0) << endl << tvec.at<float>(1,0) << endl << tvec.at<float>(2,0) << endl << "====" << endl;
+        cout << "tvec:  " << tvec.at<float>(0,0) << endl << tvec.at<float>(1,0) << endl << tvec.at<float>(2,0) << endl << "====" << endl;
 
         odom_marker.pose.pose.orientation.w = Q.w();
         odom_marker.pose.pose.orientation.x = Q.x();
@@ -92,8 +93,8 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         odom_marker.twist.twist.linear.x = Markers[i].id;
         pub_ar_odom.publish(odom_marker);
     }
-    //imshow("usb_image", frame);
-    //waitKey(10);
+    imshow("usb_image", frame);
+    waitKey(5);
 }
 
 int main(int argc, char **argv)
@@ -104,7 +105,7 @@ int main(int argc, char **argv)
     nh.getParam("cam_cal_file", cam_cal);
     CamParam.readFromXMLFile(cam_cal);
     
-    //centroid_pub = nh.advertise<geometry_msgs::Vector3>("/marker_center", 10);
+    centroid_pub = nh.advertise<geometry_msgs::Vector3>("/marker_center", 10);
     pub_ar_odom = nh.advertise<nav_msgs::Odometry>("/detected_markers", 10);
     ros::Subscriber sub_img = nh.subscribe("/mv_25001511/image_raw", 1, img_callback);
     //ros::Subscriber sub_query_id = nh.subscribe("/query_id", 1, query_id_callback);
@@ -113,6 +114,6 @@ int main(int argc, char **argv)
     
     
     
-    //cv::namedWindow("dji_image", 1);
+    //cv::namedWindow("Marker Detector", 1);
     ros::spin();
 }

@@ -18,8 +18,8 @@ using namespace cv;
 using namespace aruco;
 using namespace Eigen;
 
-float MarkerSize = 0.1;
-//int query_id = 10;
+float MarkerSize = 0.2;
+int query_id = 10;
 aruco::CameraParameters CamParam;
 MarkerDetector MDetector;
 vector<Marker> Markers;
@@ -46,6 +46,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         //cout << Markers[i] << endl;
         Markers[i].draw(frame, Scalar(0,0,255), 2);
         aruco::CvDrawingUtils::draw3dAxis(frame, Markers[i], CamParam);
+     
         Markers[i].calculateExtrinsics(MarkerSize, CamParam);
         
 
@@ -92,7 +93,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         odom_marker.twist.twist.linear.x = Markers[i].id;
         pub_ar_odom.publish(odom_marker);
     }
-    imshow("usb_image", frame);
+    //imshow("usb_image", frame);
     waitKey(5);
 }
 
@@ -106,13 +107,13 @@ int main(int argc, char **argv)
     
     centroid_pub = nh.advertise<geometry_msgs::Vector3>("/marker_center", 10);
     pub_ar_odom = nh.advertise<nav_msgs::Odometry>("/detected_markers", 10);
-    //ros::Subscriber sub_img = nh.subscribe("/mv_25001511/image_raw", 1, img_callback);
+    ros::Subscriber sub_img = nh.subscribe("/mv_25001511/image_raw", 1, img_callback);
     //ros::Subscriber sub_query_id = nh.subscribe("/query_id", 1, query_id_callback);
     
 
     
     
     
-    //cv::namedWindow("dji_image", 1);
+    //cv::namedWindow("Marker Detector", 1);
     ros::spin();
 }

@@ -32,7 +32,7 @@ ros::Publisher imu_pub;
 ros::Publisher obstacle_distance_pub;
 ros::Publisher velocity_pub;
 ros::Publisher ultrasonic_pub;
-
+ros::Publisher height_pub;
 ros::Publisher odometry_pub;
 ros::Publisher current_position_pub;
 ros::Publisher current_velocity_pub;
@@ -238,7 +238,9 @@ int my_callback(int data_type, int data_len, char *content)
             }
 
             height = ultrasonic->ultrasonic[0] * 0.001f;
-            
+	    std_msgs::Float32 h;
+	    h.data = height;
+            height_pub.publish(h);
             if ((height > 0.3) && (!flag))
             {
                 flag = true;
@@ -401,6 +403,7 @@ int main(int argc, char** argv)
     ultrasonic_pub			= my_node.advertise<sensor_msgs::LaserScan>("/guidance/ultrasonic",1);
 
     odometry_pub      = my_node.advertise<nav_msgs::Odometry>("/guidance/odometry",10);
+    height_pub        = my_node.advertise<std_msgs::Float32>("/uav_height", 1);
     current_position_pub = my_node.advertise<geometry_msgs::Vector3>("/current_position",1);
     current_velocity_pub = my_node.advertise<geometry_msgs::Vector3Stamped>("/current_velocity",1);
     initial_publisher = my_node.advertise<std_msgs::Float32>("/initial_angle",1);
@@ -440,7 +443,7 @@ int main(int argc, char** argv)
     select_ultrasonic();
     //select_obstacle_distance();
     select_velocity();
-    select_motion();
+    //select_motion();
     /* start data transfer */
     err_code = set_sdk_event_handler(my_callback);
     RETURN_IF_ERR(err_code);
@@ -500,7 +503,7 @@ int main(int argc, char** argv)
 				//select_depth_image(CAMERA_ID);
 
                 //select_imu();
-                //select_ultrasonic();
+                select_ultrasonic();
                 //select_obstacle_distance();
                 select_velocity();
 

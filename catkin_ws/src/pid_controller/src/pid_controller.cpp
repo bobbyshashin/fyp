@@ -14,30 +14,31 @@
 #include <ros/ros.h>
 #include <dji_sdk/dji_drone.h>
 
+#include<std_msgs/Float32.h>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Bool.h>
 #include <geometry_msgs/Vector3.h>
-
+#include <nav_msgs/Odometry.h>
 #include "PID_lib/pid.h"
 
 using namespace std;
 using namespace ros;
 using namespace DJI::onboardSDK;
-
+int wtf = 10;
 ros::Publisher ctrl_vel_pub;
 ros::Publisher pos_error_pub;
+Publisher current_pos_pub; // Publish the current position of UAV to flight logic
 
 ros::Subscriber pid_parameter_sub;       // For tuning PID parameters (Kp, Ki and Kd)
 ros::Subscriber target_pos_sub;          // Target position  
-ros::Subscriber current_pos_sub;         // Current position (calculated from sensor data)
+ros::Subscriber current_pos_sub;         // Current position (calculated from ekf)
 ros::Subscriber pid_ctrl_limit_sub;      // For tuning velocity limits 
 ros::Subscriber marker_center_sub;       // Centroid's coordinate of detected markers
-
+Subscriber height_sub; // Subscribe UGV's height from ultrasonic sensor
 PID *pid_x;
 PID *pid_y;
 PID *pid_z;
 PID *pid_yaw;
-
 PID *pid_vision_x;
 PID *pid_vision_y;
 
@@ -49,7 +50,7 @@ double Kd_horz_pos = 0.2;
 
 double Kp_vert_pos = 0.6;
 double Ki_vert_pos = 0;
-double Kd_vert_pos = 0;
+double Kd_vert_pos = 0.1;
 
 double Kp_yaw;
 double Ki_yaw;
@@ -64,14 +65,15 @@ int img_center[2] = {376, 240}; // x & y center of image pixels
 float ctrl_data[4] = {0, 0, 0, 0}; // Velocity of x, y, z and yaw
 float vision_ctrl[2] = {0, 0};
 
-float target_position[3] = {0, 0, 0.6};
+float target_position[3] = {0, 0, 1.5};
 float target_yaw = 0;
 
+float current_position[3] = {0, 0, 0};
 float dt = 0.02;
 float first_time = 0.0;
 
-double pid_ctrl_limit_horz = 0.3;
-double pid_ctrl_limit_vert = 0.3;
+double pid_ctrl_limit_horz = 0.6;
+double pid_ctrl_limit_vert = 0.5;
 double pid_yaw_limit = 1;
 
 double vision_ctrl_limit = 0.3;
@@ -156,19 +158,36 @@ void pid_update(geometry_msgs::Vector3 current_position) {
 
 }
 
-void current_pos_callback(const geometry_msgs::Vector3& current_position) {
+void current_pos_callback(const nav_msgs::Odometry& current_pos) {
 
     geometry_msgs::Vector3 pos_error;
 
-    pos_error.x = target_position[0] - current_position.x;
-    pos_error.y = target_position[1] - current_position.y;
-    pos_error.z = target_position[2] - current_position.z;
+    current_position[0] = current_pos.pose.pose.position.x;
+    current_position[1] = current_pos.pose.pose.position.y;
+    //current_position[2] = current_pos.pose.pose.position.z;
+    
+    pos_error.x = target_position[0] - current_position[0];
+    pos_error.y = target_position[1] - current_position[1];
+    pos_error.z = target_position[2] - current_position[2];
 
     pos_error_pub.publish(pos_error);
 
     cout << "error_x -> " << pos_error.x << "      error_y -> " << pos_error.y << endl << "      error_z -> " << pos_error.z << endl;
+    geometry_msgs::Vector3 current_position_vec;
+    current_position_vec.x = current_position[0];
+    current_position_vec.y = current_position[1];
+    current_position_vec.z = current_position[2];
 
-    pid_update(current_position);
+    current_pos_pub.publish(current_position_vec);
+
+    pid_update(current_position_vec);
+
+}
+
+void uav_height_callback(const std_msgs::Float32& msg) {
+
+    current_position[2] = msg.data;
+
 
 }
 
@@ -221,7 +240,7 @@ void pid_ctrl_limit_callback(const geometry_msgs::Vector3& msg) {
 int main(int argc, char** argv) {
 
     ros::init(argc, argv, "pid_controller");
-    ros::NodeHandle nh("~");
+    ros::NodeHandle nh;
     std_msgs::UInt8 bias_correction_msg;
 
     //drone = new DJIDrone(nh);
@@ -242,10 +261,10 @@ int main(int argc, char** argv) {
     pid_vision_x->set_point(img_center[0]);
     pid_vision_y->set_point(img_center[1]);
 
-    ros::Rate loop_rate(50);
+    ros::Rate loop_rate(100);
 
-    target_pos_sub       = nh.subscribe("/target_position",  1, target_pos_callback);
-    current_pos_sub      = nh.subscribe("/current_position", 1, current_pos_callback);
+    target_pos_sub       = nh.subscribe("/target_position",  10, target_pos_callback);
+    current_pos_sub      = nh.subscribe("/ekf/ekf_odom_uav", 5, current_pos_callback);
 
     pid_parameter_sub    = nh.subscribe("/pid_parameter",    1, pid_parameter_tuning_callback);
     //pid_parameter_vert_sub = nh.subscribe("/pid_vert_parameter",    1, pid_parameter_vert_tuning_callback);
@@ -253,12 +272,13 @@ int main(int argc, char** argv) {
     pid_ctrl_limit_sub   = nh.subscribe("/pid_ctrl_limit",   1, pid_ctrl_limit_callback);
 
     marker_center_sub = nh.subscribe("/marker_centers", 1, vision_ctrl_callback);
-
+    height_sub = nh.subscribe("/uav_height", 1, uav_height_callback);
     ctrl_vel_pub         = nh.advertise<geometry_msgs::Vector3>("/ctrl_vel", 10);
     pos_error_pub        = nh.advertise<geometry_msgs::Vector3>("/position_error", 1);
+    current_pos_pub      = nh.advertise<geometry_msgs::Vector3>("/current_position", 1);
 
     cout << "PID controller activated!" << endl;
-    cout << "Last modified: " << "2017-03-15" << endl;
+    cout << "Last modified: " << "2017-03-29" << endl;
     
     while(ros::ok()) {
 

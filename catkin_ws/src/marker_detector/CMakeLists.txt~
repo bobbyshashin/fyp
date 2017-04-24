@@ -32,7 +32,7 @@ add_executable(marker_detector
 add_executable(cam_calibration
     src/cam_calibration.cpp)
 
-target_link_libraries(marker_detector ${catkin_LIBRARIES} ${OpenCV_LIBS} ${aruco_LIBS} )
+target_link_libraries(marker_detector ${catkin_LIBRARIES} ${OpenCV_LIBS} ${aruco_LIBS} -laruco)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 target_link_libraries(cam_calibration ${catkin_LIBRARIES} ${OpenCV_LIBS})

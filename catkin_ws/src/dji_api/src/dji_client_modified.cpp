@@ -23,8 +23,9 @@ void ctrl_vel_callback(const geometry_msgs::Vector3& ctrl_velocity) {
 
     if(mission_status == STAND_BY){
 
-        drone->attitude_control(0x5b, ctrl_velocity.x, ctrl_velocity.y, 0.8, 0); //Notice here! Third one should be the height in this mode!!!
-        cout << "Velocity_x, Velocity_y, Velocity_z" << endl << (double)ctrl_velocity.x << " " << (double)ctrl_velocity.y << " " << (double)ctrl_velocity.z << endl;
+        drone->attitude_control(0x4b, ctrl_velocity.x, ctrl_velocity.y, ctrl_velocity.z, 0);
+
+        //cout << "Velocity_x, Velocity_y, Velocity_z" << endl << (double)ctrl_velocity.x << " " << (double)ctrl_velocity.y << " " << (double)ctrl_velocity.z << endl;
     }
 
     //else
@@ -32,26 +33,28 @@ void ctrl_vel_callback(const geometry_msgs::Vector3& ctrl_velocity) {
 }
 
 void sdk_cmd_callback(const std_msgs::UInt8& msg) {
-
     switch(msg.data){
 
         case INIT:
             /* request control ability*/
+	    //drone->request_sdk_permission_control();
+
             if(drone->request_sdk_permission_control()){
 
-                //mission_status = TAKEOFF;
+                mission_status = TAKEOFF;
                 cout << "Command sent: Obtain control" << endl;
             }
 
             else
                 cout << "Request control failed" << endl;
+
             break;
 
         case TAKEOFF:
             /* take off */
             if(drone->takeoff()){
                 sleep(10); //Wait for completely takeoff
-                //mission_status = STAND_BY;
+                mission_status = STAND_BY;
                 cout << "Command sent: Takeoff" << endl;  
             }
             else
@@ -133,30 +136,32 @@ int main(int argc, char *argv[])
     //int x_center, y_center, yaw_local;
     bool valid_flag = false;
     bool err_flag = false;
-    ros::init(argc, argv, "dji_client_modified");
+    ros::init(argc, argv, "dji_client");
     ROS_INFO("dji_client_modified Start!");
-    ros::NodeHandle nh("~");
+    ros::NodeHandle nh;
     drone = new DJIDrone(nh);
 
-    guidance_bias_correction_pub = nh.advertise<std_msgs::UInt8>("/guidance/bias_correction", 10);
+    guidance_bias_correction_pub = nh.advertise<std_msgs::UInt8>("/guidance/bias_correction", 1);
     api_ctrl_sub = nh.subscribe("/ctrl_vel", 1, ctrl_vel_callback);
     api_cmd_sub  = nh.subscribe("/sdk_cmd",  1, sdk_cmd_callback);
-
+    
     std_msgs::UInt8 guidance_bias_correction;
     guidance_bias_correction.data = 1;
     for(int j=0;j<100;j++) {
         guidance_bias_correction_pub.publish(guidance_bias_correction);
 }
-    cout << "Publish done!" << endl;    
+    cout << "Publish done!" << endl;   
+
     
     while(ros::ok()){
-	guidance_bias_correction_pub.publish(guidance_bias_correction);
-	//cout << "Fuck!" << endl;
+	//guidance_bias_correction_pub.publish(guidance_bias_correction);
 	ros::spinOnce();
 	}
-	ros::spin();
-    	
+	
+    
+    //ros::spin();
     //Display_Main_Menu();
+    
     while(0) //Change to while(1) when using it 
     {
         ros::spinOnce();
