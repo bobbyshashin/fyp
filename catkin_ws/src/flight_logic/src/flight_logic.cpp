@@ -451,7 +451,7 @@ int main(int argc, char **argv) {
     ugv_pos_sub = nh.subscribe("/ekf/ekf_odom_ugv", 1, ugv_pos_callback);
     pos_error_sub = nh.subscribe("/position_error", 1, position_error_callback);
     current_pos_sub = nh.subscribe("/current_position", 1, current_pos_callback);
-    detected_marker_sub = nh.subscribe("detected_markers", 10, markerDetectorCallback);
+    detected_marker_sub = nh.subscribe("/detected_markers", 10, markerDetectorCallback);
     ros::Rate loop_rate(50);
 
     ROS_INFO("Flight Logic control starts!");
