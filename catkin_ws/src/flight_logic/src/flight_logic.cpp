@@ -13,7 +13,8 @@
 using namespace std;
 using namespace ros;
 
-int wtffff = 1111;
+int wtffff = 1111; // dummy variable to make sure catkin_make is done correctly
+
 MISSION_STATUS current_mission = INIT;
 MISSION_STATUS next_mission;
 
@@ -91,58 +92,66 @@ void markerDetectorCallback(const nav_msgs::Odometry& msg) {
 
     if(!marker_status[id]) { // First time detected this marker
 
-	switch(id) {
+	    switch(id) {
 
-	    case 10: // Marker at Origin
+	        case 10: { // Marker at Origin
 		
-		//TODO EKF odom UAV update
+		        //TODO EKF odom UAV update
 
-		marker_status[id] = true;
+		        marker_status[id] = true;
 
-	    break;
+	        break;
+            }
 
-	    case 20: // Marker on UGV
+	        case 20: { // Marker on UGV
 		
-		//TODO EKF odom UGV update
-	 	float ugv_x = current_position[0] - msg.pose.pose.position.x;
-		float ugv_y = current_position[1] - msg.pose.pose.position.y;	
-		marker_status[id] = true;
+		        //TODO EKF odom UGV update
+	 	        float ugv_x = current_position[0] - msg.pose.pose.position.x;
+		        float ugv_y = current_position[1] - msg.pose.pose.position.y;	
+		        marker_status[id] = true;
 
-	    break;
+	        break;
+            }   
 
-	    case 30: // Marker of 1st target
+	        case 30: { // Marker of 1st target
 
-		float temp_x = current_position[0] - msg.pose.pose.position.x;
-		float temp_y = current_position[1] - msg.pose.pose.position.y;
-		marker_position[id].vec[0] = temp_x;		
-		marker_position[id].vec[1] = temp_y;		
+		        float temp_x = current_position[0] - msg.pose.pose.position.x;
+		        float temp_y = current_position[1] - msg.pose.pose.position.y;
+		        marker_position[id].vec[0] = temp_x;		
+		        marker_position[id].vec[1] = temp_y;		
 
-		marker_status[id] = true;
+		        marker_status[id] = true;
 
-	    break;
+	        break;
+            }
 
-	}
+	    }
     }
 
     else { // Not the first time detected
 	
-	switch(id) {
+	    switch(id) {
 
-	    case 10:
-		//TODO something
-	    break;
+	       case 10: {
+	           //TODO something
+           
+	           break;
+            }
 
-	    case 20:
-		//TODO something
-	    break;
+	       case 20: {
+		       //TODO something
+	           break;
+            }
 
-	    case 30:
-		float updated_x = marker_position[id].vec[0] + msg.pose.pose.position.x;
-		float updated_y = marker_position[id].vec[1] + msg.pose.pose.position.y;
+	       case 30: {
 
-	    break;
+		       float updated_x = marker_position[id].vec[0] + msg.pose.pose.position.x;
+		       float updated_y = marker_position[id].vec[1] + msg.pose.pose.position.y;
 
-	}
+	           break;
+            }
+
+	   }
     }
 }
 
@@ -203,8 +212,8 @@ void move_to(double x, double y, double z, bool wait_until_arrival = true) {
 
     while( !is_arrived() && wait_until_arrival) {
 
-	ros::spinOnce();
-       // usleep(20000);
+	    ros::spinOnce();
+        // usleep(20000);
         //cout << "spinOnce done!" << endl;
 
     }
@@ -386,28 +395,28 @@ int mission_run() {
 
         case SEARCH_FOR_TAGS: {
 
-   	    send_command(STAND_BY);
-	    delay_s(2); // Wait for 2 seconds
+   	        send_command(STAND_BY);
+	        delay_s(2); // Wait for 2 seconds
 
             ROS_INFO("Searching for tags...");
 
             move_to(0, 0, 2);
             move_to(4, 0, 2);
- 	    cout << "Arrived at first waypoint!" << endl;
+ 	        cout << "Arrived at first waypoint!" << endl;
             move_to(4, 4, 2);
-	    cout << "Arrived at second waypoint!" << endl;
+	        cout << "Arrived at second waypoint!" << endl;
             move_to(0, 4, 2);
             cout << "Arrived at third waypoint!" << endl;
             move_to(0, 0, 2);
- 	    cout << "Back to origin!" << endl;
+ 	        cout << "Back to origin!" << endl;
 
-	    std_msgs::UInt8 msg;
-	    msg.data = 3;
-	    for(int i=0; i<50; i++) {
-	    	// Publish 50 times, wait for 1 second in total
-	    	ugv_activation_pub.publish(msg);
-		usleep(20000);
-	    }
+	        std_msgs::UInt8 msg;
+	        msg.data = 3;
+	        for(int i=0; i<50; i++) {
+	    	   // Publish 50 times, wait for 1 second in total
+	    	   ugv_activation_pub.publish(msg);
+		       usleep(20000);
+	        }
 
             current_mission = LANDING;
 

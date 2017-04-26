@@ -231,10 +231,10 @@ int my_callback(int data_type, int data_len, char *content)
     {
         ultrasonic_data *ultrasonic = (ultrasonic_data*)content;
         if (verbosity > 1) {
-            printf( "frame index: %d, stamp: %d\n", ultrasonic->frame_index, ultrasonic->time_stamp );
+            //printf( "frame index: %d, stamp: %d\n", ultrasonic->frame_index, ultrasonic->time_stamp );
             for ( int d = 0; d < CAMERA_PAIR_NUM; ++d )
             {
-                printf( "ultrasonic distance: %f, reliability: %d\n", ultrasonic->ultrasonic[d] * 0.001f, (int)ultrasonic->reliability[d] );
+                //printf( "ultrasonic distance: %f, reliability: %d\n", ultrasonic->ultrasonic[d] * 0.001f, (int)ultrasonic->reliability[d] );
             }
 
             height = ultrasonic->ultrasonic[0] * 0.001f;
@@ -508,7 +508,7 @@ int main(int argc, char** argv)
                 select_ultrasonic();
                 //select_obstacle_distance();
                 select_velocity();
-		select_motion();
+		        select_motion();
 				err_code = start_transfer();
 				RETURN_IF_ERR(err_code);
 				key = 0;

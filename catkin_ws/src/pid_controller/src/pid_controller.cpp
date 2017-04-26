@@ -1,9 +1,9 @@
   /**
   ******************************************************************************
   * @file    pid_controller.cpp
-  * @author  Bobby SHEN 
-  * @version V1.2.0
-  * @date    06-September-2016
+  * @author  Bobby SHEN
+  * @version V1.5.0
+  * @date    27-April-2017
   * @brief   This is a PID controller node based on ROS, modified from gaowenliang's code
   *           
   ******************************************************************************  
@@ -14,7 +14,7 @@
 #include <ros/ros.h>
 #include <dji_sdk/dji_drone.h>
 
-#include<std_msgs/Float32.h>
+#include <std_msgs/Float32.h>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/Bool.h>
 #include <geometry_msgs/Vector3.h>
@@ -24,25 +24,26 @@
 using namespace std;
 using namespace ros;
 using namespace DJI::onboardSDK;
-int wtf = 10;
-ros::Publisher ctrl_vel_pub;
-ros::Publisher pos_error_pub;
+
+int wtf = 10; // dummy variable to make sure catkin_make is done correctly
+
+Publisher ctrl_vel_pub;
+Publisher pos_error_pub;
 Publisher current_pos_pub; // Publish the current position of UAV to flight logic
 
-ros::Subscriber pid_parameter_sub;       // For tuning PID parameters (Kp, Ki and Kd)
-ros::Subscriber target_pos_sub;          // Target position  
-ros::Subscriber current_pos_sub;         // Current position (calculated from ekf)
-ros::Subscriber pid_ctrl_limit_sub;      // For tuning velocity limits 
-ros::Subscriber marker_center_sub;       // Centroid's coordinate of detected markers
+Subscriber pid_parameter_sub;       // For tuning PID parameters (Kp, Ki and Kd)
+Subscriber target_pos_sub;          // Target position  
+Subscriber current_pos_sub;         // Current position (calculated from ekf)
+Subscriber pid_ctrl_limit_sub;      // For tuning velocity limits 
+Subscriber marker_center_sub;       // Centroid's coordinate of detected markers
 Subscriber height_sub; // Subscribe UGV's height from ultrasonic sensor
+
 PID *pid_x;
 PID *pid_y;
 PID *pid_z;
 PID *pid_yaw;
 PID *pid_vision_x;
 PID *pid_vision_y;
-
-//DJIDrone* drone;
 
 double Kp_horz_pos = 0.8;
 double Ki_horz_pos = 0;
@@ -88,29 +89,20 @@ void target_pos_callback(const geometry_msgs::Vector3& target_pos) {
 
     /* Ignore tiny differences within 1 cm */
     if( abs(target_pos.x) < 0.01 ) 
-        
         target_position[0] = 0;
-
     else 
-
         target_position[0] = target_pos.x;
 
 
     if( abs(target_pos.y) < 0.01 ) 
-        
         target_position[1] = 0;
-
     else 
-    
         target_position[1] = target_pos.y;
 
-
-    if( target_pos.z < 2 && target_pos.z > 0.1 ) 
-        
+    /* Limit the height */
+    if( target_pos.z < 3.2 && target_pos.z > 0.1 ) 
         target_position[2] = target_pos.z;
-    
     else 
-    
         target_position[2] = target_position[2];
 
     /* Update the target position */
@@ -187,7 +179,6 @@ void current_pos_callback(const nav_msgs::Odometry& current_pos) {
 void uav_height_callback(const std_msgs::Float32& msg) {
 
     current_position[2] = msg.data;
-
 
 }
 
