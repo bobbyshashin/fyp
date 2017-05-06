@@ -19,7 +19,7 @@ using namespace aruco;
 using namespace Eigen;
 
 float MarkerSize = 0.2;
-int query_id = 10;
+int query_id = 20;
 aruco::CameraParameters CamParam;
 MarkerDetector MDetector;
 vector<Marker> Markers;
@@ -35,8 +35,8 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
 
     int img_center_x = frame.size().width / 2;
     int img_center_y = frame.size().height / 2;
-    cout << "img_center_x: " << img_center_x << endl;
-    cout << "img_center_y: " << img_center_y << endl;
+    //cout << "img_center_x: " << img_center_x << endl;
+    //cout << "img_center_y: " << img_center_y << endl;
 
     MDetector.detect(frame, Markers);
     
@@ -57,7 +57,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         marker_center.y = centroid.y;
         marker_center.z = Markers[i].id;
 
-        centroid_pub.publish(marker_center);
+        //centroid_pub.publish(marker_center);
 
         Mat rvec = Markers[i].Rvec;
         Mat tvec = Markers[i].Tvec;
@@ -82,7 +82,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         odom_marker.pose.pose.position.y = tvec.at<float>(1,0);
         odom_marker.pose.pose.position.z = tvec.at<float>(2,0);
 
-        cout << "tvec:  " << tvec.at<float>(0,0) << endl << tvec.at<float>(1,0) << endl << tvec.at<float>(2,0) << endl << "====" << endl;
+        //cout << "tvec:  " << tvec.at<float>(0,0) << endl << tvec.at<float>(1,0) << endl << tvec.at<float>(2,0) << endl << "====" << endl;
 
         odom_marker.pose.pose.orientation.w = Q.w();
         odom_marker.pose.pose.orientation.x = Q.x();

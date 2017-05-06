@@ -10,6 +10,11 @@
 		<param name="enc_key" type="string" value="e7bad64696529559318bb35d0a8c6050d3b88e791e1808cfe8f7802150ee6f0d"/>
 		<param name="groundstation_enable" type="int" value="1"/>
 	</node>
+        <node pkg="dji_pid" name="pid_ctrl_node" type="pid_ctrl_node" output="screen"/>
+        <node pkg="dji_api" name="dji_api_node" type="dji_api_node" output="screen"/>
+        <node pkg="marker_detector" type="marker_detector" name="marker_detector" output="screen">
+                <param name= "cam_cal_file" type="string" value="$(find marker_detector)/config/camera.xml"/>
+        </node>
 
 	
 </launch>

@@ -144,12 +144,12 @@ int main(int argc, char *argv[])
     guidance_bias_correction_pub = nh.advertise<std_msgs::UInt8>("/guidance/bias_correction", 1);
     api_ctrl_sub = nh.subscribe("/ctrl_vel", 1, ctrl_vel_callback);
     api_cmd_sub  = nh.subscribe("/sdk_cmd",  1, sdk_cmd_callback);
-    /*
+    
     std_msgs::UInt8 guidance_bias_correction;
     guidance_bias_correction.data = 1;
     for(int j=0;j<100;j++) {
         guidance_bias_correction_pub.publish(guidance_bias_correction);
-}   */
+}
     cout << "Publish done!" << endl;   
     cout << "Last modified: 2017-05-02" << endl;
     

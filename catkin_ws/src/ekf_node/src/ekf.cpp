@@ -4,7 +4,7 @@ EKF::EKF()
 {
 	init = false;
 
-	gravity = 9.7;
+	gravity = 9.8;
   	g << 0,
   	     0,
   	     gravity;
@@ -154,13 +154,13 @@ void EKF::UavOdomUpdate(VectorXd z, ros::Time time)
   K2 = C_uav*state_last.var*(C_uav.transpose())+W*R*(W.transpose()) ;
   K3 = K2.inverse();
   K = K1*K3;
-  cout << "K: " << K << endl << "======" << endl;
-  cout << "K1: " << K1 << endl << "=====" << endl;
-  cout << "K3: " << K3 << endl << "=====" << endl; 
+  //cout << "K: " << K << endl << "======" << endl;
+  //cout << "K1: " << K1 << endl << "=====" << endl;
+  //cout << "K3: " << K3 << endl << "=====" << endl; 
   State state_new = state_last;
   state_new.mean = state_last.mean + K*(z-C_uav*state_last.mean);
   state_new.var  = state_last.var - K*C_uav*state_last.var;
-  cout << "updated mean: " << state_new.mean << endl;
+  //cout << "updated mean: " << state_new.mean << endl;
   state_new.stamp = state_last.stamp;
 
   StateHist.push_back(state_new);

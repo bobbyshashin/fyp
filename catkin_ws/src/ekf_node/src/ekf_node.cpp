@@ -8,6 +8,7 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Vector3Stamped.h>
+#include <geometry_msgs/Point.h>
 #include <fstream>
 #include <std_msgs/Float32.h>
 #include "ekf.h"
@@ -16,14 +17,17 @@ EKF ekf;
 ros::Publisher odom_uav_pub;
 ros::Publisher odom_ugv_pub;
 ros::Publisher test_pub;
+ros::Publisher marker_position_pub;
 float uavID = 10;
+float origin = 30;
 float ugvID = 20;
 Matrix3d Rgi = Matrix3d::Identity(3,3);
 Matrix3d Rgc = Matrix3d::Identity(3,3); //From car to global
 Vector3d Tic = Vector3d::Zero(3);
-Vector3d Tgt(0,0,0);
+Vector3d Tgo(0,0,0);
+Vector3d Tgt;
 Matrix3d Ric;
-int fuck = 0;
+int fuck = 121;
   
  //TODO: These two need to be initialized
 //Notes: In Aruco, it is supposed that what we get about transformation is from the marker coordinate system to the camera system. 
@@ -35,6 +39,7 @@ Matrix3d Rggg_car;// = Matrix3d::Identity(3,3);
 
 bool flag = false;
 bool flag_ugv = false;
+bool flag_target[2] = {false, false};
 
 void uav_vel_callback(const geometry_msgs::Vector3Stamped &msg)
 {
@@ -44,14 +49,14 @@ void uav_vel_callback(const geometry_msgs::Vector3Stamped &msg)
   u(0) = msg.vector.x;
   u(1) = msg.vector.y;
   u(2) = msg.vector.z;
-  
+  /*
   Vector3d u1 = Rgi.transpose()*u;
   geometry_msgs::Vector3 bodyv;
   bodyv.x = u1(0);
   bodyv.y = u1(1);
   bodyv.z = u1(2);
   test_pub.publish(bodyv);
-  
+  */
   u = Rggg.transpose() * u;
   if(ekf.isInit() == false){
     VectorXd mean_init = Eigen::VectorXd::Zero(6);
@@ -113,6 +118,11 @@ void ugv_vel_callback(const nav_msgs::Odometry::ConstPtr &msg)
   }
   if(!flag_ugv) return;
   u = Rggg_car.transpose() * u;
+  geometry_msgs::Vector3 u1;
+  u1.x = u(0);
+  u1.y = u(1);
+  u1.z = u(2);
+  test_pub.publish(u1);
   ekf.UgvPropagation(u, Time_ugv, Rgi, Rgc);
   VectorXd mean = ekf.GetState();
   nav_msgs::Odometry pos_ekf;
@@ -130,32 +140,64 @@ void ugv_vel_callback(const nav_msgs::Odometry::ConstPtr &msg)
 void uav_odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
   float id = msg->twist.twist.linear.x;
-  if(((id-uavID) > 0.1) || ((id-uavID) < -0.1))
-      return;
-  cout << "UAV update start" << endl;
-  Vector3d Tct,Tgi;
+  if(((id-uavID) < 0.1) && ((id-uavID) > -0.1) && flag_target[0]){
+      //cout << "UAV update start" << endl;
+      Vector3d Tct,Tgi;
   
-  Tct(0) = msg->pose.pose.position.x;
-  Tct(1) = msg->pose.pose.position.y;
-  Tct(2) = msg->pose.pose.position.z;
-  ros::Time Time_update = msg->header.stamp;
+      Tct(0) = msg->pose.pose.position.x;
+      Tct(1) = msg->pose.pose.position.y;
+      Tct(2) = msg->pose.pose.position.z;
+      ros::Time Time_update = msg->header.stamp;
 
-  cout << "=============" << endl;
-  Tgi = Tgt - Rgi * (Tic + Ric * Tct);
-  //cout << "odometry position: " << Tgi << endl;
-  VectorXd odom_x = Eigen::VectorXd::Zero(6);
   
-  odom_x.segment<3>(0) = Tgi;
+      Tgi = Tgt -Rggg.transpose() * Rgi * (Tic + Ric * Tct);
+      VectorXd odom_x = Eigen::VectorXd::Zero(6);
   
-  ekf.UavOdomUpdate(odom_x, Time_update);
-  //cout << "UAV updated" << endl;
+      odom_x.segment<3>(0) = Tgi;  
+      ekf.UavOdomUpdate(odom_x, Time_update);
+      }
+   /*
+   else if((id - uavID) == 30 && flag_target[1]) {//marker #40 is detected(after the first time)
+
+
+      Vector3d Tct,Tgi;
+  
+      Tct(0) = msg->pose.pose.position.x;
+      Tct(1) = msg->pose.pose.position.y;
+      Tct(2) = msg->pose.pose.position.z;
+      ros::Time Time_update = msg->header.stamp;
+
+  
+      Tgi = Tgt -Rggg.transpose() * Rgi * (Tic + Ric * Tct);
+      VectorXd odom_x = Eigen::VectorXd::Zero(6);
+  
+      odom_x.segment<3>(0) = Tgi;  
+      ekf.UavOdomUpdate(odom_x, Time_update);
+
+   }
+   */
+   else if(((id-origin) < 0.1) && ((id-origin) > -0.1)){
+      Vector3d Tco, Tgi;
+      Tco(0) = msg->pose.pose.position.x;
+      Tco(1) = msg->pose.pose.position.y;
+      Tco(2) = msg->pose.pose.position.z;
+      ros::Time Time_update = msg->header.stamp;
+      Tgi = Tgo - Rggg.transpose() * Rgi * (Tic + Ric * Tco);
+      VectorXd odom_x = Eigen::VectorXd::Zero(6);
+      odom_x.segment<3>(0) = Tgi;
+      ekf.UavOdomUpdate(odom_x, Time_update);
+      }
+   else
+      return;
 }
 
 void ugv_odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
+  //cout << "=== UGV Code found ===" << endl;
   float id = msg->twist.twist.linear.x;
   if(((id-ugvID) > 0.1) || ((id-ugvID) < -0.1))
       return;
+  //cout << "UGV updated" << endl;
   Vector3d Tcu,Tgu,Tgi;
   VectorXd mean = ekf.GetState();
   Tgi = mean.segment<3>(0);
@@ -164,9 +206,9 @@ void ugv_odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
   Tcu(2) = msg->pose.pose.position.z;
   ros::Time Time_update = msg->header.stamp;
 
-  Tgu = Tgi + Rgi * (Tic + Ric * Tcu);
+  Tgu = Tgi + Rggg_car.transpose() *Rgi * (Tic + Ric * Tcu);
   VectorXd odom_x = VectorXd::Zero(6);
-  odom_x.segment<3>(0) = Tgu;
+  odom_x.segment<3>(3) = Tgu;
   ekf.UgvOdomUpdate(odom_x, Time_update);
 
 
@@ -210,6 +252,7 @@ void initial_angle_callback(const std_msgs::Float32 &msg)
           sin(initial),  cos(initial), 0,
           0           ,             0, 1;
   flag = true;
+  //cout << "uav initial: " << initial << endl;
 }
 
 void initial_angle_ugv_callback(const geometry_msgs::Vector3 &msg)
@@ -228,7 +271,49 @@ void initial_angle_ugv_callback(const geometry_msgs::Vector3 &msg)
               sin(initial),  cos(initial), 0,
               0,                        0, 1;
   flag_ugv = true;
-  cout << initial << endl;
+  cout << "ugv initial: " <<  initial << endl;
+}
+
+void marker_detector_callback(const nav_msgs::Odometry::ConstPtr &msg)
+{
+    float target_id = msg->twist.twist.linear.x;
+    if(!flag_target[0]){
+        if(((target_id - uavID) > 0.1 || (target_id - uavID) < -0.1 ))
+            return;
+        VectorXd ekfState = ekf.GetState();
+        Vector3d Tgi_temp = ekfState.segment<3>(0);
+        Vector3d Tct;
+        Tct(0) = msg->pose.pose.position.x;
+        Tct(1) = msg->pose.pose.position.y;
+        Tct(2) = msg->pose.pose.position.z;
+        Tgt = Tgi_temp + Rggg.transpose() *Rgi*(Tic + Ric * Tct);
+        cout << "Target detected:  " << Tgt << endl;
+        //cout << "Target local: " << Tct << endl;
+        //cout << "UAV pos: " << Tgi_temp << endl; 
+	flag_target[0] = true;
+        geometry_msgs::Vector3 marker_msg;
+        marker_msg.x = Tgt(0);
+        marker_msg.y = Tgt(1);
+        marker_msg.z = target_id;
+        for(int i=0;i<10;i++)
+            marker_position_pub.publish(marker_msg);
+    }
+    else
+        return;
+    
+}
+void test_callback(const nav_msgs::Odometry::ConstPtr &msg)
+{
+  Vector3d tmp;
+  tmp(0) = msg->pose.pose.position.x;
+  tmp(1) = msg->pose.pose.position.y;
+  tmp(2) = msg->pose.pose.position.z;
+  tmp = Rggg_car.transpose() * tmp;
+  geometry_msgs::Vector3 tmp_geo;
+  tmp_geo.x = tmp(0);
+  tmp_geo.y = tmp(1);
+  tmp_geo.z = tmp(2);
+  //test_pub.publish(tmp_geo);
 }
 int main(int argc, char **argv)
 {
@@ -247,8 +332,11 @@ int main(int argc, char **argv)
   ros::Subscriber s7 = n.subscribe("target_position", 1, target_position_callback);
   ros::Subscriber s8 = n.subscribe("/initial_angle", 1, initial_angle_callback);
   ros::Subscriber s9 = n.subscribe("/n3_sdk/orientation", 1, initial_angle_ugv_callback);
+  ros::Subscriber s10 = n.subscribe("/detected_markers", 1, marker_detector_callback);
+  ros::Subscriber s11 = n.subscribe("/n3_sdk/odometry", 1, test_callback); 
   odom_ugv_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_ugv", 1); 
   odom_uav_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_uav", 1);
   test_pub = n.advertise<geometry_msgs::Vector3> ("test_pub", 10);
+  marker_position_pub = n.advertise<geometry_msgs::Vector3>("/marker_position", 10);
   ros::spin();
 }

@@ -13,7 +13,7 @@
 using namespace std;
 using namespace ros;
 
-int wtffff = 1111; // dummy variable to make sure catkin_make is done correctly
+int wtffff = 111; // dummy variable to make sure catkin_make is done correctly
 
 MISSION_STATUS current_mission = INIT;
 MISSION_STATUS next_mission;
@@ -217,7 +217,7 @@ void move_to(double x, double y, double z, bool wait_until_arrival = true) {
         //cout << "spinOnce done!" << endl;
 
     }
-    //cout << "cur_pos: " << current_position[0] << " " << current_position[1] << " ,tar_pos: " << x << " " << y  << endl;
+    cout << "cur_pos: " << current_position[0] << " " << current_position[1] << " ,tar_pos: " << x << " " << y  << endl;
     return; 
 }
 
@@ -404,10 +404,10 @@ int mission_run() {
 
             move_to(4, 0, 2);
  	        cout << "Arrived at first waypoint!" << endl;
-            move_to(4, 5, 2);
+            move_to(4, 4, 2);
 	        cout << "Arrived at second waypoint!" << endl;
-            move_to(0, 5, 2);
-            cout << "Arrived at third waypoint!" << endl;
+            //move_to(0, 10, 2);
+            //cout << "Arrived at third waypoint!" << endl;
             move_to(0, 0, 2);
  	        cout << "Back to origin!" << endl;
 
@@ -430,11 +430,9 @@ int mission_run() {
             msg.x = 0.7;
             msg.y = 0.1;
             msg.z = 0.15;
-	    for(int i=0; i<10; i++) 
-	        tracking_pub.publish(msg);
+            tracking_pub.publish(msg);
 
-            pos_error_threshold = 0.1;
-            move_to(ugv_position[0], ugv_position[1], 2, false); // Don't wait until arrival
+            move_to(ugv_position[0], ugv_position[1], 3, false); // Don't wait until arrival
             //ros::spinOnce();//current_mission = LANDING;
 
             break;
