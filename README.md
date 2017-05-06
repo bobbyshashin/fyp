@@ -1,11 +1,13 @@
 # fyp
 **Final Year Project at HKUST: Collaboration between UAV &amp; UGV (with LI Zimo &amp; ZHANG Yuanzhao)**
 
-##Manifold配置指南
+## DJI Manifold Setup Manual 
 
-- 安装ROS Indigo (Ubuntu armhf)：http://wiki.ros.org/indigo/Installation/UbuntuARM
+### 1. Install ROS Indigo (Ubuntu armhf)
 
-- 安装几个第三方ROS package：
+- First follow the instructions [here](http://wiki.ros.org/indigo/Installation/UbuntuARM)
+
+- Then install several 3rd-party ROS Packages:
 ```
 sudo apt-get install ros-indigo-cv-bridge
 sudo apt-get install ros-indigo-aruco
@@ -13,32 +15,94 @@ sudo apt-get install ros-indigo-camera-info-manager
 sudo apt-get install ros-indigo-v4l-utils
 ```
 
-- 安装CUDA, OpenCV 以及 OpenCV4Tegra：https://whaoyu.com/2016/02/12/install-OpenCV-and-CUDA-on-Manifold/
+### 2. Install CUDA 6.5: 
 
-Note that while installing opencv4tegra, the first line of command should be:
+- Download the source file from [here](http://developer.download.nvidia.com/embedded/L4T/r21_Release_v3.0/cuda-repo-l4t-r21.3-6-5-prod_6.5-42_armhf.deb)
+
+- Installation: 
+```
+sudo dpkg -i cuda-repo-l4t-r21.3-6-5-prod_6.5-42_armhf.deb
+sudo apt-get update
+sudo apt-get install cuda-toolkit-6-5
+```
+
+- Set GPU to be accessible by current user:
+
+```
+sudo usermod -a -G video $USER
+```
+
+
+- Set the environment variable:
+
+```
+gedit ~/.bashrc
+```
+
+- Then add the following lines to ~/.bashrc:
+
+```
+export PATH=/usr/local/cuda-6.5/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-6.5/lib:$LD_LIBRARY_PATH
+```
+
+
+- Then source the .bashrc file again:
+
+```
+source ~/.bashrc
+```
+
+### 3. Install OpenCV4Tegra:
+
+- Download the source file from [here](http://developer.download.nvidia.com/embedded/OpenCV/L4T_21.2/libopencv4tegra-repo_l4t-r21_2.4.10.1_armhf.deb)
+
+- Install the dependencies:
 ```
 sudo dpkg -i libopencv4tegra-repo_l4t-r21_2.4.10.1_armhf.deb
+sudo apt-get update
+sudo apt-get install libopencv4tegra libopencv4tegra-dev libopencv4tegra-python
+sudo apt-get install libgtk2.0-dev pkg-config
 ```
 
-- 下载ArUco Library 2.0.16：https://sourceforge.net/projects/aruco/files/
+### 4. Install OpenCV 2.4.10
 
-解压缩，然后进入ArUco 2.0.16根目录下：
+- Download the source file from [here](https://sourceforge.net/projects/opencvlibrary/files/opencv-unix/2.4.10/opencv-2.4.10.zip/download)
+
+- Unzip:
+
+```
+unzip opencv-2.4.10.zip
+```
+
+- Compile OpenCV:
+
+Under the parent directory of "opencv-2.4.10", make another directory named "build":
 ```
 mkdir build
 cd build
-cmake ..
-make
-sudo make install
+cmake -DWITH_CUDA=ON -DCUDA_ARCH_BIN="3.2" -DCUDA_ARCH_PTX="" -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF ../opencv-2.4.10/
+```
+Take a look at the message after cmake command is completed. If `Use CUDA` is `Yes`, then CUDA can be used.
+
+PS: If "cmake" cannot be find after typing the above commands, please install the essential applications first:
+```
+sudo apt-get install build-essential make cmake g++
 ```
 
-- 测试
-
-查看OpenCV版本：
+- Install OpenCV:
 ```
-pkg-config --modversion opencv
+sudo make -j4 install
 ```
 
-##TODO:
+- Modify the environment variables:
+```
+echo "# Use OpenCV and other custom-build libraries" >> ~/.bashrc
+echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/" >> ~/.bashrc
+source ~/.bashrc
+```
+
+## TODO:
 
 - Basic framework based on ROS (almost done)
 - UGV control
@@ -49,7 +113,7 @@ pkg-config --modversion opencv
 
 ![](http://s5.sinaimg.cn/large/001PLcxJgy6LwX57B0oe4&690)
 
-##（极不完全版的）DJI 经纬 M100入门开发教程
+## （极不完全版的）DJI 经纬 M100入门开发教程
 
 **从读代码开始：**
 
@@ -120,7 +184,7 @@ _gear_：遥控器右下角自动返航按键上的拨杆（原本用于控制�
 
 ![](http://s5.sinaimg.cn/large/001PLcxJgy6LwX57B0oe4&690)
 
-##避坑指南
+## 避坑指南
 
 **常见Bug汇总：**
 
