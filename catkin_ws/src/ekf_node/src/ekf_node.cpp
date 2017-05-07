@@ -19,6 +19,7 @@ ros::Publisher odom_ugv_pub;
 ros::Publisher test_pub;
 ros::Publisher marker_position_pub;
 float uavID = 10;
+float uavID2 = 40;
 float origin = 30;
 float ugvID = 20;
 Matrix3d Rgi = Matrix3d::Identity(3,3);
@@ -26,6 +27,7 @@ Matrix3d Rgc = Matrix3d::Identity(3,3); //From car to global
 Vector3d Tic = Vector3d::Zero(3);
 Vector3d Tgo(0,0,0);
 Vector3d Tgt;
+Vector3d Tgt2;
 Matrix3d Ric;
 int fuck = 121;
   
@@ -156,8 +158,8 @@ void uav_odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
       odom_x.segment<3>(0) = Tgi;  
       ekf.UavOdomUpdate(odom_x, Time_update);
       }
-   /*
-   else if((id - uavID) == 30 && flag_target[1]) {//marker #40 is detected(after the first time)
+   
+   else if(((id-uavID2) < 0.1) && ((id-uavID2) > -0.1) && flag_target[1]){//marker #40 is detected(after the first time)
 
 
       Vector3d Tct,Tgi;
@@ -168,14 +170,14 @@ void uav_odom_callback(const nav_msgs::Odometry::ConstPtr &msg)
       ros::Time Time_update = msg->header.stamp;
 
   
-      Tgi = Tgt -Rggg.transpose() * Rgi * (Tic + Ric * Tct);
+      Tgi = Tgt2 -Rggg.transpose() * Rgi * (Tic + Ric * Tct);
       VectorXd odom_x = Eigen::VectorXd::Zero(6);
   
       odom_x.segment<3>(0) = Tgi;  
       ekf.UavOdomUpdate(odom_x, Time_update);
 
    }
-   */
+   
    else if(((id-origin) < 0.1) && ((id-origin) > -0.1)){
       Vector3d Tco, Tgi;
       Tco(0) = msg->pose.pose.position.x;
@@ -277,9 +279,8 @@ void initial_angle_ugv_callback(const geometry_msgs::Vector3 &msg)
 void marker_detector_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
     float target_id = msg->twist.twist.linear.x;
-    if(!flag_target[0]){
-        if(((target_id - uavID) > 0.1 || (target_id - uavID) < -0.1 ))
-            return;
+    if(!flag_target[0] && ((target_id - uavID) > 0.1 || (target_id - uavID) < -0.1)){ 
+       
         VectorXd ekfState = ekf.GetState();
         Vector3d Tgi_temp = ekfState.segment<3>(0);
         Vector3d Tct;
@@ -287,13 +288,32 @@ void marker_detector_callback(const nav_msgs::Odometry::ConstPtr &msg)
         Tct(1) = msg->pose.pose.position.y;
         Tct(2) = msg->pose.pose.position.z;
         Tgt = Tgi_temp + Rggg.transpose() *Rgi*(Tic + Ric * Tct);
-        cout << "Target detected:  " << Tgt << endl;
+        cout << "Target1 detected:  " << Tgt << endl;
         //cout << "Target local: " << Tct << endl;
         //cout << "UAV pos: " << Tgi_temp << endl; 
 	flag_target[0] = true;
         geometry_msgs::Vector3 marker_msg;
         marker_msg.x = Tgt(0);
         marker_msg.y = Tgt(1);
+        marker_msg.z = target_id;
+        for(int i=0;i<10;i++)
+            marker_position_pub.publish(marker_msg);
+    }
+    else if(!flag_target[1] && ((target_id - uavID2) > 0.1 || (target_id - uavID2) < -0.1)){
+        VectorXd ekfState = ekf.GetState();
+        Vector3d Tgi_temp = ekfState.segment<3>(0);
+        Vector3d Tct;
+        Tct(0) = msg->pose.pose.position.x;
+        Tct(1) = msg->pose.pose.position.y;
+        Tct(2) = msg->pose.pose.position.z;
+        Tgt2 = Tgi_temp + Rggg.transpose() *Rgi*(Tic + Ric * Tct);
+        cout << "Target2 detected:  " << Tgt << endl;
+        //cout << "Target local: " << Tct << endl;
+        //cout << "UAV pos: " << Tgi_temp << endl; 
+        flag_target[1] = true;
+        geometry_msgs::Vector3 marker_msg;
+        marker_msg.x = Tgt2(0);
+        marker_msg.y = Tgt2(1);
         marker_msg.z = target_id;
         for(int i=0;i<10;i++)
             marker_position_pub.publish(marker_msg);
@@ -329,14 +349,14 @@ int main(int argc, char **argv)
   ros::Subscriber s4 = n.subscribe("/detected_markers", 1, ugv_odom_callback);
   ros::Subscriber s5 = n.subscribe("/dji_sdk/odometry", 1, uav_rot_callback);
   ros::Subscriber s6 = n.subscribe("/n3_sdk/odometry", 1, ugv_rot_callback);
-  ros::Subscriber s7 = n.subscribe("target_position", 1, target_position_callback);
+  //ros::Subscriber s7 = n.subscribe("target_position", 1, target_position_callback);
   ros::Subscriber s8 = n.subscribe("/initial_angle", 1, initial_angle_callback);
   ros::Subscriber s9 = n.subscribe("/n3_sdk/orientation", 1, initial_angle_ugv_callback);
   ros::Subscriber s10 = n.subscribe("/detected_markers", 1, marker_detector_callback);
   ros::Subscriber s11 = n.subscribe("/n3_sdk/odometry", 1, test_callback); 
   odom_ugv_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_ugv", 1); 
   odom_uav_pub = n.advertise<nav_msgs::Odometry>("ekf_odom_uav", 1);
-  test_pub = n.advertise<geometry_msgs::Vector3> ("test_pub", 10);
+  //test_pub = n.advertise<geometry_msgs::Vector3> ("test_pub", 10);
   marker_position_pub = n.advertise<geometry_msgs::Vector3>("/marker_position", 10);
   ros::spin();
 }
