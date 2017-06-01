@@ -29,16 +29,12 @@ float target_position[3] = {0, 0, 0};
 float ugv_position[2] = {0, 0};
 
 //bool marker_status[3] = {true, true, false}; // Origin, UGV, 1st target, respectively
-map<int, bool> marker_status;
-map<int, Tuple> marker_position;
+map<int, bool> marker_status; // whether it is the first time being observed
+map<int, Tuple> marker_position; // in local frame
 
 int marker_id[3] = {10, 20, 30};
 
-//float marker_position[3][2] = {{0, 0}, {0, 0}, {0, 0}}; // In local frame
-
 std_msgs::UInt8 cmd_msg;
-//double target_position[3] = {0, 0, 0};
-//TODO Global target position and local target position
 
 //TODO Add 2 Watchdogs for timing
 Publisher target_pos_pub;     // Publish the target position to PID controller
@@ -47,10 +43,8 @@ Publisher pid_param_pub;      // Publish the updated PID parameters set to PID c
 Publisher pid_ctrl_limit_pub; // Publish the updated velocity limit to PID controller 
 Publisher stm32_cmd_pub;      // Publish the commands to STM32 transceiver node
 Publisher ugv_activation_pub; // Publish the activation message to UGV
-//ros::Subscriber vision_activation_sub;
-//ros::Subscriber box_searcher_sub;
-//ros::Subscriber target_searcher_sub; // Search for targets with specific tags
 Publisher tracking_pub;
+
 Subscriber ctrl_vel_sub;  // Subscribe the desired velocity from PID controller
 Subscriber pos_error_sub; // Subscribe the flag for arrival at target position
 Subscriber ugv_pos_sub; // Subscribe the current position of UGV from ekf node
@@ -60,11 +54,6 @@ Subscriber detected_marker_sub; // Subscribe the detected markers and record the
 bool is_arrived() { 
 
     /* Check whether the UAV has arrived at the target position */
-    /*
-    if ( abs(position_error[0]) < pos_error_threshold && 
-         abs(position_error[1]) < pos_error_threshold) //&& 
-         //abs(position_error[2]) < pos_error_threshold )
-    */
     if( abs(target_position[0] - current_position[0]) < pos_error_threshold &&
         abs(target_position[1] - current_position[1]) < pos_error_threshold &&
 	abs(target_position[2] - current_position[2]) < pos_error_threshold  )
@@ -85,7 +74,7 @@ void position_error_callback(const geometry_msgs::Vector3& msg) {
     //cout << "Position error updated!" << endl;
 
 }
-
+/*
 void markerDetectorCallback(const nav_msgs::Odometry& msg) {
 
     int id = msg.twist.twist.linear.x;
@@ -154,7 +143,7 @@ void markerDetectorCallback(const nav_msgs::Odometry& msg) {
 	   }
     }
 }
-
+*/
 void ugv_pos_callback(const nav_msgs::Odometry& msg) {
 
     //cout << "ugv pos updated" << endl;
@@ -444,37 +433,29 @@ int mission_run() {
             break;
         }
     }
-
-
-
-
-   
-
 }
 
 
 int main(int argc, char **argv) {
 
     ros::init(argc, argv, "flight_logic");
-    
     ros::NodeHandle nh;
 
-    //vision_taking_control = false;
     marker_status[marker_id[0]] = true;
     marker_status[marker_id[1]] = true;
     marker_status[marker_id[2]] = false;
 
-    stm32_cmd_pub = nh.advertise<std_msgs::String>("/stm32_cmd", 1);
-    target_pos_pub = nh.advertise<geometry_msgs::Vector3>("/target_position", 1);
-    cmd_msg_pub = nh.advertise<std_msgs::UInt8>("/sdk_cmd", 1);
-    ugv_activation_pub = nh.advertise<std_msgs::UInt8>("/ugv_activation", 1);
-    //vision_activation_sub = nh.subscribe("/vision_activation", 1, vision_activation_callback);
-    //target_searcher_sub = nh.subscribe("/target_coordinate", 1);
-    tracking_pub = nh.advertise<geometry_msgs::Vector3>("/pid_parameter", 1);
-    ugv_pos_sub = nh.subscribe("/ekf/ekf_odom_ugv", 1, ugv_pos_callback);
-    pos_error_sub = nh.subscribe("/position_error", 1, position_error_callback);
-    current_pos_sub = nh.subscribe("/current_position", 1, current_pos_callback);
+    stm32_cmd_pub       = nh.advertise<std_msgs::String>("/stm32_cmd", 1);
+    target_pos_pub      = nh.advertise<geometry_msgs::Vector3>("/target_position", 1);
+    cmd_msg_pub         = nh.advertise<std_msgs::UInt8>("/sdk_cmd", 1);
+    ugv_activation_pub  = nh.advertise<std_msgs::UInt8>("/ugv_activation", 1);
+    tracking_pub        = nh.advertise<geometry_msgs::Vector3>("/pid_parameter", 1);
+
+    ugv_pos_sub         = nh.subscribe("/ekf/ekf_odom_ugv", 1, ugv_pos_callback);
+    pos_error_sub       = nh.subscribe("/position_error", 1, position_error_callback);
+    current_pos_sub     = nh.subscribe("/current_position", 1, current_pos_callback);
     detected_marker_sub = nh.subscribe("/detected_markers", 10, markerDetectorCallback);
+
     ros::Rate loop_rate(50);
 
     ROS_INFO("Flight Logic control starts!");

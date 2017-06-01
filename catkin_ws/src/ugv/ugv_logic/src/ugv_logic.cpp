@@ -28,9 +28,9 @@ Subscriber marker_position_sub;
 Publisher target_position_pub;
 Publisher target_speed_pub;
 
-MISSION_STATUS current_mission = GOING_TO_TARGET;
+MISSION_STATUS current_mission = STAND;
 
-int current_target_index = 1;
+int current_target_index = 0;
 
 float initial_angle; // the angle from global frame to local frame
 float local_yaw; // from local frame to body frame
@@ -67,19 +67,37 @@ void go() {
     int left_speed_compensation;
     int right_speed_compensation;
 
-    if( abs(yaw_error) > 0.1 ) {
+    if( abs(yaw_error) > 2 ) {
 
-	// Left wheels
-	left_speed_compensation = - yaw_error * 1000;
-	// Right wheels
-	right_speed_compensation = yaw_error * 1000;
-	//TODO
+	   // Left wheels
+	   left_speed_compensation = - yaw_error * 2000;
+	   // Right wheels
+	   right_speed_compensation = yaw_error * 2000;
+	   //TODO
+    }
+
+    else if ( abs(yaw_error) > 1 ) {
+
+        // Left wheels
+        left_speed_compensation = - yaw_error * 1500;
+        // Right wheels
+        right_speed_compensation = yaw_error * 1500;
+
+    }
+
+    else if ( abs(yaw_error) > 0.1 ) {
+
+        // Left wheels
+        left_speed_compensation = - yaw_error * 1000;
+        // Right wheels
+        right_speed_compensation = yaw_error * 1000;
+
     }
 
     else {
     	
-	left_speed_compensation = 0;
-	right_speed_compensation = 0;
+	   left_speed_compensation = 0;
+	   right_speed_compensation = 0;
     }
 
     int left = target_speed[0] + left_speed_compensation;
@@ -94,10 +112,20 @@ void go() {
 
 }
 
-void marker_position_callback(const geometry_msgs::Point& msg) {
+void marker_position_callback(const geometry_msgs::Vector3& msg) {
 
-    marker_position[1][0] = msg.x;
-    marker_position[1][1] = msg.y;
+    int id = msg.z;
+
+    if(id == 40) {
+        marker_position[1][0] = msg.x;
+        marker_position[1][1] = msg.y;
+        cout << "Second target position received: " << endl << "X: " << msg.x << endl << "Y: " << msg.y << endl;
+    }
+    else if(id == 10) {
+        marker_position[0][0] = msg.x;
+        marker_position[0][1] = msg.y;
+        cout << "First target position received: " << endl << "X: " << msg.x << endl << "Y: " << msg.y << endl;
+    }
 
 }
 
@@ -141,7 +169,7 @@ void current_position_callback(const nav_msgs::Odometry& msg) {
     	if(target_x > 0 && target_y != 0)
     	    current_target_orientation = atan2((target_x - current_position[0]), (target_y - current_position[1]));
     	else
-	    cout << "Current target's position is invalid!" << endl;
+	       cout << "Current target's position is invalid!" << endl;
     
         yaw_error = local_yaw - current_target_orientation;
 
@@ -185,6 +213,9 @@ void mission_run() {
 
 	case GOING_TO_TARGET:
 
+        target_position[0] = marker_position[current_target_index][0];
+        target_position[1] = marker_position[current_target_index][1];
+
 	    if( !arrived() ) {
  	        
 	        set_speed(1500, 1500, 1500, 1500);
@@ -193,14 +224,21 @@ void mission_run() {
 	    }
 	    else {
 
-		set_speed(0, 0, 0, 0);
-		publish_speed();
-		current_mission = ARRIVED;
+            if(current_target_index != 1){
+                current_target_index++;
+                target_position[0] = marker_position[current_target_index][0];
+                target_position[1] = marker_position[current_target_index][1];
+            }
+            else
+		        current_mission = ARRIVED;
 	    }
 
 	    break;
 
 	case ARRIVED:
+
+        set_speed(0, 0, 0, 0);
+        publish_speed();
 
 	    break;
 
@@ -228,7 +266,9 @@ int main(int argc, char *argv[]) {
 	
     marker_position[0][0] = 0;
     marker_position[0][1] = 0;
-    
+    marker_position[1][0] = 0;
+    marker_position[1][1] = 0;
+
     current_position_sub = nh.subscribe("/ekf/ekf_odom_ugv", 1, current_position_callback);
     orientation_sub = nh.subscribe("/n3_sdk/orientation", 1, orientation_callback);
     initial_angle_sub = nh.subscribe("/initial_angle", 1, initial_angle_callback);
