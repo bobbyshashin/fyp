@@ -28,7 +28,7 @@ Subscriber marker_position_sub;
 Publisher target_position_pub;
 Publisher target_speed_pub;
 
-MISSION_STATUS current_mission = STAND;
+MISSION_STATUS current_mission = STAND_BY;
 
 int current_target_index = 0;
 
@@ -45,9 +45,18 @@ float yaw_error; // Note: z-axis pointing downwards
 float current_position[2] = {0, 0}; // Current position in local frame, subscribed from EKF node
 float target_position[2] = {0, 0}; 
 int target_speed[4] = {0, 0, 0, 0};
-float marker_position[2][2];
+float marker_position[2][2] = {{0, 0}, {0, 0}};
 
-//geometry_msgs::Point marker_position[2];
+int magic = 1;
+
+void set_speed(int lf, int lb, int rb, int rf) { // Left forward, left backward, right backward, right forward
+
+    target_speed[0] = lf;
+    target_speed[1] = lb;
+    target_speed[2] = rb;
+    target_speed[3] = rf;
+
+}
 
 void publish_speed() {
 
@@ -66,48 +75,26 @@ void go() {
 
     int left_speed_compensation;
     int right_speed_compensation;
+    int multiplier;
 
-    if( abs(yaw_error) > 2 ) {
+    if(abs(yaw_error) > 2)
+        multiplier = 2000;
+    else if (abs(yaw_error) > 1)
+        multiplier = 1500;
+    else if (abs(yaw_error) > 0.1)
+       multiplier = 1000;
+    else
+	   multiplier = 0;
 
-	   // Left wheels
-	   left_speed_compensation = - yaw_error * 2000;
-	   // Right wheels
-	   right_speed_compensation = yaw_error * 2000;
-	   //TODO
-    }
-
-    else if ( abs(yaw_error) > 1 ) {
-
-        // Left wheels
-        left_speed_compensation = - yaw_error * 1500;
-        // Right wheels
-        right_speed_compensation = yaw_error * 1500;
-
-    }
-
-    else if ( abs(yaw_error) > 0.1 ) {
-
-        // Left wheels
-        left_speed_compensation = - yaw_error * 1000;
-        // Right wheels
-        right_speed_compensation = yaw_error * 1000;
-
-    }
-
-    else {
-    	
-	   left_speed_compensation = 0;
-	   right_speed_compensation = 0;
-    }
+    // Left wheels
+    left_speed_compensation = - yaw_error * multiplier;
+    // Right wheels
+    right_speed_compensation = yaw_error * multiplier;
 
     int left = target_speed[0] + left_speed_compensation;
     int right = target_speed[2] + right_speed_compensation;
 
-    target_speed[0] = left;
-    target_speed[1] = left;
-    target_speed[2] = right;
-    target_speed[3] = right;
-
+    set_speed(left, left, right, right);
     publish_speed();
 
 }
@@ -116,27 +103,19 @@ void marker_position_callback(const geometry_msgs::Vector3& msg) {
 
     int id = msg.z;
 
-    if(id == 40) {
-        marker_position[1][0] = msg.x;
-        marker_position[1][1] = msg.y;
-        cout << "Second target position received: " << endl << "X: " << msg.x << endl << "Y: " << msg.y << endl;
-    }
-    else if(id == 10) {
+    if(id == 10) {
         marker_position[0][0] = msg.x;
         marker_position[0][1] = msg.y;
         cout << "First target position received: " << endl << "X: " << msg.x << endl << "Y: " << msg.y << endl;
     }
+    else if(id == 40) {
+        marker_position[1][0] = msg.x;
+        marker_position[1][1] = msg.y;
+        cout << "Second target position received: " << endl << "X: " << msg.x << endl << "Y: " << msg.y << endl;
+    }
 
 }
 
-void set_speed(int lf, int lb, int rb, int rf) { // Left forward, left backward, right backward, right forward
-
-    target_speed[0] = lf;
-    target_speed[1] = lb;
-    target_speed[2] = rb;
-    target_speed[3] = rf;
-
-}
 
 void move_to() {
 
@@ -179,23 +158,19 @@ void current_position_callback(const nav_msgs::Odometry& msg) {
 void orientation_callback(const geometry_msgs::Vector3& msg) {
 
     local_yaw = msg.y - initial_angle;
-    /* Test ***********
-    local_yaw = msg.y;
-    yaw_error = local_yaw;
-    cout << "Yaw error: " << yaw_error << endl;
-    *******Test ends */
 }
 
 void initial_angle_callback(const std_msgs::Float32& msg) {
 
     initial_angle = msg.data;
-
 }
 
 void activation_callback(const std_msgs::UInt8& msg) {
 
-    if(msg.data == 3)
+    if(msg.data == 3) {
         current_mission = GOING_TO_TARGET;
+        cout << "UGV activated!" << endl;
+    }
 
 }
 
@@ -242,17 +217,7 @@ void mission_run() {
 
 	    break;
 
-
-
-
-
-
-
     }
-
-
-
-
 
 }
 
@@ -263,11 +228,6 @@ int main(int argc, char *argv[]) {
     ros::NodeHandle nh;
 
     ros::Rate loop_rate(100);
-	
-    marker_position[0][0] = 0;
-    marker_position[0][1] = 0;
-    marker_position[1][0] = 0;
-    marker_position[1][1] = 0;
 
     current_position_sub = nh.subscribe("/ekf/ekf_odom_ugv", 1, current_position_callback);
     orientation_sub = nh.subscribe("/n3_sdk/orientation", 1, orientation_callback);
