@@ -152,23 +152,23 @@ private:
 
     void init_services(ros::NodeHandle& nh)
     {
-		activation_service = nh.advertiseService("dji_sdk/activation", &DJISDKNode::activation_callback, this);
-        attitude_control_service = nh.advertiseService("dji_sdk/attitude_control", &DJISDKNode::attitude_control_callback, this);
-        camera_action_control_service = nh.advertiseService("dji_sdk/camera_action_control",&DJISDKNode::camera_action_control_callback, this);
-        drone_task_control_service = nh.advertiseService("dji_sdk/drone_task_control", &DJISDKNode::drone_task_control_callback, this);
-        gimbal_angle_control_service = nh.advertiseService("dji_sdk/gimbal_angle_control", &DJISDKNode::gimbal_angle_control_callback, this);
-        gimbal_speed_control_service = nh.advertiseService("dji_sdk/gimbal_speed_control", &DJISDKNode::gimbal_speed_control_callback, this);
-        global_position_control_service = nh.advertiseService("dji_sdk/global_position_control", &DJISDKNode::global_position_control_callback, this);
-        local_position_control_service = nh.advertiseService("dji_sdk/local_position_control", &DJISDKNode::local_position_control_callback, this);
-        sdk_permission_control_service = nh.advertiseService("dji_sdk/sdk_permission_control", &DJISDKNode::sdk_permission_control_callback, this);
-        velocity_control_service = nh.advertiseService("dji_sdk/velocity_control", &DJISDKNode::velocity_control_callback, this);
-		version_check_service = nh.advertiseService("dji_sdk/version_check", &DJISDKNode::version_check_callback, this);
-		virtual_rc_enable_control_service = nh.advertiseService("dji_sdk/virtual_rc_enable_control", &DJISDKNode::virtual_rc_enable_control_callback, this);
-		virtual_rc_data_control_service = nh.advertiseService("dji_sdk/virtual_rc_data_control", &DJISDKNode::virtual_rc_data_control_callback,this);
-		drone_arm_control_service = nh.advertiseService("dji_sdk/drone_arm_control", &DJISDKNode::drone_arm_control_callback, this);
-		sync_flag_control_service = nh.advertiseService("dji_sdk/sync_flag_control", &DJISDKNode::sync_flag_control_callback, this);
-		message_frequency_control_service = nh.advertiseService("dji_sdk/message_frequency_control", &DJISDKNode::message_frequency_control_callback, this);
-		send_data_to_remote_device_service = nh.advertiseService("dji_sdk/send_data_to_remote_device", &DJISDKNode::send_data_to_remote_device_callback,this);
+		activation_service = nh.advertiseService("n3_sdk/activation", &DJISDKNode::activation_callback, this);
+        attitude_control_service = nh.advertiseService("n3_sdk/attitude_control", &DJISDKNode::attitude_control_callback, this);
+        camera_action_control_service = nh.advertiseService("n3_sdk/camera_action_control",&DJISDKNode::camera_action_control_callback, this);
+        drone_task_control_service = nh.advertiseService("n3_sdk/drone_task_control", &DJISDKNode::drone_task_control_callback, this);
+        gimbal_angle_control_service = nh.advertiseService("n3_sdk/gimbal_angle_control", &DJISDKNode::gimbal_angle_control_callback, this);
+        gimbal_speed_control_service = nh.advertiseService("n3_sdk/gimbal_speed_control", &DJISDKNode::gimbal_speed_control_callback, this);
+        global_position_control_service = nh.advertiseService("n3_sdk/global_position_control", &DJISDKNode::global_position_control_callback, this);
+        local_position_control_service = nh.advertiseService("n3_sdk/local_position_control", &DJISDKNode::local_position_control_callback, this);
+        sdk_permission_control_service = nh.advertiseService("n3_sdk/sdk_permission_control", &DJISDKNode::sdk_permission_control_callback, this);
+        velocity_control_service = nh.advertiseService("n3_sdk/velocity_control", &DJISDKNode::velocity_control_callback, this);
+		version_check_service = nh.advertiseService("n3_sdk/version_check", &DJISDKNode::version_check_callback, this);
+		virtual_rc_enable_control_service = nh.advertiseService("n3_sdk/virtual_rc_enable_control", &DJISDKNode::virtual_rc_enable_control_callback, this);
+		virtual_rc_data_control_service = nh.advertiseService("n3_sdk/virtual_rc_data_control", &DJISDKNode::virtual_rc_data_control_callback,this);
+		drone_arm_control_service = nh.advertiseService("n3_sdk/drone_arm_control", &DJISDKNode::drone_arm_control_callback, this);
+		sync_flag_control_service = nh.advertiseService("n3_sdk/sync_flag_control", &DJISDKNode::sync_flag_control_callback, this);
+		message_frequency_control_service = nh.advertiseService("n3_sdk/message_frequency_control", &DJISDKNode::message_frequency_control_callback, this);
+		send_data_to_remote_device_service = nh.advertiseService("n3_sdk/send_data_to_remote_device", &DJISDKNode::send_data_to_remote_device_callback,this);
     }
 
 //Actions:
@@ -199,22 +199,22 @@ private:
     void init_actions(ros::NodeHandle& nh)
     {
         drone_task_action_server = new DroneTaskActionServer(nh,
-            "dji_sdk/drone_task_action",
+            "n3_sdk/drone_task_action",
             boost::bind(&DJISDKNode::drone_task_action_callback, this, _1), false);
         drone_task_action_server->start();
 
         local_position_navigation_action_server = new LocalPositionNavigationActionServer(nh,
-            "dji_sdk/local_position_navigation_action",
+            "n3_sdk/local_position_navigation_action",
             boost::bind(&DJISDKNode::local_position_navigation_action_callback, this, _1), false);
         local_position_navigation_action_server->start();
 
         global_position_navigation_action_server = new GlobalPositionNavigationActionServer(nh,
-            "dji_sdk/global_position_navigation_action",
+            "n3_sdk/global_position_navigation_action",
             boost::bind(&DJISDKNode::global_position_navigation_action_callback, this, _1), false );
         global_position_navigation_action_server->start();
 
         waypoint_navigation_action_server = new WaypointNavigationActionServer(nh,
-            "dji_sdk/waypoint_navigation_action",
+            "n3_sdk/waypoint_navigation_action",
             boost::bind(&DJISDKNode::waypoint_navigation_action_callback, this, _1), false);
         waypoint_navigation_action_server->start();
     }

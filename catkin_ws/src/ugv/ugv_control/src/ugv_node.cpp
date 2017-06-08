@@ -73,7 +73,7 @@ float Kp2 = 0.45;
 float Ki2 = 0.1;
 float Kd2 = 0.2;
 
-int16_t targetSpeed[4] = {2000, 2000, 2000, 2000};
+int16_t targetSpeed[4] = {0, 0, 0, 0};
 int16_t currentSpeed[4] = {0,0,0,0}; 
 
 float ctrl[4] = {0,0,0,0}; // data sent to CAN

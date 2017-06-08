@@ -1,0 +1,1028 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"path",
+				"path_ekf_new"
+			],
+			[
+				"S",
+				"subscribe"
+			],
+			[
+				"P",
+				"Publisher"
+			],
+			[
+				"ROS",
+				"ROS_BREAK"
+			],
+			[
+				"poi",
+				"point_y"
+			],
+			[
+				"po",
+				"point_x"
+			],
+			[
+				"del",
+				"delta_x"
+			],
+			[
+				"POI",
+				"point_x"
+			],
+			[
+				"odom",
+				"odom_ready"
+			],
+			[
+				"point",
+				"point_x"
+			],
+			[
+				"quad",
+				"quad_pos"
+			],
+			[
+				"poin",
+				"point_z"
+			],
+			[
+				"ge",
+				"getNumSubscribers"
+			],
+			[
+				"su",
+				"getNumSubscribers"
+			],
+			[
+				"se",
+				"sensor_msgs"
+			],
+			[
+				"Po",
+				"PointCloud2"
+			],
+			[
+				"SE",
+				"sensor_msgs"
+			],
+			[
+				"fron",
+				"frontier_discon"
+			],
+			[
+				"_vs",
+				"_vis_discon"
+			],
+			[
+				"_vis",
+				"_vis_discon"
+			],
+			[
+				"Mar",
+				"MarkerArray"
+			],
+			[
+				"vis",
+				"visualization_msgs"
+			],
+			[
+				"front",
+				"frontier_discon"
+			],
+			[
+				"pt",
+				"pt_num"
+			],
+			[
+				"ray_",
+				"ray_discon"
+			],
+			[
+				"de",
+				"delta_y"
+			],
+			[
+				"frontier",
+				"frontier_merge"
+			],
+			[
+				"ptr",
+				"ptr1"
+			],
+			[
+				"tiem",
+				"time_frontier_aft"
+			],
+			[
+				"time_",
+				"time_vis_aft"
+			],
+			[
+				"gen",
+				"Generator"
+			],
+			[
+				"time",
+				"time_map_aft"
+			],
+			[
+				"Gen",
+				"Generator"
+			],
+			[
+				"vec",
+				"vector	std::vector"
+			],
+			[
+				"dela",
+				"delta_y"
+			],
+			[
+				"delta",
+				"delta_x"
+			],
+			[
+				"qua",
+				"quad_y"
+			],
+			[
+				"poit",
+				"point_y"
+			],
+			[
+				"ray",
+				"ray_num"
+			],
+			[
+				"get",
+				"getNumSubscribers"
+			],
+			[
+				"Ve",
+				"Vector3d"
+			],
+			[
+				"f",
+				"f_total"
+			],
+			[
+				"ve",
+				"Vector3d"
+			],
+			[
+				"x_",
+				"x_length"
+			],
+			[
+				"_gap",
+				"_gap_h"
+			],
+			[
+				"_",
+				"_resolution"
+			],
+			[
+				"gap",
+				"gap_length_x1"
+			],
+			[
+				"gap_pos",
+				"gap_pos_x1"
+			],
+			[
+				"rand",
+				"rand_gap"
+			],
+			[
+				"gap_",
+				"gap_pos_x1"
+			],
+			[
+				"_y",
+				"_y_h"
+			],
+			[
+				"con",
+				"convert_plot"
+			],
+			[
+				"ma",
+				"markers"
+			],
+			[
+				"_pa",
+				"_path_new"
+			],
+			[
+				"traj",
+				"trajCallBack"
+			],
+			[
+				"map",
+				"map_ok"
+			],
+			[
+				"re",
+				"resolution"
+			],
+			[
+				"ran_",
+				"rand_w"
+			],
+			[
+				"Map",
+				"MapGenerate"
+			],
+			[
+				"draw",
+				"draw_ball"
+			],
+			[
+				"pt_",
+				"pt_draw"
+			],
+			[
+				"drawBallforPaper_",
+				"_drawBallforPaper_pub"
+			],
+			[
+				"dr",
+				"drawBallforPaper_vis"
+			],
+			[
+				"_d",
+				"_drawBallforPaper_vis"
+			],
+			[
+				"fa",
+				"father_ptr"
+			],
+			[
+				"A",
+				"A_star_beg"
+			],
+			[
+				"set",
+				"setWayPoints"
+			],
+			[
+				"poly_",
+				"poly_fail"
+			],
+			[
+				"row",
+				"row_up"
+			],
+			[
+				"col",
+				"col_up"
+			],
+			[
+				"las",
+				"last_z"
+			],
+			[
+				"R",
+				"ROS_WARN"
+			],
+			[
+				"last",
+				"last_rad"
+			],
+			[
+				"end",
+				"end_pt"
+			],
+			[
+				"cycl",
+				"cycle_ct"
+			],
+			[
+				"node",
+				"node2"
+			],
+			[
+				"_P",
+				"_PolyCoeff"
+			],
+			[
+				"solv",
+				"solve_ok"
+			],
+			[
+				"_Max",
+				"_MAX_Acc"
+			],
+			[
+				"sta",
+				"start_vel"
+			],
+			[
+				"star",
+				"start_vel"
+			],
+			[
+				"ex",
+				"ex_time"
+			],
+			[
+				"Ineq",
+				"Inequ_con_num"
+			],
+			[
+				"coeff",
+				"coeff_dim"
+			],
+			[
+				"rad",
+				"radius"
+			],
+			[
+				"_Pa",
+				"_PathCorridor"
+			],
+			[
+				"seg",
+				"segment_no"
+			],
+			[
+				"bin",
+				"bin_tmp"
+			],
+			[
+				"segm",
+				"segment_no"
+			],
+			[
+				"Vex",
+				"VectorXd"
+			],
+			[
+				"NUM",
+				"NUMCON"
+			],
+			[
+				"In",
+				"Inequ_con_num"
+			],
+			[
+				"Equ",
+				"Equ_con_num"
+			],
+			[
+				"Vec",
+				"VectorXd"
+			],
+			[
+				"Q",
+				"Qobj"
+			],
+			[
+				"ex_",
+				"ex_check"
+			],
+			[
+				"check",
+				"check_result"
+			],
+			[
+				"Path",
+				"Path_Radius"
+			],
+			[
+				"poly",
+				"PolyCoeff"
+			],
+			[
+				"polyC",
+				"polyCheck"
+			],
+			[
+				"start",
+				"start_time"
+			],
+			[
+				"Der",
+				"der_size"
+			],
+			[
+				"der",
+				"der_size"
+			],
+			[
+				"add",
+				"addExConstrain"
+			],
+			[
+				"find",
+				"findRoots"
+			],
+			[
+				"Vc",
+				"VectorXd"
+			],
+			[
+				"extre",
+				"extrePoint"
+			],
+			[
+				"insert",
+				"insert_1"
+			],
+			[
+				"ins",
+				"insert_2"
+			],
+			[
+				"time_ci",
+				"time_circle"
+			],
+			[
+				"T",
+				"Time"
+			],
+			[
+				"time_aft",
+				"time_aft_linear"
+			],
+			[
+				"Tie",
+				"Time"
+			],
+			[
+				"cons",
+				"constriants"
+			],
+			[
+				"time_af",
+				"time_aft_linear"
+			],
+			[
+				"to",
+				"toSec"
+			],
+			[
+				"Ser",
+				"server"
+			],
+			[
+				"Safe",
+				"Safety_Radius"
+			],
+			[
+				"PAth",
+				"Path_qcqp"
+			],
+			[
+				"Time",
+				"Time_qcqp"
+			],
+			[
+				"Saf",
+				"Safety_Radius"
+			],
+			[
+				"max",
+				"max_t"
+			],
+			[
+				"inse",
+				"insert"
+			],
+			[
+				"print",
+				"printSMtoFile"
+			],
+			[
+				"Ma",
+				"Map_1d_dense"
+			],
+			[
+				"pa",
+				"parvalue"
+			],
+			[
+				"inv",
+				"inverse"
+			],
+			[
+				"Map_1d",
+				"Map_1d_dense"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "velodyne_pointcloud/src/lib/rawdata.cc",
+			"settings":
+			{
+				"buffer_size": 18701,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 75.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"sublimeclang settings",
+				"Preferences: SublimeClang Settings – User"
+			],
+			[
+				"Package Control: remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"Package Control: install",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: re",
+				"Package Control: Remove Package"
+			],
+			[
+				"Package Control: insta",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				"packa",
+				"Preferences: Browse Packages"
+			],
+			[
+				"sublimeclang se",
+				"Preferences: SublimeClang Settings – User"
+			]
+		],
+		"width": 521.0
+	},
+	"console":
+	{
+		"height": 223.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)",
+			"install "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/bbgf/my_catkin_ws/src/velodyne",
+		"/home/bbgf/my_catkin_ws/src/velodyne/velodyne",
+		"/home/bbgf/my_catkin_ws/src/velodyne/velodyne_driver",
+		"/home/bbgf/my_catkin_ws/src/velodyne/velodyne_driver/src",
+		"/home/bbgf/my_catkin_ws/src/velodyne/velodyne_driver/src/driver",
+		"/home/bbgf/my_catkin_ws/src/velodyne/velodyne_pointcloud",
+		"/home/bbgf/my_catkin_ws/src/velodyne/velodyne_pointcloud/include",
+		"/home/bbgf/my_catkin_ws/src/velodyne/velodyne_pointcloud/include/velodyne_pointcloud",
+		"/home/bbgf/my_catkin_ws/src/velodyne/velodyne_pointcloud/src",
+		"/home/bbgf/my_catkin_ws/src/velodyne/velodyne_pointcloud/src/lib"
+	],
+	"file_history":
+	[
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/CMakeLists.txt",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/random_map.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/convert_plot.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/pcd_trajectory_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/path_finder.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/debug_only/test_icp.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/include/pcd_trajectory/path_finder.h",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/launch/qcqp_tra.launch",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/traj_server.cpp",
+		"/home/bbgf/my_catkin_ws/src/loam_velodyne/loam_velodyne.launch",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/trajectory_generator.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/include/pcd_trajectory/trajectory_generator.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/voxel_trajectory/trajectory_generator_fast.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/include/pcd_trajectory/dataType.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/grid_trajectory_generator_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/debug_only/gicp_icp.cpp",
+		"/home/bbgf/Desktop/pcd_planning+laser_slam/pcd_trajectory/src/trajectory_generator.cpp",
+		"/home/bbgf/Desktop/pcd_planning+laser_slam/pcd_trajectory/include/pcd_trajectory/path_finder.h",
+		"/home/bbgf/Desktop/pcd_planning+laser_slam/pcd_trajectory/src/path_finder.cpp",
+		"/home/bbgf/Desktop/pcd_planning+laser_slam/pcd_trajectory/src/pcd_trajectory_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/include/voxel_trajectory/voxelserver.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/launch/rviz_config/rviz_config.rviz",
+		"/home/bbgf/my_catkin_ws/src/waypoint_generator/src/waypoint_generator.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/launch/sep_quadrotor.launch",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/launch/sep_vis.launch",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/launch/sep_traj.launch",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/launch/building_planning.launch",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/grid_trajectory_server_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/loam_velodyne/src/laserMapping.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/pcd_RRT.cpp",
+		"/home/bbgf/my_catkin_ws/src/loam_velodyne/src/loam_velodyne.sublime-project",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/launch/simulation.launch",
+		"/home/bbgf/mosek/7/tools/examples/c/qcqo1.c",
+		"/home/bbgf/mosek/7/tools/examples/c/qo1.c",
+		"/home/bbgf/mosek/7/tools/examples/c/lo1.c",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/test_solver.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/qcqo1.cpp",
+		"/home/bbgf/my_catkin_ws/src/pcd_trajectory/src/qcqo1.c",
+		"/home/bbgf/my_catkin_ws/src/laser_odom/src/cut_pcd.cpp",
+		"/home/bbgf/my_catkin_ws/src/laser_odom/src/pcd_RRT.cpp",
+		"/home/bbgf/PCL_tools/pcl-master/tools/voxel_grid.cpp",
+		"/home/bbgf/PCL_tools/pcl-master/tools/CMakeLists.txt",
+		"/home/bbgf/PCL_tools/pcl-master/CMakeLists.txt",
+		"/home/bbgf/my_catkin_ws/src/laser_odom/CMakeLists.txt",
+		"/home/bbgf/PCL_tools/pcl-master/kdtree/src/kdtree_flann.cpp",
+		"/home/bbgf/PCL_tools/pcl-master/kdtree/include/pcl/kdtree/impl/kdtree_flann.hpp",
+		"/home/bbgf/PCL_tools/pcl-master/kdtree/include/pcl/kdtree/kdtree_flann.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/voxel_trajectory/voxel_graph.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/include/voxel_trajectory/voxel_graph.h",
+		"/home/bbgf/PCL_tools/pcl-master/tools/test_voxelSearch.cpp",
+		"/home/bbgf/PCL_tools/pcl-master/filters/CMakeLists.txt",
+		"/home/bbgf/my_catkin_ws/src/laser_odom/src/gicp_icp.cpp",
+		"/home/bbgf/my_catkin_ws/src/laser_odom/src/test_icp.sublime-project",
+		"/home/bbgf/my_catkin_ws/src/laser_odom/launch/laser.launch",
+		"/home/bbgf/my_catkin_ws/laser_ekf.launch",
+		"/home/bbgf/my_catkin_ws/src/estimation/laser_pose_estimator/src/laser_pose_estimator_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/estimation/laser_mono_launch/m100_laser.launch",
+		"/home/bbgf/my_catkin_ws/src/laser_odom/src/test_icp.cpp",
+		"/home/bbgf/Desktop/test_voxelSearch.cpp",
+		"/home/bbgf/my_catkin_ws/src/laser_odom/src/test_frame.cpp",
+		"/home/bbgf/my_catkin_ws/src/laser_odom/Untitled Document~",
+		"/home/bbgf/my_catkin_ws/src/loam_continuous/src/scanRegistration.cpp",
+		"/home/bbgf/my_catkin_ws/src/loam_continuous/src/transformMaintenance.cpp",
+		"/home/bbgf/Intelligent_Scissor/test_fltk.cpp",
+		"/home/bbgf/my_catkin_ws/src/loam_continuous/src/laserOdometry.cpp",
+		"/home/bbgf/my_catkin_ws/src/loam_continuous/src/laserMapping.cpp",
+		"/home/bbgf/my_catkin_ws/src/m100_laser/estimation/laser_pose_estimator/src/m100laser.sublime-project",
+		"/home/bbgf/my_catkin_ws/src/m100_laser/estimation/laser_pose_estimator/src/laser_pose_estimator_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/m100_laser/estimation/multi_sensor_ukf/src/ukf/multi_sensor_ukf.h",
+		"/home/bbgf/my_catkin_ws/src/m100_laser/estimation/multi_sensor_ukf/src/ukf/multi_sensor_ukf.cpp",
+		"/home/bbgf/my_catkin_ws/src/m100_laser/estimation/multi_sensor_ukf/src/quadrotor_model.h",
+		"/home/bbgf/my_catkin_ws/src/m100_laser/estimation/multi_sensor_ukf/src/quadrotor_ukf_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/m100_laser/launch/m100_laser.launch",
+		"/home/bbgf/my_catkin_ws/src/m100_laser/estimation/laser_pose_estimator/src/scan_utils.cpp",
+		"/home/bbgf/my_catkin_ws/src/m100_laser/estimation/laser_pose_estimator/src/slam_2d.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/test_limited_sensing_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/launch/icra_exp_two.launch",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/voxel_trajectory/octomap.cpp",
+		"/home/bbgf/Desktop/voxel versions/1.19/voxel_trajectory/src/grid_trajectory_server_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/mission_commander_node.cpp",
+		"/home/bbgf/Desktop/voxel versions/2016.1.13/voxel_trajectory/src/test_limited_sensing_node.cpp",
+		"/home/bbgf/Desktop/voxel versions/Newest Version/voxel_trajectory/include/voxel_trajectory/voxelserver.h",
+		"/home/bbgf/Desktop/voxel versions/1.19/voxel_trajectory/include/voxel_trajectory/voxelserver.h",
+		"/home/bbgf/Desktop/voxel versions/Origin Version/voxel_trajectory/src/grid_trajectory_server_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/so3_quadrotor_simulator/src/quadrotor_simulator_so3.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/launch/maze_simulation.launch",
+		"/home/bbgf/Desktop/voxel versions/2016.1.13/voxel_trajectory/include/voxel_trajectory/voxelserver.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/include/voxel_trajectory/trajectorygenerator.h",
+		"/home/bbgf/my_catkin_ws/src/so3_control/src/so3_control_nodelet.cpp",
+		"/home/bbgf/my_catkin_ws/src/so3_quadrotor_simulator/src/dynamics/Quadrotor.cpp",
+		"/home/bbgf/my_catkin_ws/src/so3_quadrotor_simulator/include/quadrotor_simulator/Quadrotor.h",
+		"/home/bbgf/my_catkin_ws/src/so3_control/include/so3_control/SO3Control.h",
+		"/home/bbgf/Desktop/voxel versions/2016.1.13/voxel_trajectory/src/grid_trajectory_generator_node.cpp",
+		"/home/bbgf/Desktop/voxel versions/Origin Version/voxel_trajectory/src/grid_trajectory_generator_node.cpp",
+		"/home/bbgf/my_ws/src/zmart_cv/include/zmart_cv/zmart_img_proc.hpp",
+		"/home/bbgf/my_ws/src/zmart_cv/src/zmart_img_proc.cpp",
+		"/home/bbgf/Downloads/voxel_trajectory/src/grid_trajectory_generator_node.cpp",
+		"/home/bbgf/Downloads/voxel_trajectory/include/voxel_trajectory/voxelserver.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/BAckup function",
+		"/home/bbgf/Desktop/voxel versions/Newest Version/voxel_trajectory/src/grid_trajectory_generator_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/include/voxel_trajectory/voxelmacro.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/voxel_trajectory.sublime-project",
+		"/home/bbgf/Desktop/voxel versions/2016.1.11 /voxel_trajectory/src/grid_trajectory_generator_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/CMakeLists.txt",
+		"/home/bbgf/Desktop/voxel versions/Origin Version/voxel_trajectory/include/voxel_trajectory/voxelserver.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/launch/exit",
+		"/home/bbgf/Desktop/voxel versions/2016.1.11 /voxel_trajectory/include/voxel_trajectory/voxelserver.h",
+		"/home/bbgf/Desktop/voxel versions/Voxel_trajectory version2/voxel_trajectory/include/voxel_trajectory/voxelserver.h",
+		"/home/bbgf/Desktop/voxel versions/Voxel_trajectory version2/voxel_trajectory/src/grid_trajectory_generator_node.cpp",
+		"/home/bbgf/Desktop/voxel versions/voxel_trajectory version1/src/grid_trajectory_generator_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/tag_detector/src/tag_detector_node.cpp",
+		"/home/bbgf/Dropbox/Gao Fei Private/Simulation/test_trajectory.m",
+		"/home/bbgf/.config/sublime-text-3/Packages/SublimeClang/SublimeClang.sublime-settings",
+		"/home/bbgf/.config/sublime-text-3/Packages/User/SublimeClang.sublime-settings",
+		"/home/bbgf/.config/sublime-text-3/Packages/User/Default (Linux).sublime-keymap",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/include/voxel_trajectory/octomap.h",
+		"/home/bbgf/odroid_test_course/readonly/so3_controller/src/so3_controller.cpp",
+		"/home/bbgf/odroid_test_course/your_code/control_function.h",
+		"/home/bbgf/my_catkin_ws/devel/include/quadrotor_msgs/PolynomialTrajectory.h",
+		"/home/bbgf/Desktop/Voxel_BackUpTest/voxel_bridge_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/include/voxel_trajectory/voxelgraph.h",
+		"/home/bbgf/Desktop/Voxel_BackUpTest/voxel_bridge_enhanced_node.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/voxel_bridge_enhanced_node.cpp",
+		"/home/bbgf/my_catkin_ws/odroid_ws/src/CMakeLists.txt",
+		"/opt/ros/indigo/include/geometry_msgs/PoseStamped.h",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/octomap.cpp",
+		"/home/bbgf/my_catkin_ws/src/odom_visualization/src/odom_visualization.cpp",
+		"/home/bbgf/my_catkin_ws/src/voxel_trajectory/src/body_tf.cpp"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 123.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"raw_packet_t",
+			"unpack_vlp16",
+			"visVector",
+			"FindGap",
+			"odomCa",
+			"velodyne_points",
+			"frame_id",
+			"FindGap",
+			"quad_pt",
+			"frame_id",
+			"FindGap",
+			"findG",
+			"FindGap",
+			"discon",
+			"frame_id",
+			"quad_pos",
+			"odomCallBack",
+			"quad_pos",
+			"FindGap",
+			"quad_pt",
+			"rcvO",
+			"FindGap",
+			"_random_map_pub",
+			"_vis_arrows",
+			"visVector",
+			"FindGap",
+			"_random_map_pub",
+			"_random_map_pub\n",
+			"_random_map_pub",
+			"FindGap",
+			"RdMap",
+			"cloudMap",
+			"_random_map_pub",
+			"FindGap",
+			"pt_random",
+			"random_pt",
+			"FindGap",
+			"mapCallBack",
+			"FindGap",
+			"cloudMap",
+			"FindGap",
+			"Map",
+			"discon",
+			"quad_pos",
+			"quad_pt",
+			"quad",
+			"ray_discon",
+			"FindGap",
+			"frame_id",
+			"_random_map_pub",
+			"time_map_beg",
+			"time_map_aft",
+			"time_frontier_aft",
+			"time_map_aft",
+			"MapGenerate",
+			"_map_sub",
+			"_arrow_pub",
+			"_vis_arrows",
+			"FindGap",
+			"ray",
+			"ray_discon",
+			"quad_pos",
+			"map_ok",
+			"MapGenerate",
+			"_arrow_pub",
+			"marker",
+			"pt_num",
+			"FindGap",
+			"getF",
+			"getForce",
+			"getDis",
+			"eng",
+			"_gap_l",
+			"drawBallforPaper",
+			"drawBallforPaper_vis",
+			"_resolution",
+			"start_p",
+			"drawBallforPaper",
+			"pt_draw",
+			"HOVER",
+			"visTra",
+			"_vis_traj_width",
+			"visTrajectory",
+			"rcvWaypointsCallback",
+			"_cost_time",
+			"getTraj",
+			"pub_once",
+			"_traj_vis_pub",
+			"vis_map",
+			"visRandomMap",
+			"start_pt",
+			"_path_vis",
+			"_vis_traj_width",
+			"TimeAlloca",
+			"drawBallforPaper",
+			"drawBallforPaperVis",
+			"rd",
+			"drawBallforPaper_vis",
+			"h_h",
+			"h_l",
+			"w_h",
+			"w_l",
+			"y_h",
+			"y_l",
+			"x_h",
+			"x_l",
+			"resolution",
+			"_key_thre",
+			"key_thre",
+			"_key_thre",
+			"_itr_cycle",
+			"Timer",
+			"TimerEvent",
+			"_drawBallforPaper_pub",
+			"drawBallforPaperVis",
+			"_connectBall_vis_pub",
+			"publisher",
+			"drawBallforPaper_vis",
+			"drawBallforPaperVis",
+			"Timer",
+			"drawBallforPaperVis",
+			"drawBallforPaper_vis",
+			"drawBallforPaper_pub",
+			"_drawBallforPaper_pub",
+			"drawBallforPaper",
+			"drawBallforPaper_vis",
+			"_drawBallforPaper_pub",
+			"drawBallforPaperVis"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"insertBlock"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "velodyne_pointcloud/src/lib/rawdata.cc",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 18701,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								11043,
+								11043
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": -0.0,
+						"translation.y": 4813.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 25.0
+	},
+	"input":
+	{
+		"height": 38.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "velodyne_driver.sublime-project",
+	"replace":
+	{
+		"height": 46.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"voxel_trajectory/src/grid_trajectory_generator_node.cpp"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/my_catkin_ws/src/pcd_trajectory_indoor/pcd_trajectory/src/pcd_trajectory.sublime-workspace"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 367.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

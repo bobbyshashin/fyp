@@ -31,7 +31,7 @@ Publisher target_speed_pub;
 MISSION_STATUS current_mission = STAND_BY;
 
 int current_target_index = 0;
-
+bool activation_flag = false;
 float initial_angle; // the angle from global frame to local frame
 float local_yaw; // from local frame to body frame
 
@@ -151,7 +151,7 @@ void current_position_callback(const nav_msgs::Odometry& msg) {
 	       cout << "Current target's position is invalid!" << endl;
     
         yaw_error = local_yaw - current_target_orientation;
-
+	cout << "Yaw error: " << yaw_error << endl;
     }
 }
 
@@ -167,9 +167,10 @@ void initial_angle_callback(const std_msgs::Float32& msg) {
 
 void activation_callback(const std_msgs::UInt8& msg) {
 
-    if(msg.data == 3) {
+    if(msg.data == 3 && !activation_flag) {
         current_mission = GOING_TO_TARGET;
         cout << "UGV activated!" << endl;
+	activation_flag = true;
     }
 
 }
@@ -198,7 +199,7 @@ void mission_run() {
 
 	    }
 	    else {
-
+	    cout << "Arrived at first target!" << endl;
             if(current_target_index != 1){
                 current_target_index++;
                 target_position[0] = marker_position[current_target_index][0];
@@ -233,7 +234,7 @@ int main(int argc, char *argv[]) {
     orientation_sub = nh.subscribe("/n3_sdk/orientation", 1, orientation_callback);
     initial_angle_sub = nh.subscribe("/initial_angle", 1, initial_angle_callback);
     activation_sub = nh.subscribe("/ugv_activation", 1, activation_callback);
-    marker_position_sub = nh.subscribe("marker_position", 1, marker_position_callback);
+    marker_position_sub = nh.subscribe("/marker_position", 1, marker_position_callback);
 
     target_speed_pub = nh.advertise<geometry_msgs::Quaternion>("/ugv_target_speed", 1);
 

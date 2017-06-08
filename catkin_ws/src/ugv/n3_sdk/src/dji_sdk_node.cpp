@@ -18,7 +18,7 @@
 DJI::onboardSDK::ROSAdapter *rosAdapter;
 
 int main(int argc, char **argv) {
-    ros::init(argc, argv, "dji_sdk");
+    ros::init(argc, argv, "n3_sdk");
     ros::NodeHandle nh;
     ros::NodeHandle nh_private("~");
 
