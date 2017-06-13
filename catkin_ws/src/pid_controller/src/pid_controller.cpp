@@ -73,7 +73,7 @@ float current_position[3] = {0, 0, 0};
 float dt = 0.02;
 float first_time = 0.0;
 
-double pid_ctrl_limit_horz = 1;
+double pid_ctrl_limit_horz = 0.4;
 double pid_ctrl_limit_vert = 0.5;
 double pid_yaw_limit = 0;
 
