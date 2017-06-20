@@ -1,0 +1,13 @@
+connect
+STM32F405RG
+S
+4000
+h
+r
+sleep 500
+exec device = STM32F405RG
+loadfile ./Objects/stm32f4.hex, 0x08000000
+r
+sleep 500
+g
+exit
