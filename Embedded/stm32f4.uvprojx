@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>Bobby</TargetName>
+      <TargetName>stm32f4</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>Bobby</OutputName>
+          <OutputName>stm32f4</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -599,6 +599,11 @@
               <FileName>Driver_MPU6050.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\driver\src\Driver_MPU6050.c</FilePath>
+            </File>
+            <File>
+              <FileName>Driver_Sender.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\driver\src\Driver_Sender.c</FilePath>
             </File>
             <File>
               <FileName>Driver_Simulator.c</FileName>

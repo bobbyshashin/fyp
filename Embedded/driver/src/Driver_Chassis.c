@@ -5,6 +5,7 @@
 #include "Driver_Dbus.h"
 #include "Driver_Judge.h"
 #include "param.h"
+#include "external.h"
 #include <string.h>
 
 #define _ID(x) ((x)-CHASSIS_CAN_ID_OFFSET)
@@ -29,8 +30,6 @@ static PID_Controller ChassisOmegaController;
 static volatile int32_t ChassisOmegaOutput;
 static volatile int32_t targetOmega;
 
-static PID_Controller ChassisPowerController;
-
 #define _CLEAR(x) do { memset((void*)(x), 0, sizeof(x)); } while(0)
 
 static int32_t CHASSIS_Trim(int32_t val, int32_t lim) {
@@ -39,11 +38,11 @@ static int32_t CHASSIS_Trim(int32_t val, int32_t lim) {
     return val;
 }
 
-static int32_t CHASSIS_Clamp(int32_t val, int32_t min, int32_t max) {
-    if (val < min) return min;
-    else if (val > max) return max;
-    else return val;
-}
+/*static int32_t CHASSIS_Clamp(int32_t val, int32_t min, int32_t max) {*/
+    /*if (val < min) return min;*/
+    /*else if (val > max) return max;*/
+    /*else return val;*/
+/*}*/
 
 static void CHASSIS_ClearAll(void) {
     _CLEAR(MotorAngle);
@@ -141,10 +140,10 @@ void CHASSIS_Control(void) {
 }
 
 /*
-    y
+    x
     ^
     |
-    0-- >x
+    0-- >y
     Rotation: CW as +ve
 */
 void CHASSIS_SetMotion(void) {
@@ -157,44 +156,27 @@ void CHASSIS_SetMotion(void) {
         DBUS right switch
         kSwitchUp: all free
         kSwitchMiddle: controller debug
-        kSwitchDown: automation
+        kSwitchDown: manifold control
     */
     if (DBUS_Data.rightSwitchState == kSwitchMiddle) {
-        vxData = DBUS_Data.ch1;
-        vyData = DBUS_Data.ch2;
-        rotData = DBUS_Data.ch3;
+      vxData = DBUS_Data.ch2;
+      vyData = DBUS_Data.ch1;
+      rotData = DBUS_Data.ch3;
+      velocityX = 12 * vxData;
+      velocityY = 18 * vyData;
+      ChassisOmegaOutput = 5 * rotData;
     }
     else if (DBUS_Data.rightSwitchState == kSwitchDown) {
+      velocityX = chassis_vx_scale * JUDGE_Data.desiredVelocityX;
+      velocityY = chassis_vy_scale * JUDGE_Data.desiredVelocityY;
+      ChassisOmegaOutput = 0;
     }
     else { // DBUS_Data.leftSwitchState == kSwitchUp
-        vxData = 0;
-        vyData = 0;
-        rotData = 0;
+      /*vxData = 0;*/
+      /*vyData = 0;*/
+      /*rotData = 0;*/
+      CHASSIS_SetFree();
     }
-
-    velocityX = 18 * vxData;
-    velocityY = 12 * vyData;
-
-    /*
-        DBUS left switch
-        kSwitchUp: open loop
-        kSwitchMiddle: omega close loop
-    */
-    if (DBUS_Data.leftSwitchState == kSwitchUp) {
-        ChassisOmegaOutput = 5*rotData;
-    }
-    // else if (DBUS_Data.leftSwitchState == kSwitchMiddle) {
-    /*else {*/
-        /*if (DBUS_LastData.leftSwitchState != kSwitchMiddle)*/
-            /*PID_Reset(&ChassisOmegaController);*/
-        /*if (ADIS16_DataUpdated) {*/
-            /*ADIS16_DataUpdated = 0;*/
-            /*targetOmega = 4 * rotData;*/
-            
-            /*ChassisOmegaOutput = (int32_t)PID_Update(&ChassisOmegaController,*/
-                /*targetOmega, ADIS16_Data.omega);*/
-        /*}*/
-    /*}*/
 
     /* Mecanum wheel */
     tmpVelocity[0] = velocityY + velocityX + ChassisOmegaOutput;
@@ -210,16 +192,6 @@ void CHASSIS_SetMotion(void) {
 void CHASSIS_RotationControl(void) {
     ChassisOmegaOutput = (int32_t)PID_Update(&ChassisOmegaController,
         targetOmega, ADIS16_Data.omega);
-}
-
-void CHASSIS_PowerControl(void) {
-    static float reducedRatio = 0.0f;
-    reducedRatio = PID_Update(&ChassisPowerController,
-        CHASSIS_ENERGY, JUDGE_Data.remainEnergy);
-    if (reducedRatio < 0.0f)
-        reducedRatio = 0.0f;
-    ChassisPowerRatio = 1.0f - reducedRatio;
-    // ChassisPowerRatio = 1.0f;
 }
 
 void CHASSIS_SetTargetVelocity(uint16_t motorId, int32_t velocity) {

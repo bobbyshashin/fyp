@@ -9,8 +9,10 @@
   #define EXTERN
 #endif
 
-EXTERN int32_t servoAngle_L, servoAngle_R;
-EXTERN int32_t foo[20];
+EXTERN float chassis_vx_scale, chassis_vy_scale;
+EXTERN float tx_vx, tx_vy, rx_vx, rx_vy;
+EXTERN int32_t ex_Speed[4];
+EXTERN int32_t ex_JudgeFrameCounter;
 
 #endif
 

@@ -14,26 +14,14 @@ void JUDGE_Init(void) {
 
     JUDGE_Data.nextDecodeOffset = 0;
 
-    JUDGE_Data.voltage = 25.0f;
-    JUDGE_Data.current = 0.0f;
-    JUDGE_Data.remainLife = 1500;
-
-    JUDGE_Data.power = 0.0f;
-    JUDGE_Data.remainEnergy = 60.0f;
-    JUDGE_Data.powerUpdated = 0;
-
-    JUDGE_Data.hitArmorId = -1; // not hit yet
-    JUDGE_Data.lastHitTick = 0;
-    JUDGE_Data.armorDamage = 0;
-    JUDGE_Data.speedDamage = 0;
-    JUDGE_Data.freqDamage = 0;
-    JUDGE_Data.powerDamage = 0;
-    JUDGE_Data.moduleDamage = 0;
-    JUDGE_Data.violationDamage = 0;
-
-    JUDGE_Data.shootNum = 0;
-    JUDGE_Data.shootSpeed = 0.0f;
-    JUDGE_Data.lastShootTick = 0;
+    JUDGE_Data.desiredVelocityX = 0;
+    JUDGE_Data.desiredVelocityY = 0;
+    JUDGE_Data.measuredVelocityX = 0;
+    JUDGE_Data.measuredVelocityY = 0;
+    JUDGE_Data.measuredPositionX = 0;
+    JUDGE_Data.measuredPositionY = 0;
+    JUDGE_Data.yawAnglePosition = 0;
+    JUDGE_Data.yawAngularVelocity = 0;
 }
 
 uint8_t judgeFrameDataLength;
@@ -43,8 +31,8 @@ void JUDGE_Decode(uint32_t length) {
 
     if (!JUDGE_Started)
       for (uint32_t i = 0; i < JUDGE_BUFFER_LENGTH; ++i)
-        if (JUDGE_DataBuffer[i] == JUDGE_FRAME_HEADER
-            && VerifyCRC8(i, JUDGE_FRAME_HEADER_LENGTH)) {
+        // remove CRC check, may be danger
+        if (JUDGE_DataBuffer[i] == JUDGE_FRAME_HEADER) {
           JUDGE_Started = 1;
           JUDGE_Data.nextDecodeOffset = i;
         }
@@ -63,7 +51,7 @@ void JUDGE_Decode(uint32_t length) {
           ++JUDGE_FrameCounter;
 
           /* Decode */
-          JUDGE_DecodeFrame(GET_BUFFER(5));
+          JUDGE_DecodeFrame(GET_BUFFER(3));
           
           /* Update data pointer */
           JUDGE_Data.nextDecodeOffset += judgeFrameTotalLength;
@@ -77,65 +65,54 @@ void JUDGE_Decode(uint32_t length) {
 void JUDGE_DecodeFrame(uint8_t type) {
   volatile FormatTrans_TypeDef FT;
   if (type == 1) {
-    FT.U[0] = GET_BUFFER(13);
-    FT.U[1] = GET_BUFFER(14);
-    FT.U[2] = GET_BUFFER(15);
-    FT.U[3] = GET_BUFFER(16);
-    JUDGE_Data.voltage = FT.F;
+    FT.U[0] = GET_BUFFER(4);
+    FT.U[1] = GET_BUFFER(5);
+    FT.U[2] = GET_BUFFER(6);
+    FT.U[3] = GET_BUFFER(7);
+    JUDGE_Data.desiredVelocityX = FT.F;
 
-    FT.U[0] = GET_BUFFER(17);
-    FT.U[1] = GET_BUFFER(18);
-    FT.U[2] = GET_BUFFER(19);
-    FT.U[3] = GET_BUFFER(20);
-    JUDGE_Data.current = FT.F;
+    FT.U[0] = GET_BUFFER(8);
+    FT.U[1] = GET_BUFFER(9);
+    FT.U[2] = GET_BUFFER(10);
+    FT.U[3] = GET_BUFFER(11);
+    JUDGE_Data.desiredVelocityY = FT.F;
+ 
+    FT.U[0] = GET_BUFFER(12);
+    FT.U[1] = GET_BUFFER(13);
+    FT.U[2] = GET_BUFFER(14);
+    FT.U[3] = GET_BUFFER(15);
+    JUDGE_Data.measuredVelocityX = FT.F;
+ 
+    FT.U[0] = GET_BUFFER(16);
+    FT.U[1] = GET_BUFFER(17);
+    FT.U[2] = GET_BUFFER(18);
+    FT.U[3] = GET_BUFFER(19);
+    JUDGE_Data.measuredVelocityY = FT.F;
+ 
+    FT.U[0] = GET_BUFFER(20);
+    FT.U[1] = GET_BUFFER(21);
+    FT.U[2] = GET_BUFFER(22);
+    FT.U[3] = GET_BUFFER(23);
+    JUDGE_Data.measuredPositionX = FT.F;
+ 
+    FT.U[0] = GET_BUFFER(24);
+    FT.U[1] = GET_BUFFER(25);
+    FT.U[2] = GET_BUFFER(26);
+    FT.U[3] = GET_BUFFER(27);
+    JUDGE_Data.measuredPositionY = FT.F;
+ 
+    FT.U[0] = GET_BUFFER(28);
+    FT.U[1] = GET_BUFFER(29);
+    FT.U[2] = GET_BUFFER(30);
+    FT.U[3] = GET_BUFFER(31);
+    JUDGE_Data.yawAnglePosition = FT.F;
 
-    FT.U[0] = GET_BUFFER(38);
-    FT.U[1] = GET_BUFFER(39);
-    FT.U[2] = GET_BUFFER(40);
-    FT.U[3] = GET_BUFFER(41);
-    JUDGE_Data.remainEnergy = FT.F;
-
-    JUDGE_Data.remainLife = ((uint16_t)GET_BUFFER(12)<<8)|GET_BUFFER(11);
+    FT.U[0] = GET_BUFFER(32);
+    FT.U[1] = GET_BUFFER(33);
+    FT.U[2] = GET_BUFFER(34);
+    FT.U[3] = GET_BUFFER(35);
+    JUDGE_Data.yawAngularVelocity = FT.F;
   }
-  else if (type == 2) {
-    uint8_t way = GET_BUFFER(7)>>4;
-    uint16_t delta = ((uint16_t)GET_BUFFER(9)<<8)|GET_BUFFER(8);
-    switch (way) {
-      case 0: // armor damage
-        JUDGE_Data.hitArmorId = GET_BUFFER(7)&0x0F;
-        JUDGE_Data.lastHitTick = GlobalTick;
-        JUDGE_Data.armorDamage += delta;
-        break;
-      case 1: // over speed
-        JUDGE_Data.speedDamage += delta;
-        break;
-      case 2: // over frequency
-        JUDGE_Data.freqDamage += delta;
-        break;
-      case 3: // over power
-        JUDGE_Data.powerDamage += delta;
-        break;
-      case 4: // module offline
-        JUDGE_Data.moduleDamage += delta;
-        break;
-      case 6: // violation
-        JUDGE_Data.violationDamage += delta;
-        break;
-    }
-  }
-  else if (type == 3) {
-
-  }
-}
-
-void JUDGE_UpdatePower(void) {
-    JUDGE_Data.power = JUDGE_Data.voltage * JUDGE_Data.current;
-    JUDGE_Data.remainEnergy -= (JUDGE_Data.power-CHASSIS_MAX_POWER)*0.02f;
-    if (JUDGE_Data.remainEnergy > CHASSIS_ENERGY)
-        JUDGE_Data.remainEnergy = CHASSIS_ENERGY;
-    else if (JUDGE_Data.remainEnergy <= 0.0f)
-        JUDGE_Data.remainEnergy = 0.0f;
-    JUDGE_Data.powerUpdated = 1;
 }
 
 //crc8 generator polynomial:G(x)=x8+x5+x4+1

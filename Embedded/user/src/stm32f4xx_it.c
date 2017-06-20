@@ -58,6 +58,7 @@
 #include "Driver_Led.h"
 #include "Driver_Monitor.h"
 #include "Driver_MPU6050.h"
+#include "Driver_Sender.h"
 #include "Driver_Simulator.h"
 
 /** @addtogroup STM32F4xx_HAL_Examples
@@ -202,7 +203,7 @@ void USART1_IRQHandler(void) {
 
     if(DMA2_Stream2->NDTR == 0) {
         DBUS_Decode();
-        CHASSIS_SetMotion();
+        SENDER_SendPackage();
     }
     
     DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2);
@@ -325,8 +326,6 @@ void TIM7_IRQHandler(void) {
 
     if (tick % 500 == 0) {
         LED_Toggle();
-        for (int8_t i = 0; i < 20; ++i)
-          foo[i] += i;
     }
 
     if (tick % 20 == 0) {
@@ -336,7 +335,8 @@ void TIM7_IRQHandler(void) {
     // MPU6050_ReadAll();
 
     if (DBUS_Status == kConnected) {
-        CHASSIS_Control();
+      CHASSIS_SetMotion();
+      CHASSIS_Control();
     }
     CHASSIS_SendCmd();
 }

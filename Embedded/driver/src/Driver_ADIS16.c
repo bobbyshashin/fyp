@@ -32,8 +32,8 @@ static uint16_t ADIS16_Read(uint8_t addr);
 static uint16_t ADIS16_SPI_IO(uint16_t data);
 
 static int16_t ADIS16_GetOmega(void);
-static uint16_t ADIS16_GetTheta(void);
-static int16_t ADIS16_GetTemperature(void);
+/*static uint16_t ADIS16_GetTheta(void);*/
+/*static int16_t ADIS16_GetTemperature(void);*/
 
 static float omegaIntegral = 0.0f;
 
@@ -105,19 +105,19 @@ static int16_t ADIS16_GetOmega(void) {
 }
 
 /* 14 bit unsigned */
-static uint16_t ADIS16_GetTheta(void) {
-    uint16_t buf = ADIS16_Read(ADIS16_ANGL);
-    return buf & 0x3FFFU;
-}
+/*static uint16_t ADIS16_GetTheta(void) {*/
+    /*uint16_t buf = ADIS16_Read(ADIS16_ANGL);*/
+    /*return buf & 0x3FFFU;*/
+/*}*/
 
 /* 12 bit signed */
-static int16_t ADIS16_GetTemperature(void) {
-    uint16_t buf = ADIS16_Read(ADIS16_TEMP);
-    if (buf & 0x0800) buf |= 0xF000;
-    else buf &= 0x0FFF;
-    int16_t ret = 0x0000 | buf;
-    return ret;
-}
+/*static int16_t ADIS16_GetTemperature(void) {*/
+    /*uint16_t buf = ADIS16_Read(ADIS16_TEMP);*/
+    /*if (buf & 0x0800) buf |= 0xF000;*/
+    /*else buf &= 0x0FFF;*/
+    /*int16_t ret = 0x0000 | buf;*/
+    /*return ret;*/
+/*}*/
 
 /*
        addr-1          addr  

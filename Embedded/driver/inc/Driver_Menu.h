@@ -37,6 +37,7 @@ typedef struct _MenuList_t {
 
 void MENU_Init(void);
 void MENU_Update(void);
+void MENU_UpdateData(void);
 
 // helper functions, internal use only
 void MENU_UpdateScreen(void);

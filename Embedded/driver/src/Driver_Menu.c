@@ -29,30 +29,21 @@ static MenuItem_t HomeItems[] = {
   {2, "Status", {0, 0, &StatusList}, {0, 0}},
 };
 static MenuItem_t ParamItems[] = {
-  {0, "ang_l", {0, 0, 0}, {10, 0}, &servoAngle_L},
-  {0, "ang_r", {0, 0, 0}, {10, 0}, &servoAngle_R},
+  {1, "vxscl", {0, 1.0f, 0}, {0, 0.01f}, &chassis_vx_scale},
+  {1, "vyscl", {0, 1.0f, 0}, {0, 0.01f}, &chassis_vy_scale},
 };
 static MenuItem_t StatusItems[] = {
-  {3, "foo00", {0, 0, 0}, {0, 0}, foo+0},
-  {3, "foo01", {0, 0, 0}, {0, 0}, foo+1},
-  {3, "foo02", {0, 0, 0}, {0, 0}, foo+2},
-  {3, "foo03", {0, 0, 0}, {0, 0}, foo+3},
-  {3, "foo04", {0, 0, 0}, {0, 0}, foo+4},
-  {3, "foo05", {0, 0, 0}, {0, 0}, foo+5},
-  {3, "foo06", {0, 0, 0}, {0, 0}, foo+6},
-  {3, "foo07", {0, 0, 0}, {0, 0}, foo+7},
-  {3, "foo08", {0, 0, 0}, {0, 0}, foo+8},
-  {3, "foo09", {0, 0, 0}, {0, 0}, foo+9},
-  {3, "foo10", {0, 0, 0}, {0, 0}, foo+10},
-  {3, "foo11", {0, 0, 0}, {0, 0}, foo+11},
-  {3, "foo12", {0, 0, 0}, {0, 0}, foo+12},
-  {3, "foo13", {0, 0, 0}, {0, 0}, foo+13},
-  {3, "foo14", {0, 0, 0}, {0, 0}, foo+14},
-  {3, "foo15", {0, 0, 0}, {0, 0}, foo+15},
-  {3, "foo16", {0, 0, 0}, {0, 0}, foo+16},
-  {3, "foo17", {0, 0, 0}, {0, 0}, foo+17},
-  {3, "foo18", {0, 0, 0}, {0, 0}, foo+18},
-  {3, "foo19", {0, 0, 0}, {0, 0}, foo+19},
+  {4, "vxscl", {0, 0, 0}, {0, 0}, &chassis_vx_scale},
+  {4, "vyscl", {0, 0, 0}, {0, 0}, &chassis_vy_scale},
+  {3, "JCNT", {0, 0, 0}, {0, 0}, &ex_JudgeFrameCounter},
+  {4, "tx_vx", {0, 0, 0}, {0, 0}, &tx_vx},
+  {4, "tx_vy", {0, 0, 0}, {0, 0}, &tx_vy},
+  {4, "rx_vx", {0, 0, 0}, {0, 0}, &rx_vx},
+  {4, "rx_vy", {0, 0, 0}, {0, 0}, &rx_vy},
+  {4, "sp0", {0, 0, 0}, {0, 0}, ex_Speed+0},
+  {4, "sp1", {0, 0, 0}, {0, 0}, ex_Speed+1},
+  {4, "sp2", {0, 0, 0}, {0, 0}, ex_Speed+2},
+  {4, "sp3", {0, 0, 0}, {0, 0}, ex_Speed+3},
 };
 static MenuList_t HomeList = {"Bobby", COUNT_OF(HomeItems), HomeItems, 0, 0};
 static MenuList_t ParamList = {"Parameters", COUNT_OF(ParamItems), ParamItems, 0, &HomeList};
@@ -61,6 +52,9 @@ static MenuList_t *currList;
 static MenuItem_t *currItem;
 
 static int16_t pressCount[5], pressState[5];
+
+void MENU_UpdateData(void) {
+}
 
 void MENU_Init(void) {
   memset((char*)color, 0, sizeof(color));
@@ -170,8 +164,6 @@ void MENU_Update(void) {
  * Special function goes here ..
  */
 void JC_Handler(void) {
-  servoAngle_L -= 10;
-  servoAngle_R += 10;
 }
 
 void MENU_UpdateScreen(void) {

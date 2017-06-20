@@ -39,12 +39,6 @@ void CHASSIS_Control(void);
 void CHASSIS_RotationControl(void);
 
 /*
-    Update chassis power controller.
-    Output is the reduced fraction.
-*/
-void CHASSIS_PowerControl(void);
-
-/*
     Set target velocity for 4 motors.
 */
 void CHASSIS_SetMotion(void);
