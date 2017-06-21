@@ -32,12 +32,7 @@ void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg
     Matrix3d Rgi = ori.toRotationMatrix();
     float phi = asin(Rgi(2,1));
     float yaw = acos(Rgi(1,1)/cos(phi));
-    unsigned char start_mark = 0xa5;
-    unsigned char end_mark = 0xa6;
-
-    //unsigned char data[100] = "1.233"; //TODO
-    //int data_len = sizeof(data)/sizeof(data[0]);
-    //data[0] = 0xa5;
+    
     x_vel = roundf(x_vel*100) / 100;
     y_vel = roundf(y_vel*100) / 100;
     x_ang = roundf(x_ang*100) / 100;
@@ -47,10 +42,20 @@ void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg
     string y_vel_str = to_string(y_vel);
     string x_ang_str = to_string(x_ang);
     string y_ang_str = to_string(y_ang);
-    string yaw_str = to_string(yaw);
-    string data_str = start_mark + '0' + 'a' + x_vel_str + 'b' + y_vel_str + 'c' + x_ang + 'd' + y_ang + 'e' + yaw + end_mark;
+    string yaw_str = to_string(yaw); 	
+
+    x_vel_str = x_vel_str.substr(0, x_vel_str.length()-4);
+    y_vel_str = y_vel_str.substr(0, y_vel_str.length()-4);
+    x_ang_str = x_ang_str.substr(0, x_ang_str.length()-4);
+    y_ang_str = y_ang_str.substr(0, y_ang_str.length()-4);
+    yaw_str = yaw_str.substr(0, yaw_str.length()-4);
+ 	
+    string data_str = "00a" + x_vel_str + "b" + y_vel_str + "c" + x_ang_str + "d" + y_ang_str + "e" + yaw_str;
     int data_len = data_str.length();
-    unsigned char data[100] = data_str;
+    unsigned char data[data_len];
+    strcpy((char*)data, data_str.c_str());
+    data[0] = 0xa5;
+    data[1] = data_len;
     uint32_t send_total_len = 1;
     send_total_len += write_serial(data,data_len, RX_TIMEOUT);
 }
@@ -83,12 +88,12 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-    //ros::Rate r(20);
+    ros::Rate r(20);
 
     while(n.ok()){
 
         ros::spinOnce();
-        //r.sleep();
+        
 
     }
     

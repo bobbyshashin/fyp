@@ -17,8 +17,9 @@
 #define BUF_LEN 1
 //This node only send single byte.
 using namespace Eigen;
-std::string name;
-std::string target_status;
+using namespace std;
+string name;
+string target_status;
 
 void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg
 )
@@ -31,16 +32,30 @@ void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg
     Matrix3d Rgi = ori.toRotationMatrix();
     float phi = asin(Rgi(2,1));
     float yaw = acos(Rgi(1,1)/cos(phi));
-
-    unsigned char data[100] = "1.233"; //TODO
-    int data_len = sizeof(data)/sizeof(data[0]);
-    //data[0] = 0xa5;
+    
     x_vel = roundf(x_vel*100) / 100;
     y_vel = roundf(y_vel*100) / 100;
     x_ang = roundf(x_ang*100) / 100;
     y_ang = roundf(y_ang*100) / 100;
     yaw = roundf(yaw*100) / 100;
-    
+    string x_vel_str = to_string(x_vel);
+    string y_vel_str = to_string(y_vel);
+    string x_ang_str = to_string(x_ang);
+    string y_ang_str = to_string(y_ang);
+    string yaw_str = to_string(yaw); 	
+
+    x_vel_str = x_vel_str.substr(0, x_vel_str.length()-4);
+    y_vel_str = y_vel_str.substr(0, y_vel_str.length()-4);
+    x_ang_str = x_ang_str.substr(0, x_ang_str.length()-4);
+    y_ang_str = y_ang_str.substr(0, y_ang_str.length()-4);
+    yaw_str = yaw_str.substr(0, yaw_str.length()-4);
+ 	
+    string data_str = "00a" + x_vel_str + "b" + y_vel_str + "c" + x_ang_str + "d" + y_ang_str + "e" + yaw_str;
+    int data_len = data_str.length();
+    unsigned char data[data_len];
+    strcpy((char*)data, data_str.c_str());
+    data[0] = 0xa5;
+    data[1] = data_len;
     uint32_t send_total_len = 1;
     send_total_len += write_serial(data,data_len, RX_TIMEOUT);
 }
@@ -73,12 +88,46 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-    //ros::Rate r(20);
+    ros::Rate r(20);
 
     while(n.ok()){
 
         ros::spinOnce();
-        //r.sleep();
+        float x_vel = 1.322;
+    float y_vel = 0.2121;
+    float x_ang = 1.234;
+    float y_ang = -2.5435;
+    float yaw = 3.33;
+    unsigned char start_mark = 0xa5;
+    unsigned char end_mark = 0xa6;
+
+    
+    x_vel = roundf(x_vel*100) / 100;
+    y_vel = roundf(y_vel*100) / 100;
+    x_ang = roundf(x_ang*100) / 100;
+    y_ang = roundf(y_ang*100) / 100;
+    yaw = roundf(yaw*100) / 100;
+
+    string x_vel_str = to_string(x_vel);
+    string y_vel_str = to_string(y_vel);
+    string x_ang_str = to_string(x_ang);
+    string y_ang_str = to_string(y_ang);
+    string yaw_str = to_string(yaw); 
+    x_vel_str = x_vel_str.substr(0, x_vel_str.length()-4);
+    y_vel_str = y_vel_str.substr(0, y_vel_str.length()-4);
+    x_ang_str = x_ang_str.substr(0, x_ang_str.length()-4);
+    y_ang_str = y_ang_str.substr(0, y_ang_str.length()-4);
+    yaw_str = yaw_str.substr(0, yaw_str.length()-4);
+    string data_str = "00a" + x_vel_str + "b" + y_vel_str + "c" + x_ang_str + "d" + y_ang_str + "e" + yaw_str;
+    
+    int data_len = data_str.length();
+    unsigned char data[data_len+1];
+    strcpy((char*)data, data_str.c_str());
+    uint32_t send_total_len = 1;
+    data[0] = 0xa5;
+    data[1] = data_len;
+    send_total_len += write_serial(data,data_len, RX_TIMEOUT);
+    r.sleep();
 
     }
     
