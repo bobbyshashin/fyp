@@ -32,8 +32,15 @@ void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg
     float phi = asin(Rgi(2,1));
     float yaw = acos(Rgi(1,1)/cos(phi));
 
-    unsigned char data[50] = "1.233"; //TODO
+    unsigned char data[100] = "1.233"; //TODO
     int data_len = sizeof(data)/sizeof(data[0]);
+    //data[0] = 0xa5;
+    x_vel = roundf(x_vel*100) / 100;
+    y_vel = roundf(y_vel*100) / 100;
+    x_ang = roundf(x_ang*100) / 100;
+    y_ang = roundf(y_ang*100) / 100;
+    yaw = roundf(yaw*100) / 100;
+    
     uint32_t send_total_len = 1;
     send_total_len += write_serial(data,data_len, RX_TIMEOUT);
 }

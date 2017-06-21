@@ -17,8 +17,9 @@
 #define BUF_LEN 1
 //This node only send single byte.
 using namespace Eigen;
-std::string name;
-std::string target_status;
+using namespace std;
+string name;
+string target_status;
 
 void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg
 )
@@ -31,9 +32,25 @@ void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg
     Matrix3d Rgi = ori.toRotationMatrix();
     float phi = asin(Rgi(2,1));
     float yaw = acos(Rgi(1,1)/cos(phi));
+    unsigned char start_mark = 0xa5;
+    unsigned char end_mark = 0xa6;
 
-    unsigned char data[50] = "1.233"; //TODO
-    int data_len = sizeof(data)/sizeof(data[0]);
+    //unsigned char data[100] = "1.233"; //TODO
+    //int data_len = sizeof(data)/sizeof(data[0]);
+    //data[0] = 0xa5;
+    x_vel = roundf(x_vel*100) / 100;
+    y_vel = roundf(y_vel*100) / 100;
+    x_ang = roundf(x_ang*100) / 100;
+    y_ang = roundf(y_ang*100) / 100;
+    yaw = roundf(yaw*100) / 100;
+    string x_vel_str = to_string(x_vel);
+    string y_vel_str = to_string(y_vel);
+    string x_ang_str = to_string(x_ang);
+    string y_ang_str = to_string(y_ang);
+    string yaw_str = to_string(yaw);
+    string data_str = start_mark + '0' + 'a' + x_vel_str + 'b' + y_vel_str + 'c' + x_ang + 'd' + y_ang + 'e' + yaw + end_mark;
+    int data_len = data_str.length();
+    unsigned char data[100] = data_str;
     uint32_t send_total_len = 1;
     send_total_len += write_serial(data,data_len, RX_TIMEOUT);
 }
