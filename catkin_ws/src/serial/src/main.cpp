@@ -5,6 +5,7 @@
 //#include <tf/transform_broadcaster.h>
 #include <std_msgs/UInt8.h>
 #include <std_msgs/String.h>
+#include <geometry_msgs/Vector3.h>
 #include <nav_msgs/Odometry.h>
 //#define FRAME_CNT 5000
 #include <string>
@@ -21,9 +22,7 @@ using namespace std;
 string name;
 string target_status;
 
-void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg
-)
-{
+void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg) {
     float x_vel = msg->twist.twist.linear.x;
     float y_vel = msg->twist.twist.linear.y;
     float x_ang = msg->twist.twist.angular.x;
@@ -60,6 +59,16 @@ void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg
     send_total_len += write_serial(data,data_len, RX_TIMEOUT);
 }
 
+void ugv_targetVelocityCallback(const geometry_msgs::Vector3& msg){
+
+
+
+
+
+
+
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -69,7 +78,7 @@ int main(int argc, char* argv[])
     name = ros::this_node::getName();
    
     ros::Subscriber s1 = n.subscribe("/n3_sdk/odometry", 1, ugv_callback);
-    
+    ros::Subscriber s2 = n.subscribe("/ugv_target_velocity", 1, ugv_targetVelocityCallback);
     std::string port;
     if (n.hasParam("port"))
       n.getParam("port", port);

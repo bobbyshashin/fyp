@@ -38,7 +38,7 @@ ros::Publisher odometry_pub;
 ros::Publisher current_velocity_pub;
 ros::Publisher initial_publisher;
 ros::Subscriber orientation_sub;
-ros::Subscriber bias_correction_sub;
+
 
 using namespace cv;
 using namespace std;
@@ -62,11 +62,6 @@ float yaw_angle = 0; // Real-time yaw angle
 float height = 0;
 float initial = 0; // The initial angle after takeoff
 bool flag = false; // Whether initial is recorded
-
-bool bias_correction = false;
-float pos_bias_x = 0;
-float pos_bias_y = 0;
-float pos_bias_z = 0;
 
 std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 	const char* s = 0;
@@ -94,14 +89,6 @@ std::ostream& operator<<(std::ostream& out, const e_sdk_err_code value){
 }
 
 
-void bias_correction_callback(const std_msgs::UInt8& msg) {
-
-    if (msg.data == 1)
-        bias_correction = true;
-  	
-}
-
-
 void orientation_correction_callback(const geometry_msgs::Vector3& msg) {
 
 	yaw_angle = msg.y;
@@ -111,55 +98,6 @@ void orientation_correction_callback(const geometry_msgs::Vector3& msg) {
 int my_callback(int data_type, int data_len, char *content)
 {
     g_lock.enter();
-
-    /* image data */
-    if (e_image == data_type && NULL != content)
-    {        
-        image_data* data = (image_data*)content;
-
-		if ( data->m_greyscale_image_left[CAMERA_ID] ){
-			memcpy(g_greyscale_image_left.data, data->m_greyscale_image_left[CAMERA_ID], IMAGE_SIZE);
-            if (show_images) {
-			    imshow("left",  g_greyscale_image_left);
-            }
-			// publish left greyscale image
-			cv_bridge::CvImage left_8;
-			g_greyscale_image_left.copyTo(left_8.image);
-			left_8.header.frame_id  = "guidance";
-			left_8.header.stamp	= ros::Time::now();
-			left_8.encoding		= sensor_msgs::image_encodings::MONO8;
-			left_image_pub.publish(left_8.toImageMsg());
-		}
-		if ( data->m_greyscale_image_right[CAMERA_ID] ){
-			memcpy(g_greyscale_image_right.data, data->m_greyscale_image_right[CAMERA_ID], IMAGE_SIZE);
-            if (show_images) {
-			    imshow("right", g_greyscale_image_right);
-            }
-			// publish right greyscale image
-			cv_bridge::CvImage right_8;
-			g_greyscale_image_right.copyTo(right_8.image);
-			right_8.header.frame_id  = "guidance";
-			right_8.header.stamp	 = ros::Time::now();
-			right_8.encoding  	 = sensor_msgs::image_encodings::MONO8;
-			right_image_pub.publish(right_8.toImageMsg());
-		}
-		if ( data->m_depth_image[CAMERA_ID] ){
-			memcpy(g_depth.data, data->m_depth_image[CAMERA_ID], IMAGE_SIZE * 2);
-			g_depth.convertTo(depth8, CV_8UC1);
-            if (show_images) {
-			    imshow("depth", depth8);
-            }
-			//publish depth image
-			cv_bridge::CvImage depth_16;
-			g_depth.copyTo(depth_16.image);
-			depth_16.header.frame_id  = "guidance";
-			depth_16.header.stamp	  = ros::Time::now();
-			depth_16.encoding	  = sensor_msgs::image_encodings::MONO16;
-			depth_image_pub.publish(depth_16.toImageMsg());
-		}
-		
-        key = waitKey(1);
-    }
 
     /* imu */
     if ( e_imu == data_type && NULL != content )
@@ -202,30 +140,6 @@ int my_callback(int data_type, int data_len, char *content)
 		velocity_pub.publish(g_vo);
     }
 
-    /* obstacle distance */
-    if ( e_obstacle_distance == data_type && NULL != content )
-    {
-        obstacle_distance *oa = (obstacle_distance*)content;
-        if (verbosity > 1) { 
-            //printf( "frame index: %d, stamp: %d\n", oa->frame_index, oa->time_stamp );
-            //printf( "obstacle distance:" );
-            for ( int i = 0; i < CAMERA_PAIR_NUM; ++i )
-            {
-                printf( " %f ", 0.01f * oa->distance[i] );
-            }
-            printf( "\n" );
-        }
-
-		// publish obstacle distance
-		sensor_msgs::LaserScan g_oa;
-		g_oa.ranges.resize(CAMERA_PAIR_NUM);
-		g_oa.header.frame_id = "guidance";
-		g_oa.header.stamp    = ros::Time::now();
-		for ( int i = 0; i < CAMERA_PAIR_NUM; ++i )
-			g_oa.ranges[i] = 0.01f * oa->distance[i];
-		obstacle_distance_pub.publish(g_oa);
-	}
-
     /* ultrasonic */
     if ( e_ultrasonic == data_type && NULL != content )
     {
@@ -238,8 +152,8 @@ int my_callback(int data_type, int data_len, char *content)
             }
 
             height = ultrasonic->ultrasonic[0] * 0.001f;
-	    std_msgs::Float32 h;
-	    h.data = height;
+	        std_msgs::Float32 h;
+	        h.data = height;
             height_pub.publish(h);
             if ((height > 0.4) && (!flag))
             {
@@ -268,107 +182,6 @@ int my_callback(int data_type, int data_len, char *content)
 		ultrasonic_pub.publish(g_ul);
     }
     
-    if(e_motion == data_type && NULL!=content){
-        /*
-        motion* m=(motion*)content;
-        printf("frame index: %d, stamp: %d\n", m->frame_index, m->time_stamp);
-
-        nav_msgs::Odometry odometry;
-
-        odometry.header.frame_id = "/imu";
-        odometry.header.stamp = ros::Time::now();
-
-        float pos_x_filter, pos_y_filter, pos_z_filter;
-
-        if(m->position_in_global_x < 0.01 && m->position_in_global_x >-0.01)
-            pos_x_filter = 0;
-        else 
-            pos_x_filter = m->position_in_global_x;
-
-        if(m->position_in_global_y < 0.01 && m->position_in_global_y > -0.01) 
-            pos_y_filter =0;
-        else 
-            pos_y_filter = m->position_in_global_y;
-
-        if(height < 0.05) 
-            pos_z_filter = 0;
-        else 
-            pos_z_filter = height;
-        
-        if(bias_correction) {
-
-            odometry.pose.pose.position.x = pos_x_filter - pos_bias_x;
-            odometry.pose.pose.position.y = pos_y_filter - pos_bias_y;
-            odometry.pose.pose.position.z = pos_z_filter - pos_bias_z;
-            //cout << "Bias correction is activated!" << endl;
-            
-        }
-
-        else {
-            
-            odometry.pose.pose.position.x = pos_x_filter;
-            odometry.pose.pose.position.y = pos_y_filter;
-            odometry.pose.pose.position.z = pos_z_filter;
-            pos_bias_x =  pos_x_filter;
-            pos_bias_y =  pos_y_filter;
-            pos_bias_z =  pos_z_filter;
-            //cout << "Bias correction is not activated..." << endl;
-        
-        }
-		*/
-        /*** Current velocity ***/
-
-        //geometry_msgs::Vector3 current_position;
-        /*
-        geometry_msgs::Vector3Stamped current_velocity;
-
-        std_msgs::Float32 initial_angle;
-
-        Eigen::Matrix2d rot;
-        Eigen::Vector2d tmp_pos, tmp_vel;
-        
-
-        tmp_pos(0) = odometry.pose.pose.position.x;
-        tmp_pos(1) = odometry.pose.pose.position.y;
-
-        tmp_vel(0) = m->velocity_in_global_x;
-        tmp_vel(1) = m->velocity_in_global_y;
-
-        rot << cos(initial), -sin(initial),
-        	   sin(initial), cos(initial);
-
-        tmp_pos = (rot) * tmp_pos;
-        tmp_vel = (rot) * tmp_vel;
-        
-	    odometry.pose.pose.position.x = -tmp_pos(0);
-	    odometry.pose.pose.position.y = -tmp_pos(1);
-        //current_position.x = tmp_pos(0);
-        //current_position.y = tmp_pos(1);
-        //current_position.z = height;
-        
-        current_velocity.header.stamp = ros::Time::now();
-        current_velocity.vector.x = tmp_vel(0);
-        current_velocity.vector.y = tmp_vel(1);
-        current_velocity.vector.z = m->velocity_in_global_z;
-         
-        //current_position_pub.publish(current_position);
-        current_velocity_pub.publish(current_velocity);
-        */
-       	/***********************/
-        /*
-        odometry.pose.pose.orientation.w = m->q0;
-        odometry.pose.pose.orientation.x = m->q1;
-        odometry.pose.pose.orientation.y = m->q2;
-        odometry.pose.pose.orientation.z = m->q3;
-
-        odometry.twist.twist.linear.x = m->velocity_in_global_x;
-        odometry.twist.twist.linear.y = m->velocity_in_global_y;
-        odometry.twist.twist.linear.z = m->velocity_in_global_z;
-        odometry_pub.publish(odometry);
-        */
-    }
-
-
     g_lock.leave();
     g_event.set_event();
 
@@ -410,8 +223,7 @@ int main(int argc, char** argv)
     //current_position_pub = my_node.advertise<geometry_msgs::Vector3>("/current_position",1);
     current_velocity_pub = my_node.advertise<geometry_msgs::Vector3Stamped>("/current_velocity",1);
     initial_publisher = my_node.advertise<std_msgs::Float32>("/initial_angle",1);
-    bias_correction_sub       = my_node.subscribe("/guidance/bias_correction", 10, bias_correction_callback);
-    orientation_sub = my_node.subscribe("/dji_sdk/orientation", 5, orientation_correction_callback);
+    orientation_sub = my_node.subscribe("/dji_sdk/orientation", 1, orientation_correction_callback);
     /* initialize guidance */
     reset_config();
     int err_code = init_transfer();
@@ -442,11 +254,10 @@ int main(int argc, char** argv)
 	RETURN_IF_ERR(err_code);
     err_code = select_depth_image(CAMERA_ID);
 	RETURN_IF_ERR(err_code);
-    //select_imu();
+
     select_ultrasonic();
-    //select_obstacle_distance();
     select_velocity();
-    //select_motion();
+
     /* start data transfer */
     err_code = set_sdk_event_handler(my_callback);
     RETURN_IF_ERR(err_code);
@@ -500,10 +311,6 @@ int main(int argc, char** argv)
 				if (key == 'x') CAMERA_ID = e_vbus3;
 				if (key == 'a') CAMERA_ID = e_vbus4;	   
 				if (key == 's') CAMERA_ID = e_vbus5;
-
-				//select_greyscale_image(CAMERA_ID, true);
-				//select_greyscale_image(CAMERA_ID, false);
-				//select_depth_image(CAMERA_ID);
 
                 //select_imu();
                 select_ultrasonic();

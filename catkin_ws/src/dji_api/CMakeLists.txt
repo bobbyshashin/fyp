@@ -143,7 +143,7 @@ include_directories(
 # add_dependencies(dji_api ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(dji_api_node src/dji_client_modified.cpp)
+add_executable(dji_api_node src/onboardSDK_API.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

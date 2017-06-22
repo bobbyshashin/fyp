@@ -170,7 +170,7 @@ void activation_callback(const std_msgs::UInt8& msg) {
     if(msg.data == 3 && !activation_flag) {
         current_mission = GOING_TO_TARGET;
         cout << "UGV activated!" << endl;
-	activation_flag = true;
+	    activation_flag = true;
     }
 
 }

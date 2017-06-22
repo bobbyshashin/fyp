@@ -29,7 +29,6 @@ int wtf = 12; // dummy variable to make sure catkin_make is done correctly
 
 Publisher ctrl_vel_pub;
 Publisher pos_error_pub;
-Publisher current_pos_pub; // Publish the current position of UAV to flight logic
 
 Subscriber pid_parameter_sub;       // For tuning PID parameters (Kp, Ki and Kd)
 Subscriber target_pos_sub;          // Target position  
@@ -42,8 +41,6 @@ PID *pid_x;
 PID *pid_y;
 PID *pid_z;
 PID *pid_yaw;
-PID *pid_vision_x;
-PID *pid_vision_y;
 
 double Kp_horz_pos = 0.8;
 double Ki_horz_pos = 0;
@@ -57,14 +54,9 @@ double Kp_yaw;
 double Ki_yaw;
 double Kd_yaw;
 
-double Kp_vision = 0.8;
-double Ki_vision = 0;
-double Kd_vision = 0.1;
-
 int img_center[2] = {376, 240}; // x & y center of image pixels
 
 float ctrl_data[4] = {0, 0, 0, 0}; // Velocity of x, y, z and yaw
-float vision_ctrl[2] = {0, 0};
 
 float target_position[3] = {0, 0, 1.5};
 float target_yaw = 0;
@@ -77,7 +69,6 @@ double pid_ctrl_limit_horz = 0.4;
 double pid_ctrl_limit_vert = 0.5;
 double pid_yaw_limit = 0;
 
-double vision_ctrl_limit = 0.3;
 
 void delay_s(int x) { // delay in second
 
@@ -170,8 +161,6 @@ void current_pos_callback(const nav_msgs::Odometry& current_pos) {
     current_position_vec.y = current_position[1];
     current_position_vec.z = current_position[2];
 
-    current_pos_pub.publish(current_position_vec);
-
     pid_update(current_position_vec);
 
 }
@@ -179,17 +168,6 @@ void current_pos_callback(const nav_msgs::Odometry& current_pos) {
 void uav_height_callback(const std_msgs::Float32& msg) {
 
     current_position[2] = msg.data;
-
-}
-
-void vision_ctrl_callback(const geometry_msgs::Vector3& msg) {
-
-    pid_vision_x -> update(msg.x, dt);
-    pid_vision_y -> update(msg.y, dt);
-    // msg.z is the marker ID
-    cout << "Vision-based PID has been updated!" << endl;
-
-
 
 }
 
@@ -232,45 +210,30 @@ int main(int argc, char** argv) {
 
     ros::init(argc, argv, "pid_controller");
     ros::NodeHandle nh;
-    std_msgs::UInt8 bias_correction_msg;
 
-    //drone = new DJIDrone(nh);
-
-    cout << "=========== 0 =========" << endl;
     pid_x   = new PID( Kp_horz_pos, Ki_horz_pos, Kd_horz_pos, -5, 5, -pid_ctrl_limit_horz, pid_ctrl_limit_horz, false);
     pid_y   = new PID( Kp_horz_pos, Ki_horz_pos, Kd_horz_pos, -5, 5, -pid_ctrl_limit_horz, pid_ctrl_limit_horz, false);
     pid_z   = new PID( Kp_vert_pos, Ki_vert_pos, Kd_vert_pos, -5, 5, -pid_ctrl_limit_vert, pid_ctrl_limit_vert, false);
     pid_yaw = new PID( Kp_yaw, Ki_yaw, Kd_yaw, -5, 5, -pid_yaw_limit, pid_yaw_limit, false);
 
-    //pid_vision_x = new PID(Kp_vision, Ki_vision, Kd_vision, -5, 5, -pid_ctrl_limit_horz, pid_ctrl_limit_horz, false);
-    //pid_vision_y = new PID(Kp_vision, Ki_vision, Kd_vision, -5, 5, -pid_ctrl_limit_horz, pid_ctrl_limit_horz, false);
-    
     pid_x->set_point(target_position[0]);
-
     pid_y->set_point(target_position[1]);
-
     pid_z->set_point(target_position[2]);
-
     pid_yaw->set_point(target_yaw);
 
-    //pid_vision_x->set_point(img_center[0]);
-
-    //pid_vision_y->set_point(img_center[1]);
     ros::Rate loop_rate(100);
 
     target_pos_sub       = nh.subscribe("/target_position",  1, target_pos_callback);
     current_pos_sub      = nh.subscribe("/ekf/ekf_odom_uav", 1, current_pos_callback);
 
     pid_parameter_sub    = nh.subscribe("/pid_parameter",    1, pid_parameter_tuning_callback);
-    //pid_parameter_vert_sub = nh.subscribe("/pid_vert_parameter",    1, pid_parameter_vert_tuning_callback);
-    //TODO Union both horz and vert pid param into one subscriber or do a better renaming with two
+
     pid_ctrl_limit_sub   = nh.subscribe("/pid_ctrl_limit",   1, pid_ctrl_limit_callback);
 
     marker_center_sub = nh.subscribe("/marker_centers", 1, vision_ctrl_callback);
     height_sub = nh.subscribe("/uav_height", 1, uav_height_callback);
     ctrl_vel_pub         = nh.advertise<geometry_msgs::Vector3>("/ctrl_vel", 10);
     pos_error_pub        = nh.advertise<geometry_msgs::Vector3>("/position_error", 1);
-    current_pos_pub      = nh.advertise<geometry_msgs::Vector3>("/current_position", 1);
 
     cout << "PID controller activated!" << endl;
     cout << "Last modified: " << "2017-05-02" << endl;

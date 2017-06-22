@@ -131,7 +131,7 @@ include_directories(
 # add_dependencies(dji_flight_logic ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(flight_logic src/flight_logic.cpp)
+add_executable(flight_logic src/flight_logic.cpp src/visualization.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
