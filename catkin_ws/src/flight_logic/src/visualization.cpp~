@@ -1,5 +1,5 @@
 #include "flight_logic.h"
-#include <iostream>
+#include <stdio.h>
 using namespace std;
 void printMap(int waypointIndex) {
 
