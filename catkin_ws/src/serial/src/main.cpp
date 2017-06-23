@@ -9,7 +9,7 @@
 #include <nav_msgs/Odometry.h>
 //#define FRAME_CNT 5000
 #include <string>
-#include <iostream>
+#include <iostream> 
 #include <stdio.h>
 #include <string>
 #include <cctype>
@@ -23,6 +23,7 @@ string name;
 string target_status;
 
 void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg) {
+
     float x_vel = msg->twist.twist.linear.x;
     float y_vel = msg->twist.twist.linear.y;
     float x_ang = msg->twist.twist.angular.x;
@@ -31,12 +32,13 @@ void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg) {
     Matrix3d Rgi = ori.toRotationMatrix();
     float phi = asin(Rgi(2,1));
     float yaw = acos(Rgi(1,1)/cos(phi));
-    
+    /*
     x_vel = roundf(x_vel*100) / 100;
     y_vel = roundf(y_vel*100) / 100;
     x_ang = roundf(x_ang*100) / 100;
     y_ang = roundf(y_ang*100) / 100;
     yaw = roundf(yaw*100) / 100;
+    
     string x_vel_str = to_string(x_vel);
     string y_vel_str = to_string(y_vel);
     string x_ang_str = to_string(x_ang);
@@ -50,13 +52,25 @@ void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg) {
     yaw_str = yaw_str.substr(0, yaw_str.length()-4);
  	
     string data_str = "00a" + x_vel_str + "b" + y_vel_str + "c" + x_ang_str + "d" + y_ang_str + "e" + yaw_str;
-    int data_len = data_str.length();
-    unsigned char data[data_len];
-    strcpy((char*)data, data_str.c_str());
-    data[0] = 0xa5;
-    data[1] = data_len;
+    */
+    //byte* data = (byte*) &x_vel;
+    //int data_len = data_str.length();
+    unsigned char temp[4];
+    //strcpy((char*)data, data_str.c_str());
+    temp[0] = 0xa5;
+    temp[1] = 0x18;
+    temp[2] = 0x00;
+    temp[3] = 0x00;
+
+    float x[5] = { x_vel, y_vel, x_ang, y_ang, yaw };
+
+    unsigned char* data = malloc(6 * sizeof(float));
+
+    memcpy(data, temp, 4*sizeof(byte));
+    memcpy(data + 1, x, 5*sizeof(float));
+
     uint32_t send_total_len = 1;
-    send_total_len += write_serial(data,data_len, RX_TIMEOUT);
+    send_total_len += write_serial(data, 24, RX_TIMEOUT);
 }
 
 void ugv_targetVelocityCallback(const geometry_msgs::Vector3& msg){
@@ -81,12 +95,12 @@ int main(int argc, char* argv[])
     ros::Subscriber s2 = n.subscribe("/ugv_target_velocity", 1, ugv_targetVelocityCallback);
     std::string port;
     if (n.hasParam("port"))
-      n.getParam("port", port);
-    else
-      {
+        n.getParam("port", port);
+    else {
         ROS_ERROR("%s: must provide a port", name.c_str());
         return -1;
-      }
+    }
+
     const char* port_name = port.c_str();
 
 
@@ -103,7 +117,6 @@ int main(int argc, char* argv[])
 
         ros::spinOnce();
         
-
     }
     
     disconnect_serial();

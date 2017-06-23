@@ -16,6 +16,12 @@ int wtffff = 1111; // dummy variable to make sure catkin_make is done correctly
 #define ZIGZAG
 //#define SQUARE
 
+Publisher stm32_cmd_pub;
+Publisher target_pos_pub;
+Publisher cmd_msg_pub;
+Publisher ugv_activation_pub;
+Publisher trackingPID_pub;
+
 MISSION_STATUS current_mission = INIT;
 
 bool arrived = false;
@@ -258,11 +264,11 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "flight_logic");
     ros::NodeHandle nh;
 
-    Publisher stm32_cmd_pub       = nh.advertise<std_msgs::String>("/stm32_cmd", 1);
-    Publisher target_pos_pub      = nh.advertise<geometry_msgs::Vector3>("/target_position", 1);
-    Publisher cmd_msg_pub         = nh.advertise<std_msgs::UInt8>("/sdk_cmd", 1);
-    Publisher ugv_activation_pub  = nh.advertise<std_msgs::UInt8>("/ugv_activation", 1);
-    Publisher trackingPID_pub     = nh.advertise<geometry_msgs::Vector3>("/pid_parameter", 1);
+    stm32_cmd_pub       = nh.advertise<std_msgs::String>("/stm32_cmd", 1);
+    target_pos_pub      = nh.advertise<geometry_msgs::Vector3>("/target_position", 1);
+    cmd_msg_pub         = nh.advertise<std_msgs::UInt8>("/sdk_cmd", 1);
+    ugv_activation_pub  = nh.advertise<std_msgs::UInt8>("/ugv_activation", 1);
+    trackingPID_pub     = nh.advertise<geometry_msgs::Vector3>("/pid_parameter", 1);
 
     Subscriber ugv_pos_sub         = nh.subscribe("/ekf/ekf_odom_ugv", 1, ugv_pos_callback);
     Subscriber current_pos_sub     = nh.subscribe("/ekf_odom_uav", 1, current_pos_callback);

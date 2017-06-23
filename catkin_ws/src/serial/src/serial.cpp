@@ -36,7 +36,7 @@ static int baudrate[] =
 	3000000,
 };
 
-int                 g_sdk_uart_fd = -1;
+int g_sdk_uart_fd = -1;
 
 int uart_config(int fd, int nSpeed, int nBits, char nEvent, int nStop)
 {

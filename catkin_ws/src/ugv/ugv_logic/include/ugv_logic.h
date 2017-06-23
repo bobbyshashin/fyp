@@ -4,6 +4,7 @@ typedef enum {
     STAND_BY           ,
     GOING_TO_TARGET    ,
     ARRIVED            ,
+    TEST			   ,
 
 } MISSION_STATUS;
 

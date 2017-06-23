@@ -19,16 +19,11 @@
 using namespace std;
 using namespace ros;
 
-Subscriber current_position_sub;
-Subscriber orientation_sub;
-Subscriber initial_angle_sub;
-Subscriber activation_sub;
-Subscriber marker_position_sub;
-
 Publisher target_position_pub;
-Publisher target_speed_pub;
+Publisher targetWheelSpeed_pub;
+Publisher targetBodySpeed_pub;
 
-MISSION_STATUS current_mission = STAND_BY;
+MISSION_STATUS current_mission = TEST;
 
 int current_target_index = 0;
 bool activation_flag = false;
@@ -44,31 +39,51 @@ float yaw_error; // Note: z-axis pointing downwards
 
 float current_position[2] = {0, 0}; // Current position in local frame, subscribed from EKF node
 float target_position[2] = {0, 0}; 
-int target_speed[4] = {0, 0, 0, 0};
+float targetBodySpeed[3] = {0, 0, 0};
+int targetWheelSpeed[4] = {0, 0, 0, 0};
 float marker_position[2][2] = {{0, 0}, {0, 0}};
 
 int magic = 1;
 
-void set_speed(int lf, int lb, int rb, int rf) { // Left forward, left backward, right backward, right forward
+void setWheelSpeed(int lf, int lb, int rb, int rf) { // Left forward, left backward, right backward, right forward
 
-    target_speed[0] = lf;
-    target_speed[1] = lb;
-    target_speed[2] = rb;
-    target_speed[3] = rf;
+    targetWheelSpeed[0] = lf;
+    targetWheelSpeed[1] = lb;
+    targetWheelSpeed[2] = rb;
+    targetWheelSpeed[3] = rf;
 
 }
 
-void publish_speed() {
+void setBodySpeed(float x, float y, float omega){ // X-axis, Y-axis, angular velocity (looking from above, clockwise as +)
+
+    targetBodySpeed[0] = x;
+    targetBodySpeed[1] = y;
+    targetBodySpeed[2] = omega;
+
+}
+
+void publishWheelSpeed() {
 
     geometry_msgs::Quaternion msg;
  
-    msg.x = target_speed[0];
-    msg.y = target_speed[1];
-    msg.z = target_speed[2];
-    msg.w = target_speed[3];
+    msg.x = targetWheelSpeed[0];
+    msg.y = targetWheelSpeed[1];
+    msg.z = targetWheelSpeed[2];
+    msg.w = targetWheelSpeed[3];
 
-    target_speed_pub.publish(msg);
+    targetWheelSpeed_pub.publish(msg);
 
+}
+
+void publishBodySpeed(){
+
+    geometry_msgs::Vector3 msg;
+
+    msg.x = targetBodySpeed[0];
+    msg.y = targetBodySpeed[1];
+    msg.z = targetBodySpeed[2];
+
+    targetBodySpeed_pub.publish(msg);
 }
 
 void go() {
@@ -91,11 +106,29 @@ void go() {
     // Right wheels
     right_speed_compensation = yaw_error * multiplier;
 
-    int left = target_speed[0] + left_speed_compensation;
-    int right = target_speed[2] + right_speed_compensation;
+    int left = targetWheelSpeed[0] + left_speed_compensation;
+    int right = targetWheelSpeed[2] + right_speed_compensation;
 
-    set_speed(left, left, right, right);
-    publish_speed();
+    setWheelSpeed(left, left, right, right);
+    publishWheelSpeed();
+
+}
+
+void move_to() {
+
+    geometry_msgs::Vector3 target_pos;
+
+    target_pos.x = target_position[0];
+    target_pos.y = target_position[1];
+    target_pos.z = yaw_error;
+
+    target_position_pub.publish(target_pos);
+
+}
+
+bool arrived() {
+
+    return (abs(target_position[0] - current_position[0]) < 0.5) && (abs(target_position[1] - current_position[1]) < 0.5);
 
 }
 
@@ -116,25 +149,6 @@ void marker_position_callback(const geometry_msgs::Vector3& msg) {
 
 }
 
-
-void move_to() {
-
-    geometry_msgs::Vector3 target_pos;
-
-    target_pos.x = target_position[0];
-    target_pos.y = target_position[1];
-    target_pos.z = yaw_error;
-
-    target_position_pub.publish(target_pos);
-
-}
-
-bool arrived() {
-
-    return (abs(target_position[0] - current_position[0]) < 0.5) && (abs(target_position[1] - current_position[1]) < 0.5);
-
-}
-
 void current_position_callback(const nav_msgs::Odometry& msg) {
 
     current_position[0] = msg.pose.pose.position.x;
@@ -151,7 +165,7 @@ void current_position_callback(const nav_msgs::Odometry& msg) {
 	       cout << "Current target's position is invalid!" << endl;
     
         yaw_error = local_yaw - current_target_orientation;
-	cout << "Yaw error: " << yaw_error << endl;
+	    cout << "Yaw error: " << yaw_error << endl;
     }
 }
 
@@ -172,6 +186,37 @@ void activation_callback(const std_msgs::UInt8& msg) {
         cout << "UGV activated!" << endl;
 	    activation_flag = true;
     }
+
+}
+
+void controlTest(){
+
+    ROS_INFO("Chassis control test starts...");
+
+    ROS_INFO("Set speed: (2, 0, 0)");
+    setBodySpeed(2, 0, 0);
+    publishBodySpeed();
+    Duration(2).sleep();
+
+    ROS_INFO("Set speed: (0, 2, 0)");
+    setBodySpeed(0, 2, 0);
+    publishBodySpeed();
+    Duration(2).sleep();
+
+    ROS_INFO("Set speed: (-2, 0, 0)");
+    setBodySpeed(-2, 0, 0);
+    publishBodySpeed();
+    Duration(2).sleep();
+
+    ROS_INFO("Set speed: (0, -2, 0)");
+    setBodySpeed(0, -2, 0);
+    publishBodySpeed();
+    Duration(2).sleep();
+
+    ROS_INFO("Stop");
+    setBodySpeed(0, 0, 0);
+    publishBodySpeed();
+    Duration(2).sleep();
 
 }
 
@@ -214,9 +259,13 @@ void mission_run() {
 	case ARRIVED:
 
         set_speed(0, 0, 0, 0);
-        publish_speed();
+        publishWheelSpeed();
 
 	    break;
+    case TEST:
+
+        controlTest();
+        break;
 
     }
 
@@ -230,19 +279,20 @@ int main(int argc, char *argv[]) {
 
     ros::Rate loop_rate(100);
 
-    current_position_sub = nh.subscribe("/ekf/ekf_odom_ugv", 1, current_position_callback);
-    orientation_sub = nh.subscribe("/n3_sdk/orientation", 1, orientation_callback);
-    initial_angle_sub = nh.subscribe("/initial_angle", 1, initial_angle_callback);
-    activation_sub = nh.subscribe("/ugv_activation", 1, activation_callback);
-    marker_position_sub = nh.subscribe("/marker_position", 1, marker_position_callback);
+    Subscriber current_position_sub = nh.subscribe("/ekf/ekf_odom_ugv", 1, current_position_callback);
+    Subscriber orientation_sub = nh.subscribe("/n3_sdk/orientation", 1, orientation_callback);
+    Subscriber initial_angle_sub = nh.subscribe("/initial_angle", 1, initial_angle_callback);
+    Subscriber activation_sub = nh.subscribe("/ugv_activation", 1, activation_callback);
+    Subscriber marker_position_sub = nh.subscribe("/marker_position", 1, marker_position_callback);
 
-    target_speed_pub = nh.advertise<geometry_msgs::Quaternion>("/ugv_target_speed", 1);
+    targetWheelSpeed_pub = nh.advertise<geometry_msgs::Quaternion>("/target_wheel_speed", 1);
+    targetBodySpeed_pub = nh.advertise<geometry_msgs::Vector3>("/ugv_targetWheelSpeed", 1);
 
     while (ros::ok()) {
 
-    mission_run();
-    ros::spinOnce();
-    loop_rate.sleep();
+        mission_run();
+        ros::spinOnce();
+        loop_rate.sleep();
 
     }
 
