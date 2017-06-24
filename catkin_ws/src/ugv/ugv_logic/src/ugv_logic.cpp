@@ -286,7 +286,7 @@ int main(int argc, char *argv[]) {
     Subscriber marker_position_sub = nh.subscribe("/marker_position", 1, marker_position_callback);
 
     targetWheelSpeed_pub = nh.advertise<geometry_msgs::Quaternion>("/target_wheel_speed", 1);
-    targetBodySpeed_pub = nh.advertise<geometry_msgs::Vector3>("/ugv_targetWheelSpeed", 1);
+    targetBodySpeed_pub = nh.advertise<geometry_msgs::Vector3>("/ugv_targetBodyVelocity", 1);
 
     while (ros::ok()) {
 

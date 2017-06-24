@@ -239,7 +239,7 @@ void mission_run() {
 
 	    if( !arrived() ) {
  	        
-	        set_speed(1500, 1500, 1500, 1500);
+	        setWheelSpeed(1500, 1500, 1500, 1500);
 	        go();
 
 	    }
@@ -258,7 +258,7 @@ void mission_run() {
 
 	case ARRIVED:
 
-        set_speed(0, 0, 0, 0);
+        setWheelSpeed(0, 0, 0, 0);
         publishWheelSpeed();
 
 	    break;
@@ -286,7 +286,7 @@ int main(int argc, char *argv[]) {
     Subscriber marker_position_sub = nh.subscribe("/marker_position", 1, marker_position_callback);
 
     targetWheelSpeed_pub = nh.advertise<geometry_msgs::Quaternion>("/target_wheel_speed", 1);
-    targetBodySpeed_pub = nh.advertise<geometry_msgs::Vector3>("/ugv_targetWheelSpeed", 1);
+    targetBodySpeed_pub = nh.advertise<geometry_msgs::Vector3>("/ugv_targetBodyVelocity, 1);
 
     while (ros::ok()) {
 
