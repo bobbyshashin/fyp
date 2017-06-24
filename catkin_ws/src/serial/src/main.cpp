@@ -19,13 +19,18 @@
 //This node only send single byte.
 using namespace Eigen;
 using namespace std;
+int magic = 1;
 string name;
 string target_status;
+unsigned char* sensor_data = (unsigned char*)malloc(5 * sizeof(float));
+unsigned char* send_data = (unsigned char*)malloc(4 * sizeof(float));
 
 void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg) {
     
-    float x_vel = msg->twist.twist.linear.x;
-    float y_vel = msg->twist.twist.linear.y;
+    //float x_vel = msg->twist.twist.linear.x;
+    //float y_vel = msg->twist.twist.linear.y;
+    float x_vel = 2.0;
+    float y_vel = -3.2;
     float z_ang = msg->twist.twist.angular.z;
 
     Quaterniond ori(msg->pose.pose.orientation.w, msg->pose.pose.orientation.x,msg->pose.pose.orientation.y,msg->pose.pose.orientation.z);
@@ -42,13 +47,13 @@ void ugv_callback(const nav_msgs::Odometry::ConstPtr &msg) {
 
     float sensor[4] = { x_vel, y_vel, z_ang, yaw };
 
-    unsigned char* data = (unsigned char*)malloc(5 * sizeof(float));
+    //unsigned char* data = (unsigned char*)malloc(5 * sizeof(float));
 
-    memcpy(data, temp, 4*sizeof(unsigned char));
-    memcpy(data + 4, sensor, 4*sizeof(float));
+    memcpy(sensor_data, temp, 4*sizeof(unsigned char));
+    memcpy(sensor_data + 4, sensor, 4*sizeof(float));
 
     uint32_t send_total_len = 1;
-    send_total_len += write_serial(data, 20, RX_TIMEOUT);
+    send_total_len += write_serial(sensor_data, 20, RX_TIMEOUT);
 }
 
 void ugv_targetVelocityCallback(const geometry_msgs::Vector3& msg){
@@ -66,13 +71,13 @@ void ugv_targetVelocityCallback(const geometry_msgs::Vector3& msg){
 
     float target[3] = { x, y, omega };
 
-    unsigned char* data = (unsigned char*)malloc(4 * sizeof(float));
+    //unsigned char* data = (unsigned char*)malloc(4 * sizeof(float));
 
-    memcpy(data, temp, 4*sizeof(unsigned char));
-    memcpy(data + 4, target, 3*sizeof(float));
+    memcpy(send_data, temp, 4*sizeof(unsigned char));
+    memcpy(send_data + 4, target, 3*sizeof(float));
 
     uint32_t send_total_len = 1;
-    send_total_len += write_serial(data, 16, RX_TIMEOUT);
+    send_total_len += write_serial(send_data, 16, RX_TIMEOUT);
 
 }
 
