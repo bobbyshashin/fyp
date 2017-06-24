@@ -230,6 +230,7 @@ int main(int argc, char** argv) {
 
     pid_ctrl_limit_sub   = nh.subscribe("/pid_ctrl_limit",   1, pid_ctrl_limit_callback);
 
+    marker_center_sub = nh.subscribe("/marker_centers", 1, vision_ctrl_callback);
     height_sub = nh.subscribe("/uav_height", 1, uav_height_callback);
     ctrl_vel_pub         = nh.advertise<geometry_msgs::Vector3>("/ctrl_vel", 10);
     pos_error_pub        = nh.advertise<geometry_msgs::Vector3>("/position_error", 1);
