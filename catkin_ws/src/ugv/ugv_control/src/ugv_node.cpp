@@ -7,7 +7,7 @@ void updateWheelSpeed(int32_t id, int16_t high, int16_t low) {
     if(id == 0x201) 
         currentWheelSpeed[0] = (high<<8) | (low);
     else if(id == 0x202) 
-	currentWheelSpeed[1] = 0 - (high<<8) | (low);		
+	    currentWheelSpeed[1] = 0 - (high<<8) | (low);		
     else if(id == 0x203) 
         currentWheelSpeed[2] = 0 - ((high<<8) | (low));		
     else if(id == 0x204) 
@@ -37,6 +37,27 @@ void targetWheelSpeed_callback(const geometry_msgs::Quaternion& msg){
 
     //cout << "Target wheel speed updated!" << endl;
 }
+void updatePID(){
+
+    pidVel1 -> set_point(targetBodyVelocity[0]);
+    pidVel2 -> set_point(targetBodyVelocity[1]);
+    pidVel3 -> set_point(targetBodyVelocity[2]);
+    pidVel4 -> set_point(targetBodyVelocity[3]);
+    pidYaw1 -> set_point(initial_yaw);
+    pidYaw2 -> set_point(initial_yaw);
+    pidYaw3 -> set_point(initial_yaw);
+    pidYaw4 -> set_point(initial_yaw);
+
+}
+
+void calculateTargetWheelSpeed(){
+
+
+    targetWheelSpeed[0] = pidVel1 -> update(currentBodyVelocity[0]);//TODO
+    targetWheelSpeed[0] = 0;
+    targetWheelSpeed[0] = 0;
+    targetWheelSpeed[0] = 0;
+}
 
 void targetBodyVelocityCallback(const geometry_msgs::Vector3& msg){
 
@@ -44,9 +65,9 @@ void targetBodyVelocityCallback(const geometry_msgs::Vector3& msg){
     targetBodyVelocity[1] = msg.y;
     targetBodyVelocity[2] = msg.z;
 
-
-
+    updatePID();
 }
+
 void sensorDataCallback(const nav_msgs::Odometry& msg){
 
     currentBodyVelocity[0] = msg.twist.twist.linear.x;
@@ -55,21 +76,23 @@ void sensorDataCallback(const nav_msgs::Odometry& msg){
 
     Quaterniond ori(msg->pose.pose.orientation.w, msg->pose.pose.orientation.x,msg->pose.pose.orientation.y,msg->pose.pose.orientation.z);
     Matrix3d Rgi = ori.toRotationMatrix();
-    float phi = asin(Rgi(2,1));
-    
-    yaw = acos(Rgi(1,1)/cos(phi));
+    yaw = acos(Rgi(1,1)/cos(asin(Rgi(2,1))));
+    if(!fisrtYaw){
+        initial_yaw = yaw;
+        firstYaw = true;
+    }
 
-
-
+    //target_yaw = yaw - initial_yaw;
+    calculateTargetWheelSpeed();
 
 }
 
 void trim(float &data, float limit) {
 
     if(data > limit)
-	data = limit;
+	    data = limit;
     if(data < -limit)
-	data = -limit;
+	    data = -limit;
 }
 
 void get_control(int16_t *current, int16_t *target) {
@@ -86,10 +109,10 @@ void get_control(int16_t *current, int16_t *target) {
     error.w = target[3] - current[3];
     
     cout << "Errors:" << endl 
-	 <<   error1  << endl 
-	 <<   error2  << endl
-	 <<   error3  << endl
-	 <<   error4  << endl;
+	     <<   error1  << endl 
+	     <<   error2  << endl
+	     <<   error3  << endl
+	     <<   error4  << endl;
     #endif
 
     if(error1 > threshold)
@@ -97,9 +120,9 @@ void get_control(int16_t *current, int16_t *target) {
     if(error2 > threshold)
         ctrl[1] = pid2 -> update(current[1], dt);	
     if(error3 > threshold)
-	ctrl[2] = pid3 -> update(current[2], dt);	
+	    ctrl[2] = pid3 -> update(current[2], dt);	
     if(error4 > threshold)
-	ctrl[3] = pid4 -> update(current[3], dt);	
+	    ctrl[3] = pid4 -> update(current[3], dt);	
 
     /* Limit control signals */
     trim(ctrl[0], pid_ctrl_limit);
@@ -118,46 +141,46 @@ void send_speed(int first, int second, int third, int fourth, VCI_CAN_OBJ &send)
 
     // First wheel
     if(first >= 0) {
-	send.Data[0] = (int)(first/256);
-	send.Data[1] = first & 0x00ff;
+	    send.Data[0] = (int)(first/256);
+	    send.Data[1] = first & 0x00ff;
     }
     else {
 	int tmp = 0 - (int)(first/256);
-	send.Data[0] = 0 - (tmp+1);
-	send.Data[1] = first & 0x00ff;
+	    send.Data[0] = 0 - (tmp+1);
+	    send.Data[1] = first & 0x00ff;
     }
 
     // Second wheel
     if(second >= 0) {
-	send.Data[2] = (int)(second/256);
-	send.Data[3] = second & 0x00ff;
+	    send.Data[2] = (int)(second/256);
+	    send.Data[3] = second & 0x00ff;
     }
     else {
 	int tmp = 0 - (int)(second/256);
-	send.Data[2] = 0 - (tmp+1);
-	send.Data[3] = second & 0x00ff;
+	    send.Data[2] = 0 - (tmp+1);
+	    send.Data[3] = second & 0x00ff;
     }
 
     // Third wheel
     if(third >= 0) {
-	send.Data[4] = (int)(third/256);
-	send.Data[5] = third & 0x00ff;
+	    send.Data[4] = (int)(third/256);
+	    send.Data[5] = third & 0x00ff;
     }
     else {
 	int tmp = 0 - (int)(third/256);
-	send.Data[4] = 0 - (tmp+1);
-	send.Data[5] = third & 0x00ff;
+	    send.Data[4] = 0 - (tmp+1);
+	    send.Data[5] = third & 0x00ff;
     }
 
     // Fourth wheel
     if(fourth >= 0) {
-	send.Data[6] = (int)(fourth/256);
-	send.Data[7] = fourth & 0x00ff;
+	    send.Data[6] = (int)(fourth/256);
+	    send.Data[7] = fourth & 0x00ff;
     }
     else {
 	int tmp = 0 - (int)(fourth/256);
-	send.Data[6] = 0 - (tmp+1);
-	send.Data[7] = fourth & 0x00ff;
+	    send.Data[6] = 0 - (tmp+1);
+	    send.Data[7] = fourth & 0x00ff;
     }
 }
 
@@ -186,24 +209,40 @@ int main(int argc, char *argv[]) {
     pid2 = new PID( Kp1, Ki1, Kd1, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
     pid3 = new PID( Kp2, Ki2, Kd2, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
     pid4 = new PID( Kp2, Ki2, Kd2, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
+    pidVel1 = new PID( Kp_vel, Ki_vel, Kd_vel, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
+    pidVel2 = new PID( Kp_vel, Ki_vel, Kd_vel, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
+    pidVel3 = new PID( Kp_vel, Ki_vel, Kd_vel, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
+    pidVel4 = new PID( Kp_vel, Ki_vel, Kd_vel, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
+    pidYaw1 = new PID( Kp_yaw, Ki_yaw, Kd_yaw, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
+    pidYaw2 = new PID( Kp_yaw, Ki_yaw, Kd_yaw, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
+    pidYaw3 = new PID( Kp_yaw, Ki_yaw, Kd_yaw, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
+    pidYaw4 = new PID( Kp_yaw, Ki_yaw, Kd_yaw, -integralLimit, integralLimit, -pid_ctrl_limit, pid_ctrl_limit, false);
 
     pid1 -> set_point(targetWheelSpeed[0]);
     pid2 -> set_point(targetWheelSpeed[1]);
     pid3 -> set_point(targetWheelSpeed[2]);
     pid4 -> set_point(targetWheelSpeed[3]);
+    pidVel1 -> set_point(targetBodyVelocity[0]);
+    pidVel2 -> set_point(targetBodyVelocity[1]);
+    pidVel3 -> set_point(targetBodyVelocity[2]);
+    pidVel4 -> set_point(targetBodyVelocity[3]);
+    pidYaw1 -> set_point(target_yaw);
+    pidYaw2 -> set_point(target_yaw);
+    pidYaw3 -> set_point(target_yaw);
+    pidYaw4 -> set_point(target_yaw);
 
     if(VCI_OpenDevice(VCI_USBCAN2, 0, 0) == 1)
-	printf(">>open deivce success!\n");
+	    printf(">>open deivce success!\n");
     else {
-	printf(">>open deivce error!\n");
-	exit(1);
+	    printf(">>open deivce error!\n");
+	    exit(1);
     }
 
     if(VCI_ReadBoardInfo(VCI_USBCAN2, 0, &pInfo) == 1) 
         printf(">>Get VCI_ReadBoardInfo success!\n");
     else {
-	printf(">>Get VCI_ReadBoardInfo error!\n");
-	exit(1);
+	    printf(">>Get VCI_ReadBoardInfo error!\n");
+	    exit(1);
     }
 
     VCI_INIT_CONFIG config;
@@ -217,13 +256,13 @@ int main(int argc, char *argv[]) {
     config.Timing1 = 0x14;
 	
     if(VCI_InitCAN(VCI_USBCAN2, 0, 0, &config) != 1) {
-	printf("init CAN error\n");
-	VCI_CloseDevice(VCI_USBCAN2, 0);
+	    printf("init CAN error\n");
+	    VCI_CloseDevice(VCI_USBCAN2, 0);
     }
     
     if(VCI_StartCAN(VCI_USBCAN2, 0, 0) != 1) {
         printf("Start CAN error\n");
-	VCI_CloseDevice(VCI_USBCAN2, 0);
+	    VCI_CloseDevice(VCI_USBCAN2, 0);
     }
 	
     /* Config */
@@ -245,8 +284,8 @@ int main(int argc, char *argv[]) {
     /* Major loop */
     while (ros::ok()) {
 
-	DWORD dwRel;
-	dwRel = VCI_ClearBuffer(VCI_USBCAN2, 0 , 0);
+	    DWORD dwRel;
+	    dwRel = VCI_ClearBuffer(VCI_USBCAN2, 0 , 0);
         #ifdef DEBUG
     	pid_param_pub.publish(pid_param);
     	speed_pub.publish(speed);
@@ -261,74 +300,73 @@ int main(int argc, char *argv[]) {
     	int i;
 	
     	//printf("running....\n");
-		    
-	first = second = third = fourth = 0;
-	averSpeed1 = averSpeed2 = averSpeed3 = averSpeed4 = 0;
+        first = second = third = fourth = 0;
+	    averSpeed1 = averSpeed2 = averSpeed3 = averSpeed4 = 0;
 
     	/* Receive */
     	if((reclen=VCI_Receive(VCI_USBCAN2,0,0,rec,160,0))>0) {
 
-	    // Print info for each frame
-	    for (int j=0; j<reclen; j++){
-	        // Print CAN ID
-	        //printf("Receive: %08X \n", rec[j].ID);
-	    
-	        // Print frame numbers	
-	        //printf("\n Received %d frames \n", reclen);
+    	    // Print info for each frame
+    	    for (int j=0; j<reclen; j++){
+    	        // Print CAN ID
+    	        //printf("Receive: %08X \n", rec[j].ID);
+    	    
+    	        // Print frame numbers	
+    	        //printf("\n Received %d frames \n", reclen);
 
-	        for(int p = 0; p < rec[reclen-1].DataLen; p++) // Print the data under this CAN ID
-            	    printf(" %08X", rec[j].Data[p]);
+    	        for(int p = 0; p < rec[reclen-1].DataLen; p++) // Print the data under this CAN ID
+                    printf(" %08X", rec[j].Data[p]);
 
-	        updateWheelSpeed(rec[j].ID, rec[j].Data[2], rec[j].Data[3]);
-	  
+    	        updateWheelSpeed(rec[j].ID, rec[j].Data[2], rec[j].Data[3]);
+    	  
 
- 	        if (rec[j].ID == 0x201) {
-	    	    averSpeed1 += currentWheelSpeed[0];
-		    first++;
-	        }
-	        else if (rec[j].ID == 0x202) {
-		    averSpeed2 += currentWheelSpeed[1];
-		    second++;
-	        }
-	        else if (rec[j].ID == 0x203) {
-		    averSpeed3 += currentWheelSpeed[2];
-		    third++;
-	        }
-	        else if (rec[j].ID == 0x204) {
-		    averSpeed4 += currentWheelSpeed[3];
-		    fourth++;
-	        }
+     	        if (rec[j].ID == 0x201) {
+    	    	    averSpeed1 += currentWheelSpeed[0];
+    		        first++;
+    	        }
+    	        else if (rec[j].ID == 0x202) {
+    		        averSpeed2 += currentWheelSpeed[1];
+    		        second++;
+    	        }
+    	        else if (rec[j].ID == 0x203) {
+    		        averSpeed3 += currentWheelSpeed[2];
+    		        third++;
+    	        }
+    	        else if (rec[j].ID == 0x204) {
+    		        averSpeed4 += currentWheelSpeed[3];
+    		        fourth++;
+    	        }
 
-	        //printf("\n first: %d \n", first);
-	        //printf("second: %d \n", second);
-	        //printf("third: %d \n", third);
-	        //printf("fourth: %d \n", fourth);
+    	        //printf("\n first: %d \n", first);
+    	        //printf("second: %d \n", second);
+    	        //printf("third: %d \n", third);
+    	        //printf("fourth: %d \n", fourth);
 
-	        printf("Real speed is %d\n %d\n %d\n %d\n", currentWheelSpeed[0], currentWheelSpeed[1], currentWheelSpeed[2], currentWheelSpeed[3]);
-	    }
+    	        printf("Real speed is %d\n %d\n %d\n %d\n", currentWheelSpeed[0], currentWheelSpeed[1], currentWheelSpeed[2], currentWheelSpeed[3]);
+    	    }
 
-	    /* Calculate average speed */
-	    if (first != 0)
-		averSpeed1 /= first;
-	    else
-	    	averSpeed1 = currentWheelSpeed[0];
-   	    if (second != 0)
-		averSpeed2 /= second;
-	    else
-	    	averSpeed2 = currentWheelSpeed[1];
-   	    if (third != 0)
-		averSpeed3 /= third;
-	    else
-	    	averSpeed3 = currentWheelSpeed[2];
-   	    if (fourth != 0) 
-		averSpeed4 /= fourth;
-	    else
-	    	averSpeed4 = currentWheelSpeed[3];
-	    
-	    currentWheelSpeed[0] = averSpeed1;
-	    currentWheelSpeed[1] = averSpeed2;
-	    currentWheelSpeed[2] = averSpeed3;
-	    currentWheelSpeed[3] = averSpeed4;
+    	    /* Calculate average speed */
+    	    if (first != 0)
+    		averSpeed1 /= first;
+    	    else
+    	    	averSpeed1 = currentWheelSpeed[0];
+       	    if (second != 0)
+    		averSpeed2 /= second;
+    	    else
+    	    	averSpeed2 = currentWheelSpeed[1];
+       	    if (third != 0)
+    		averSpeed3 /= third;
+    	    else
+    	    	averSpeed3 = currentWheelSpeed[2];
+       	    if (fourth != 0) 
+    		averSpeed4 /= fourth;
+    	    else
+    	    	averSpeed4 = currentWheelSpeed[3];
+    	    
+    	    currentWheelSpeed[0] = averSpeed1;
+    	    currentWheelSpeed[1] = averSpeed2;
+    	    currentWheelSpeed[2] = averSpeed3;
+    	    currentWheelSpeed[3] = averSpeed4;
         }	
 
         get_control(currentWheelSpeed, targetWheelSpeed);
