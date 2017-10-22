@@ -1,5 +1,7 @@
 # fyp
-**Final Year Project at HKUST: Collaboration between UAV &amp; UGV (with LI Zimo &amp; ZHANG Yuanzhao)**
+**Final Year Project at HKUST: Collaborative Air-Ground Target Searching in Complex Environments (with Zimo Li &amp; Yuanzhao Zhang)**
+
+## Our [conference paper](./uav_ugv_collaboration.pdf) is accepted by SSRR 2017
 
 ## DJI Manifold Setup Manual 
 
