@@ -1,7 +1,7 @@
 # fyp
-**Final Year Project at HKUST: Collaborative Air-Ground Target Searching in Complex Environments (with Zimo Li &amp; Yuanzhao Zhang)**
+**Collaborative Air-Ground Target Searching in Complex Environments**
 
-## Our [conference paper](./uav_ugv_collaboration.pdf) is accepted by SSRR 2017
+- Our [conference paper](./uav_ugv_collaboration.pdf) is accepted by [SSRR 2017](http://www.ssrr-conference.org/2017/)
 
 ## DJI Manifold Setup Manual 
 
